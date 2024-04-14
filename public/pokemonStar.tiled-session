@@ -1,0 +1,60 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "assets/maps/routes/route_101/route_101.tmx",
+    "expandedProjectPaths": [
+        ".",
+        "assets/maps",
+        "assets",
+        "assets/maps/routes/route_101",
+        "assets/maps/routes"
+    ],
+    "fileStates": {
+        "": {
+            "scaleInDock": 1
+        },
+        "#pokemonStarStandradTileSet": {
+            "scaleInDock": 1
+        },
+        "assets/maps/routes/route_101/route_101.tmx": {
+            "scale": 1,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 503,
+                "y": 470
+            }
+        },
+        "assets/maps/routes/route_101/route_101.tmx#d5xdb0y-7cca5199-9b43-4b0e-9b2f-f4f6787e09eb": {
+            "scaleInEditor": 1
+        },
+        "assets/maps/routes/route_101/route_101.tmx#pokemonStarStandradTileSet": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "assets/maps/routes/route_101/route_101.tmx#standradRoute": {
+            "scaleInDock": 1.5,
+            "scaleInEditor": 1
+        }
+    },
+    "last.exportedFilePath": "C:/Users/Mater/Documents/Node_Projects/pokemon-star/public/assets/maps/routes/route_101",
+    "last.imagePath": "C:/Users/Mater/Documents/Node_Projects/pokemon-star/public/assets",
+    "map.height": 30,
+    "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 32,
+    "map.tileWidth": 32,
+    "openFiles": [
+        "assets/maps/routes/route_101/route_101.tmx"
+    ],
+    "project": "pokemonStar.tiled-project",
+    "recentFiles": [
+        "assets/maps/routes/route_101/route_101.tmx"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}
