@@ -1,18 +1,24 @@
 import Phaser from 'phaser'
+import { Controls } from '../utils/control';
+import { DIRECTION } from '../utils/controls/direction';
+import { Character } from '../characters/characters';
+import { Player } from '../characters/player/player';
+import animations from "../configs/animations.json"
+import { CHARACTER_ASSET_KEYS } from '../utils/assetKeys';
 
 export default class StarterScene extends Phaser.Scene {
-    player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | undefined;
-    cursor: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
+    player: Character | undefined;
+    controls: Controls | undefined; 
 
     constructor(){
         super("starter-scene")
-
+        
     }
 
     // Load source files for scene
     preload(){
         this.load.image("standardTileSet", "/assets/pokemonStarStandradTileSet.png");
-        this.load.image('player', '/assets/sprites/players/player.png')
+        this.load.spritesheet("PLAYER", CHARACTER_ASSET_KEYS.PATH, {frameWidth: 64, frameHeight: 88})
         this.load.tilemapTiledJSON("map", "/assets/maps/routes/route_101/route_101.json");
     }
 
@@ -23,26 +29,52 @@ export default class StarterScene extends Phaser.Scene {
         const vegetationLayer = map.createLayer("VegetationLayer", tileset as Phaser.Tilemaps.Tileset, 0, 0);
         const objectLayer = map.createLayer("ObjectLayer", tileset as Phaser.Tilemaps.Tileset, 0, 0);
         const intermediaryLayer = map.createLayer("IntermediaryLayer", tileset as Phaser.Tilemaps.Tileset, 0, 0);
-        this.player = this.physics.add.sprite(475, 750, "player")
-        this.player.setScale(0.1);
 
-        this.cursor = this.input.keyboard!.createCursorKeys();
+        this.player = new Player({
+            scene: this,
+            position: {x: 480, y: 750}, 
+            assetKey: "PLAYER",
+            idleFrames: {
+                DOWN: 7,
+                UP: 1,
+                NONE: 7,
+                LEFT: 10,
+                RIGHT: 4
+            },
+            scaleSize: 0.5, 
+            direction: DIRECTION.UP,
+            spriteGridMovementFinishedCallback: () => {}
+        })
+        this.createAnimations()
+        this.controls = new Controls(this);
     }
 
     update(time: number, delta: number): void {
-        if(this.player && this.cursor){
-            this.player.setVelocityY(0);
-            this.player.setVelocityX(0)
-            if(this.cursor.up.isDown){
-                this.player.setVelocityY(-100)
-            } else if(this.cursor.down.isDown){
-                this.player.setVelocityY(100)
-            } else if(this.cursor.left.isDown){
-                this.player.setVelocityX(-100)
-            } else if(this.cursor.right.isDown){
-                this.player.setVelocityX(100)
-            }
+        const selectedDirection = this.controls!.getDirectionKeyJustPressed();
+        if(selectedDirection !== DIRECTION.NONE){
+            this.player?.moveCharacter(selectedDirection);
         }
 
+        this.player?.update(time);
+
+    }
+
+    createAnimations(){
+        animations.forEach((animationObject) => {
+            // Generate Dynamic Frames
+            const frames = animationObject.frames ? 
+                this.anims.generateFrameNames(animationObject.assetKey, {frames: animationObject.frames}) 
+                : 
+                this.anims.generateFrameNames(animationObject.assetKey)
+            
+            this.anims.create({
+                key: animationObject.key,
+                frames: frames,
+                frameRate: animationObject.frameRate,
+                repeat: animationObject.repeat,
+                delay: animationObject.delay,
+                yoyo: animationObject.yoyo
+            })
+        })
     }
 }
