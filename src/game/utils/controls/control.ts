@@ -1,4 +1,4 @@
-import {DIRECTION} from './controls/direction'
+import {DIRECTION} from './direction'
 
 export class Controls {
     scene: Phaser.Scene

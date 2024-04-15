@@ -1,11 +1,10 @@
 import Phaser from 'phaser'
-import { Controls } from '../utils/control';
+import { Controls } from '../utils/controls/control';
 import { DIRECTION } from '../utils/controls/direction';
 import { Character } from '../characters/characters';
 import { Player } from '../characters/player/player';
 import animations from "../configs/animations.json"
 import { CHARACTER_ASSET_KEYS } from '../utils/assetKeys';
-import { TILE_SIZE } from '../configs/gameConfig';
 
 export default class StarterScene extends Phaser.Scene {
     player: Character | undefined;
@@ -26,38 +25,23 @@ export default class StarterScene extends Phaser.Scene {
     create(){
         // To-do abstract to other method
         const map = this.make.tilemap({key: "map", tileHeight: 32, tileWidth: 32});
-        const tileset = map.addTilesetImage("pokemonStarStandradTileSet", "standardTileSet");
-        const terrainLayer = map.createLayer("TerrainLayer", tileset as Phaser.Tilemaps.Tileset, 0, 0);
-        const vegetationLayer = map.createLayer("VegetationLayer", tileset as Phaser.Tilemaps.Tileset, 0, 0);
-        const objectLayer = map.createLayer("ObjectLayer", tileset as Phaser.Tilemaps.Tileset, 0, 0);
-        const intermediaryLayer = map.createLayer("IntermediaryLayer", tileset as Phaser.Tilemaps.Tileset, 0, 0);
-        
-        this.cameras.main.setBounds(0, 0, 32 * 32, 32 * 32)
+        const tileSet = map.addTilesetImage("pokemonStarStandradTileSet", "standardTileSet");
+        const collisionLayer = map.createLayer("CollisionLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
 
-        // To-do abstract to other method
-        this.player = new Player({
-            scene: this,
-            position: {x: 480, y: 750}, 
-            assetKey: "PLAYER",
-            idleFrames: {
-                DOWN: 7,
-                UP: 1,
-                NONE: 7,
-                LEFT: 10,
-                RIGHT: 4
-            },
-            scaleSize: 0.5, 
-            direction: DIRECTION.UP,
-            spriteGridMovementFinishedCallback: () => {}
-        })
-        this.cameras.main.startFollow(this.player.sprite);
-        this.cameras.main.setZoom(1.5)
-        
+        const terrainLayer = map.createLayer("TerrainLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
+        const intermediaryLayer = map.createLayer("IntermediaryLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
+        const vegetationLayer = map.createLayer("VegetationLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
+        const objectLayer = map.createLayer("ObjectLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
 
+        this.createPlayers(collisionLayer);
         this.createAnimations()
+
+        this.cameras.main.setBounds(0, 0, 32 * 32, 32 * 32)
+        this.cameras.main.setZoom(1.5)
+
         this.controls = new Controls(this);
 
-        // 
+        // Set Animation for scene start
         this.cameras.main.fadeIn(1000, 0, 0, 0)
     }
 
@@ -68,6 +52,27 @@ export default class StarterScene extends Phaser.Scene {
         }
 
         this.player?.update(time);
+
+    }
+
+    createPlayers(collisionLayer: Phaser.Tilemaps.TilemapLayer | null){
+        this.player = new Player({
+            scene: this,
+            position: {x: 472.5, y: 752}, 
+            assetKey: "PLAYER",
+            idleFrames: {
+                DOWN: 7,
+                UP: 1,
+                NONE: 7,
+                LEFT: 10,
+                RIGHT: 4
+            },
+            scaleSize: 0.5, 
+            direction: DIRECTION.UP,
+            spriteGridMovementFinishedCallback: () => {},
+            collisionLayer: collisionLayer
+        })
+        this.cameras.main.startFollow(this.player.sprite);
 
     }
 
@@ -89,4 +94,6 @@ export default class StarterScene extends Phaser.Scene {
             })
         })
     }
+
+
 }

@@ -14,10 +14,11 @@ export type CharacterConfig = {
     scene: Phaser.Scene,
     assetKey: string,
     position: CoordinateType
-    scaleSize: number | undefined;
+    scaleSize?: number;
     direction: DIRECTION_TYPE;
     spriteGridMovementFinishedCallback: Function;
-    idleFrames: CharacterIdleFrameConfig
+    idleFrames: CharacterIdleFrameConfig,
+    collisionLayer?: Phaser.Tilemaps.TilemapLayer | null
 }
 
 export class Character {
@@ -28,6 +29,7 @@ export class Character {
     _targetPosition: CoordinateType;
     _previousTargetPosition: CoordinateType;
     _spriteGridMovementFinishedCallback: Function;
+    _collisionLayer?: Phaser.Tilemaps.TilemapLayer | null;
 
     constructor(config: CharacterConfig){
         this._scene = config.scene
@@ -40,6 +42,8 @@ export class Character {
         this._phaserGameObject.setScale(config.scaleSize ? config.scaleSize : 1);
 
         this._spriteGridMovementFinishedCallback = config.spriteGridMovementFinishedCallback;
+
+        this._collisionLayer = config.collisionLayer;
     }
 
     get isMoving(): boolean {
@@ -54,6 +58,12 @@ export class Character {
         return this._phaserGameObject
     }
 
+    
+    /**
+     * Move Character on Map
+     *
+     * @param {DIRECTION_TYPE} direction
+     */
     moveCharacter(direction: DIRECTION_TYPE): void {
         if(this._isMoving){
             return;
@@ -103,12 +113,25 @@ export class Character {
         this._isMoving = true;
     }
 
+    
+    /**
+     * Check if tile character is moving to is a blocking tile
+     *
+     * @returns {boolean}
+     */
     _isBlockingTile(){
         if(this._direction === DIRECTION.NONE){return}
-        // TO-DO COLLISON LOGIC
-        return false;
+
+        const targetPosition = {...this._targetPosition};
+        const updatedPosition = getTargetPositionFromGameObjectPositionAndDirection(targetPosition, this._direction)
+
+        return this.doesCollisionCollideWithPosition(updatedPosition);
     }
 
+    
+    /**
+     * Apply animation to movement of playing via 'tween'
+     */
     handleSpriteMovement(){
         if(this._direction === DIRECTION.NONE){return;}
         const updatedPosition = getTargetPositionFromGameObjectPositionAndDirection(this._targetPosition, this._direction);
@@ -116,7 +139,7 @@ export class Character {
         this._targetPosition = {...updatedPosition};
         this._scene.add.tween({
             delay: 0,
-            duration: 600,
+            duration: 300,
             y: {
                 from: this._phaserGameObject.y,
                 start: this._phaserGameObject.y,
@@ -136,5 +159,23 @@ export class Character {
                 }
             }
         });
+    }
+
+    
+    /**
+     * Check if position character is moving to is within the collision layer specified for the character
+     *
+     * @param {CoordinateType} position
+     * @returns {boolean}
+     */
+    doesCollisionCollideWithPosition(position: CoordinateType){
+        if(!this._collisionLayer){
+            return false
+        }
+
+        const { x, y } = position;
+        const tile = this._collisionLayer.getTileAtWorldXY(x, y, true);
+        return tile.index !== -1;
+        
     }
 }

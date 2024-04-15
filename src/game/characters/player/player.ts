@@ -9,6 +9,12 @@ export class Player extends Character {
         })
     }
 
+    
+    /**
+     * Move player -- called via Scene Control
+     *
+     * @param {DIRECTION_TYPE} direction
+     */
     moveCharacter(direction: DIRECTION_TYPE): void {
         super.moveCharacter(direction);
         // Custom Logic after movement
