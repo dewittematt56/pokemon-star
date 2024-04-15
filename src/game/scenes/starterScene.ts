@@ -5,6 +5,7 @@ import { Character } from '../characters/characters';
 import { Player } from '../characters/player/player';
 import animations from "../configs/animations.json"
 import { CHARACTER_ASSET_KEYS } from '../utils/assetKeys';
+import { TILE_SIZE } from '../configs/gameConfig';
 
 export default class StarterScene extends Phaser.Scene {
     player: Character | undefined;
@@ -23,13 +24,17 @@ export default class StarterScene extends Phaser.Scene {
     }
 
     create(){
+        // To-do abstract to other method
         const map = this.make.tilemap({key: "map", tileHeight: 32, tileWidth: 32});
         const tileset = map.addTilesetImage("pokemonStarStandradTileSet", "standardTileSet");
         const terrainLayer = map.createLayer("TerrainLayer", tileset as Phaser.Tilemaps.Tileset, 0, 0);
         const vegetationLayer = map.createLayer("VegetationLayer", tileset as Phaser.Tilemaps.Tileset, 0, 0);
         const objectLayer = map.createLayer("ObjectLayer", tileset as Phaser.Tilemaps.Tileset, 0, 0);
         const intermediaryLayer = map.createLayer("IntermediaryLayer", tileset as Phaser.Tilemaps.Tileset, 0, 0);
+        
+        this.cameras.main.setBounds(0, 0, 32 * 32, 32 * 32)
 
+        // To-do abstract to other method
         this.player = new Player({
             scene: this,
             position: {x: 480, y: 750}, 
@@ -45,8 +50,15 @@ export default class StarterScene extends Phaser.Scene {
             direction: DIRECTION.UP,
             spriteGridMovementFinishedCallback: () => {}
         })
+        this.cameras.main.startFollow(this.player.sprite);
+        this.cameras.main.setZoom(1.5)
+        
+
         this.createAnimations()
         this.controls = new Controls(this);
+
+        // 
+        this.cameras.main.fadeIn(1000, 0, 0, 0)
     }
 
     update(time: number, delta: number): void {

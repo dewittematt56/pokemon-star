@@ -50,6 +50,10 @@ export class Character {
         return this._direction
     }
 
+    get sprite(): Phaser.GameObjects.Sprite {
+        return this._phaserGameObject
+    }
+
     moveCharacter(direction: DIRECTION_TYPE): void {
         if(this._isMoving){
             return;
