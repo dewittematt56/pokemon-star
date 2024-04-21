@@ -10,5 +10,24 @@
     "properties": [
     ],
     "propertyTypes": [
+        {
+            "color": "#ffaa0000",
+            "drawFill": true,
+            "id": 1,
+            "members": [
+                {
+                    "name": "message",
+                    "type": "string",
+                    "value": ""
+                }
+            ],
+            "name": "sign",
+            "type": "class",
+            "useAs": [
+                "property",
+                "object",
+                "project"
+            ]
+        }
     ]
 }

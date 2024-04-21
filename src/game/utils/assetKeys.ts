@@ -1,4 +1,4 @@
 export const CHARACTER_ASSET_KEYS = {
     PLAYER: "PLAYER",
-    PATH: "/assets/sprites/players/custom.png"
+    PATH: "/assets/sprites/npcs/trTeenager_M.png"
 }
