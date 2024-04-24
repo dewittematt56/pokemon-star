@@ -17,6 +17,7 @@ export type CharacterConfig = {
     scaleSize?: number;
     direction: DIRECTION_TYPE;
     spriteGridMovementFinishedCallback: Function;
+    spriteChangedDirectionCallback: Function
     idleFrames: CharacterIdleFrameConfig,
     collisionLayer?: Phaser.Tilemaps.TilemapLayer | null
 }
@@ -29,8 +30,9 @@ export class Character {
     _targetPosition: CoordinateType;
     _previousTargetPosition: CoordinateType;
     _spriteGridMovementFinishedCallback: Function;
+    _spriteChangedDirectionCallback: Function;
     _collisionLayer?: Phaser.Tilemaps.TilemapLayer | null;
-
+    
     constructor(config: CharacterConfig){
         this._scene = config.scene
         this._direction = config.direction;
@@ -42,7 +44,7 @@ export class Character {
         this._phaserGameObject.setScale(config.scaleSize ? config.scaleSize : 1);
 
         this._spriteGridMovementFinishedCallback = config.spriteGridMovementFinishedCallback;
-
+        this._spriteChangedDirectionCallback = config.spriteChangedDirectionCallback
         this._collisionLayer = config.collisionLayer;
     }
 
@@ -66,6 +68,7 @@ export class Character {
      */
     moveCharacter(direction: DIRECTION_TYPE): void {
         if(this._isMoving){
+            console.log(this._isMoving)
             return;
         } else {
         this._moveSprite(direction);
@@ -104,13 +107,21 @@ export class Character {
     }
 
     _moveSprite(direction: DIRECTION_TYPE){
+        const changedDirection = this._direction !== direction;
         // Update Direction of input
         this._direction = direction;
+        if (changedDirection) {
+            if (this._spriteChangedDirectionCallback !== undefined) {
+              this._spriteChangedDirectionCallback();
+            }
+        }
+
         if(this._isBlockingTile()){
             return
         }
-        this.handleSpriteMovement()
         this._isMoving = true;
+        this.handleSpriteMovement()
+
     }
 
     
@@ -134,9 +145,11 @@ export class Character {
      */
     handleSpriteMovement(){
         if(this._direction === DIRECTION.NONE){return;}
+
         const updatedPosition = getTargetPositionFromGameObjectPositionAndDirection(this._targetPosition, this._direction);
         this._previousTargetPosition = {...this._targetPosition};
         this._targetPosition = {...updatedPosition};
+        
         this._scene.add.tween({
             delay: 0,
             duration: 300,

@@ -18,7 +18,7 @@ export class Controls {
         this.lockPlayerInput = false;
     }
 
-    get isInputocked(){
+    get isInputLocked(){
         return this.lockInput
     }
 
@@ -41,6 +41,9 @@ export class Controls {
     }
 
     getDirectionKeyPressedDown(){
+        if(this.cursorKeys === undefined) {
+            return DIRECTION.NONE;
+        }
         let selectedDirection: any = DIRECTION.NONE
         if(this.cursorKeys.left.isDown){
             selectedDirection = DIRECTION.LEFT

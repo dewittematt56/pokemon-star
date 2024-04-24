@@ -1,0 +1,5 @@
+export const SCENE_KEYS = {
+    WORLD_SCENE: 'WORLD_SCENE',
+    BATTLE_SCENE: 'BATTLE_SCENE'
+}
+

@@ -8,6 +8,7 @@ import { CHARACTER_ASSET_KEYS } from '../utils/assetKeys';
 import { DialogUI } from '../world/dialog-ui';
 import { getTargetPositionFromGameObjectPositionAndDirection } from '../utils/gridUtils.ts/gridUtils';
 import { TILE_SIZE } from '../configs/gameConfig';
+import { SCENE_KEYS } from './sceneKeys';
 
 export default class StarterScene extends Phaser.Scene {
     player: Character | undefined;
@@ -16,7 +17,7 @@ export default class StarterScene extends Phaser.Scene {
     signLayer: Phaser.Tilemaps.ObjectLayer | undefined
 
     constructor(){
-        super("starter-scene")
+        super({key: SCENE_KEYS.WORLD_SCENE})
         
     }
 
@@ -62,45 +63,52 @@ export default class StarterScene extends Phaser.Scene {
 
     update(time: number, delta: number): void {
         const selectedDirection = this.controls!.getDirectionKeyJustPressed();
-        if(selectedDirection !== DIRECTION.NONE){
+        const selectedDirectionHeldDown = this.controls!.getDirectionKeyPressedDown();
+        if(selectedDirectionHeldDown !== DIRECTION.NONE && !this.isPlayerInputLocked()){
             this.player?.moveCharacter(selectedDirection);
-            this.handlePlayerInteractions()
         }
-
+        if(this.controls?.wasSpaceKeyPressed() && !this.player?.isMoving){
+            this.handlePlayerObjectInteractions();
+        }
         this.player?.update(time);
 
     }
 
-    handlePlayerInteractions(){
+    
+    /**
+     * Handle a Players Interaction with an object on the map
+     */
+    handlePlayerObjectInteractions(){
         if(this.dialogUI?.isAnimatonPlaying){
+            return
+        }
+        // Current Player XY Position
+        const {x, y} = this.player!.sprite
+        // Position Player is interacting with
+        const targetPosition = getTargetPositionFromGameObjectPositionAndDirection({x, y}, this.player!.direction)
+        // Find nearby sign
+        const nearbySign = this.signLayer?.objects.find((object) => {
+            if (!object.x || !object.y) {
+              return false;
+            }
+            return object.x === targetPosition.x - 8 && object.y - TILE_SIZE === targetPosition.y;
+        });
+        // If there is a nearby sign and no more messages to show
+        if(nearbySign && !this.dialogUI?.isVisible){
+            this.dialogUI?.showDialogModal(String(nearbySign.properties.find((property: any) => property.name == "message").value).split("::"))
+            return
+        }
+        // If Dialog is visible and there are more messages to show
+        if(this.dialogUI?.isVisible && this.dialogUI.moreMessagesToShow){
+            this.dialogUI.showNextMessage();
             return
         }
         // If visible and no more messages to show
         if(this.dialogUI?.isVisible && !this.dialogUI.moreMessagesToShow){
             this.dialogUI.hideDialogModal();
             return;
-        }
-        if(this.dialogUI?.isVisible && this.dialogUI.moreMessagesToShow){
-            this.dialogUI.showNextMessage();
-            return
-        }
-        const {x, y} = this.player!.sprite
-        const targetPosition = getTargetPositionFromGameObjectPositionAndDirection({x, y}, this.player!.direction)
-        const nearbySign = this.signLayer?.objects.find((object) => {
-            if (!object.x || !object.y) {
-              return false;
-            }
-            console.log(object.x, object.y - TILE_SIZE)
-            console.log(targetPosition.x, targetPosition.y)
-            return object.x === targetPosition.x - 8 && object.y - TILE_SIZE === targetPosition.y;
-        });
-        console.log(nearbySign)
-        if(nearbySign){
-            this.dialogUI?.showDialogModal(String(nearbySign.properties.find((property: any) => property.name == "message").value).split("::"))
-        }
+        }  
     }
-
-
 
     createPlayers(collisionLayer: Phaser.Tilemaps.TilemapLayer | null){
         this.player = new Player({
@@ -118,6 +126,7 @@ export default class StarterScene extends Phaser.Scene {
             scaleSize: .5, 
             direction: DIRECTION.UP,
             spriteGridMovementFinishedCallback: () => {},
+            spriteChangedDirectionCallback: () => {},
             collisionLayer: collisionLayer
         })
         this.cameras.main.startFollow(this.player.sprite);
@@ -136,6 +145,7 @@ export default class StarterScene extends Phaser.Scene {
             scaleSize: .5, 
             direction: DIRECTION.DOWN,
             spriteGridMovementFinishedCallback: () => {},
+            spriteChangedDirectionCallback: () => {},
             collisionLayer: collisionLayer
         })
     }
@@ -159,5 +169,7 @@ export default class StarterScene extends Phaser.Scene {
         })
     }
 
-
+    isPlayerInputLocked() {
+        return this.controls!.isInputLocked || this.dialogUI!.isVisible
+    }
 }
