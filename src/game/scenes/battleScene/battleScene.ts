@@ -4,33 +4,96 @@ import { BATTLE_BACKGROUND_ASSETS } from "./battleSceneKeys";
 import { POKEMON, PokemonObjectType } from "../../pokemon/pokemon";
 import { typeColorMap } from "../../configs/gameConfig";
 import { DIRECTION, DIRECTION_TYPE } from "../../utils/controls/direction";
-import { UI_ASSET_KEYS } from "../../utils/assetKeys";
+import { PokemonOverviewMenu } from "../../components/pokemonOverviewMenu";
 
 class MoveSelectionButton {
     public id: string;
     public moveName: string;
     private _scene: Phaser.Scene;
     private _type: string;
-    public buttonBox: Phaser.GameObjects.Rectangle
-    public typeBox: Phaser.GameObjects.Rectangle
-    public buttonText: Phaser.GameObjects.Text
-    
-    constructor(id: string, type: keyof typeof typeColorMap, moveName: string, x_pos: number, y_pos: number, scene: Phaser.Scene){
+    public buttonContainer: Phaser.GameObjects.Container
+    public isVisible: boolean;
+    public buttonRectangle: Phaser.GameObjects.Rectangle 
+    constructor(id: string, type: keyof typeof typeColorMap, moveName: string, x_pos: number, y_pos: number, scene: Phaser.Scene, isVisible: boolean){
         
         this.id = id;
         this._type = type;
         this.moveName = moveName
         this._scene = scene
-        
+        this.isVisible = isVisible;
+
         // Local Vars
         let width = 305;
         let height = 40;
         let font_size = 17; 
         let type_padding = 10;
+        
+        this.buttonRectangle = this._scene.add.rectangle(x_pos + 10, y_pos + 5, width, height, 0xFFFFFF).setAlpha(0.9).setOrigin(0).setStrokeStyle(4, 0x262b33, 1).setInteractive();
+        this.buttonRectangle.on("pointerover", () => {this.buttonRectangle.setStrokeStyle(4, 0xffffff, 1)})
+        this.buttonRectangle.on("pointerout", () => {this.buttonRectangle.setStrokeStyle(4, 0x262b33, 1)})
 
-        this.buttonBox = this._scene.add.rectangle(x_pos + 10, y_pos + 5, width, height, 0xFFFFFF).setAlpha(0.9).setOrigin(0).setStrokeStyle(4, 0x262b33, 1)
-        this.typeBox = this._scene.add.rectangle(x_pos + 10 + (type_padding / 4) , y_pos + 5 + (type_padding / 4), width - (type_padding / 2), height - (type_padding / 2)).setAlpha(1).setOrigin(0).setStrokeStyle(4, typeColorMap[type].primaryColor, .9)
-        this.buttonText = this._scene.add.text(x_pos + ((width - ((font_size * moveName?.length) / 2)) / 2), y_pos - 1 + ((height - (font_size / 2)) / 2), this.moveName, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: `${font_size}px`, color: '#fffff'}).setOrigin(0);
+        this.buttonContainer = this._scene.add.container(0, 0, [
+            this.buttonRectangle,
+            this._scene.add.rectangle(x_pos + 10 + (type_padding / 4) , y_pos + 5 + (type_padding / 4), width - (type_padding / 2), height - (type_padding / 2)).setAlpha(1).setOrigin(0).setStrokeStyle(4, typeColorMap[type].primaryColor, .9),
+            this._scene.add.text(x_pos + ((width - ((font_size * moveName?.length) / 2)) / 2), y_pos - 1 + ((height - (font_size / 2)) / 2), this.moveName, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: `${font_size}px`, color: '#fffff'}).setOrigin(0)
+        ]);
+        this.buttonContainer.visible = this.isVisible;
+        
+    }
+}
+
+let YOUR_POKEMON = {
+    "TORCHIC": {
+        currentHp: 50,
+        maxHp: 100,
+        gender: "MALE",
+        lvl: 5
+    },
+    "BULBASAUR": {
+        currentHp: 50,
+        maxHp: 100,
+        female: "MALE",
+        lvl: 5
+    }
+}
+
+class BattleMenuSelectButton {
+    public id: string;
+    private _scene: Phaser.Scene;
+    public isVisible: boolean;
+    public container: Phaser.GameObjects.Container
+    public buttonRectangle: Phaser.GameObjects.Rectangle 
+    constructor(id: string, x_pos: number, y_pos: number, backgroundColor: number, scene: Phaser.Scene, isVisible: boolean, text: string, callbackFunction: Function){
+        
+        this.id = id;
+        this._scene = scene
+        this.isVisible = isVisible;
+
+        // Local Vars
+        let font_size = 17; 
+        let width = 170;
+        let height = 40;
+        
+        this.buttonRectangle = this._scene.add.rectangle(x_pos, y_pos, width, height, backgroundColor).setOrigin(0).setStrokeStyle(3, 0x262b33, .75).setName("FIGHT-BOX").setInteractive()
+        
+        // EVENT Handlers
+        this.buttonRectangle.on("pointerdown", () => {
+            callbackFunction(!this.isVisible);
+            this.isVisible = !this.isVisible
+        })
+        this.buttonRectangle.on("pointerover", () => {this.buttonRectangle.setStrokeStyle(3, 0xffffff, .75)})
+        this.buttonRectangle.on("pointerout", () => {this.buttonRectangle.setStrokeStyle(3, 0x262b33)})
+
+        let textWidth = text.length * font_size * 0.8;
+        let textX = x_pos + (width - textWidth) / 2;
+        let textY = y_pos + (height - font_size) / 2;
+
+        this.container = this._scene.add.container(0, 0, [
+            this.buttonRectangle,
+            //this._scene.add.text(x_pos + ((width * 1.1 - (text.length * font_size)) / 2), y_pos - 1 + ((height - (font_size / 2)) / 2), text, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: `${font_size}px`, color: 'white'}).setOrigin(0)
+            this._scene.add.text(textX , textY, text, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '17px', color: 'white'}).setOrigin(0).setName("FIGHT-TEXT"),
+        ]);
+        this.container.visible = this.isVisible;
     }
 }
 
@@ -41,6 +104,8 @@ export class BattleScene extends Phaser.Scene {
     public cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
     public battleMenuContainer: Phaser.GameObjects.Container | undefined;
     public battleMenuCursorImageGameObject: Phaser.GameObjects.Image | undefined
+    public fightSubMenuContainer: Phaser.GameObjects.Container | undefined;
+
     constructor(){
         super({
             key: SCENE_KEYS.BATTLE_SCENE
@@ -53,7 +118,6 @@ export class BattleScene extends Phaser.Scene {
 
     preload(){
         this.load.image(BATTLE_BACKGROUND_ASSETS.FOREST.key, BATTLE_BACKGROUND_ASSETS.FOREST.path);
-        this.load.image(UI_ASSET_KEYS.CURSOR.KEY, UI_ASSET_KEYS.CURSOR.PATH);
         this.load.spritesheet(POKEMON.BULBASAUR.key, POKEMON.BULBASAUR.frontImage.path, {
             frameWidth: POKEMON.BULBASAUR.frontImage.width,
             frameHeight: POKEMON.BULBASAUR.frontImage.height,
@@ -67,7 +131,14 @@ export class BattleScene extends Phaser.Scene {
             endFrame: POKEMON.TORCHIC.backImage.animFinish
         })
         this.load.image("POKEBALL-ICON", "/assets/misc/pokeball-icon.png")
-        
+        this.loadPokemonSprites()
+    }
+
+    loadPokemonSprites = () => {
+        ["BULBASAUR", "TORCHIC", "TREEKO"].map((id) => {
+            let pokemon   = POKEMON[id]
+            this.load.spritesheet(`${id}IconNormal`, pokemon.iconImage.path, {frameWidth: pokemon.iconImage.width, frameHeight: pokemon.iconImage.height})
+        })
     }
 
     create(){
@@ -79,17 +150,23 @@ export class BattleScene extends Phaser.Scene {
 
         // To-Do Allow for Array of Inputs
         this.createBattleMenu()
+        this.createHealthBarBox()
         this.loadOpponentPokemonOntoPage(POKEMON["BULBASAUR"])
-        this.loadYourPokemonOntoPage(POKEMON["TORCHIC"])
-
+        this.loadYourPokemonOntoPage(POKEMON["TORCHIC"]);
+        new PokemonOverviewMenu(this, [POKEMON["BULBASAUR"], POKEMON["TORCHIC"], POKEMON["TREEKO"]]);
     }
 
     createBattleMenu(){
-        this.battleMenuCursorImageGameObject = this.add.image(42, 38, UI_ASSET_KEYS.CURSOR.KEY, 0)
-        this.add.container()
-        this.createHealthBarBox()
-        this.createUserInputButtons()
-        this.createMoveSelectionButtons()
+        this.battleMenuContainer = this.add.container(0, 0, [
+            this.add.rectangle(0, 572.5, 1012.5, 105, 0x353b48).setOrigin(0).setStrokeStyle(1),
+            this.add.rectangle(2, 575, 640, 100, 0x353b48).setOrigin(0),
+            new BattleMenuSelectButton("FIGHT", 652.5, 580, 0xc23616, this, true, "FIGHT", (visibility: boolean) => {this.setFightMenuVisibility(!visibility)}).container,
+            new BattleMenuSelectButton("BAG", 832.5, 580, 0xe1b12c, this, true, "BAG", () => {}).container,
+            new BattleMenuSelectButton("POKEMON", 652.5, 630, 0x44bd32, this, true, "POKEMON", () => {}).container,
+            new BattleMenuSelectButton("RUN", 832.5, 630, 0x0097e6, this, true, "RUN", () => {this.scene.switch(SCENE_KEYS.WORLD_SCENE)}).container,
+        ])
+        this.fightSubMenuContainer = this.add.container(0, 0 , this.createMoveSelectionButtons(false)); 
+        
     }
 
     // Refactor
@@ -120,7 +197,7 @@ export class BattleScene extends Phaser.Scene {
                 frameRate: pokemon.backImage.frameRate,
                 repeat: 0
             });
-            this._yourPokemon.play(pokemon.key)            
+            this._yourPokemon.play(pokemon.key)           
         }
     }
 
@@ -162,74 +239,35 @@ export class BattleScene extends Phaser.Scene {
 
     }
 
-    createUserInputButtons(){
-        this.add.rectangle(0, 572.5, 1012.5, 105, 0x353b48).setOrigin(0).setStrokeStyle(1)
-        this.add.rectangle(2, 575, 640, 100, 0x353b48).setOrigin(0)
-        
-        // "FIGHT"
-        this.add.rectangle(652.5, 580, 170, 40, 0xc23616).setOrigin(0).setStrokeStyle(3, 0x262b33)
-        this.add.text(652.5 + 55, 580 + 10, "FIGHT", {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '17px', color: 'white'})
-        // "BAG"
-        this.add.rectangle(832.5, 580, 170, 40, 0xe1b12c).setOrigin(0).setStrokeStyle(3, 0x262b33)
-        this.add.text(832.5 + 60, 580 + 10, "BAG", {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '17px', color: 'white'})
-        // "Pokemon"
-        this.add.rectangle(652.5, 630, 170, 40, 0x44bd32).setOrigin(0).setStrokeStyle(3, 0x262b33)
-        this.add.text(652.5 + 32.5, 630 + 10, "POKEMON", {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '17px', color: 'white'})
-        // Run
-        this.add.rectangle(832.5, 630, 170, 40, 0x0097e6).setOrigin(0).setStrokeStyle(3, 0x262b33)
-        this.add.text(832.5 + 60, 630 + 10, "RUN", {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '17px', color: 'white'})
-    }
-
-    createMoveSelectionButtons(){
+    createMoveSelectionButtons(isDefaultVisible: boolean){
         let moves = ["TACKLE", "TOSS", "TRAP", "SNAG"]
-        for(let i = 0; i < moves.length; i++){
+        return moves.map((move, i) => {
             if( i == 0){
-                new MoveSelectionButton("tackle", "FIRE", moves[i], 0, 575, this)
+                return new MoveSelectionButton("tackle", "FIRE", move, 0, 575, this, isDefaultVisible).buttonContainer
             } else if(i == 1) {
-                new MoveSelectionButton("tackle", "FIGHTING", moves[i], 315, 575, this)
+                return new MoveSelectionButton("tackle", "FIGHTING", move, 315, 575, this, isDefaultVisible).buttonContainer
             } else if(i == 2) {
-                new MoveSelectionButton("tackle", "GHOST", moves[i], 0, 625, this)
+                return new MoveSelectionButton("tackle", "GHOST", move, 0, 625, this, isDefaultVisible).buttonContainer
             } else if(i == 3) {
-                new MoveSelectionButton("tackle", "WATER", moves[i], 315, 625, this)
+                return new MoveSelectionButton("tackle", "WATER", move, 315, 625, this, isDefaultVisible).buttonContainer
             }
-        }
-        
+            return new MoveSelectionButton("tackle", "WATER", move, 315, 625, this, isDefaultVisible).buttonContainer
+        })
     }
     
-    handlePlayerInput(input: 'OK' | 'CANCEL' | 'LEFT' | 'RIGHT' | 'UP' | 'DOWN'){
-        console.log(input)
-        if(input == 'CANCEL'){
-
-            return
-        } else if(input == 'OK'){
-            return
-        }
-    }
     // Called every frame of the game
     update(){
-        // Singular Input
-        const wasSpaceKeyPressed = Phaser.Input.Keyboard.JustDown(this.cursorKeys?.space!);
-        if(wasSpaceKeyPressed) {
-            this.handlePlayerInput('OK');
-            return
-        }
-        // SHIFT KEY ON KEYBOARD
-        if(Phaser.Input.Keyboard.JustDown(this.cursorKeys?.shift!)){
-            this.handlePlayerInput('CANCEL');
-            return
-        }
-        let selectedDirection: DIRECTION_TYPE = DIRECTION.NONE
-        if(this.cursorKeys?.left.isDown){
-            selectedDirection = DIRECTION.LEFT
-        } else if(this.cursorKeys?.right.isDown){
-            selectedDirection = DIRECTION.RIGHT
-        } else if(this.cursorKeys?.up.isDown){
-            selectedDirection = DIRECTION.UP
-        } else if(this.cursorKeys?.down.isDown){
-            selectedDirection = DIRECTION.DOWN
-        }
-        if(selectedDirection !== DIRECTION.NONE){
-            this.handlePlayerInput(selectedDirection)
+
+    }
+
+
+    // Display Functions
+    setFightMenuVisibility(isVisible: boolean){
+        if(this.fightSubMenuContainer){
+            this.fightSubMenuContainer.list.forEach((gameObject: any) => {
+                gameObject.setVisible(isVisible)
+            })
+            this.fightSubMenuContainer.visible = isVisible;
         }
     }
 }
