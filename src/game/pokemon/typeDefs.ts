@@ -1,35 +1,52 @@
-export type PokemonBattleData = {
-
+export type PokemonImageDataType = {
+    frontImage: AnimatedImageType,
+    backImage: AnimatedImageType,
+    iconImage: AnimatedImageType
 }
 
-export type PokemonImageData = {
+export type AnimatedImageType = {
+    assetKey: string
+    path: string,
+    height: number,
+    width: number,
+    animStart: number,
+    animFinish: number,
+    frameRate: number
+}
 
+export type PokemonBattleMove = {
+    id: string
+    name: string,
+    // To-Do Create Generic Types
+    type: string
+}
+
+export type PokemonBattleDataType = {
+    moves: []
 } 
 
-export type PokemonMetaData = {
+export type PokemonMetaDataType = {
 
 }
 
 export type BasePokemon = {
     uniqueId: string,
+    pokeDexKey: string,
     name: string,
     level: number,
     sex: "MALE" | "FEMALE" | "UNK",
     experience: number,
-    pokemonBattleData: PokemonBattleData,
-    pokemonImageData: PokemonImageData,
-    pokemonMetaData: PokemonMetaData
+    pokemonBattleData: PokemonBattleDataType,
+    pokemonImageData: PokemonImageDataType,
+    pokemonMetaData: PokemonMetaDataType
 }
 
 /*------------------------- Pokemon Party Types -------------------------*/
-export type PokemonPartyType = []
-
-export type PokemonPartyMember = {
+export type PokemonPartyMemberType = {
     pokemon: BasePokemon,
-    // To-Do Item
 }
 
+export type PokemonPartyType = PokemonPartyMemberType[];
 
-export const constMockPokemonParty: PokemonPartyType = [
 
-]
+

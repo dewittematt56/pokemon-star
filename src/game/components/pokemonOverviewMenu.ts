@@ -1,20 +1,21 @@
 import Phaser from "phaser";
-import { PokemonObjectType } from "../pokemon/pokemon";
-import { clear } from "console";
+import { PokemonPartyType } from "../pokemon/typeDefs";
 
 export class PokemonOverviewMenu {
     private _scene: Phaser.Scene
     public menuContainer: Phaser.GameObjects.Container | undefined
-    public pokemonParty: PokemonObjectType[]
+    public pokemonParty: PokemonPartyType
+    public pokemonPartyChangeCallback: Function
 
-    constructor(scene: Phaser.Scene, pokemons: PokemonObjectType[]){
+    constructor(scene: Phaser.Scene, pokemonParty: PokemonPartyType, pokemonPartyChangeCallback: Function){
         this._scene = scene;
-        this.pokemonParty = pokemons
+        this.pokemonParty = pokemonParty
         this.menuContainer = this._scene.add.container(1012, 0, [
             this._scene.add.rectangle(0, 0, 250, 678, 0x353b48).setOrigin(0).setStrokeStyle(2, 0x13161a),
             this._scene.add.text(90, 10, "Team", {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '25px', color: 'white'}).setOrigin(0),
             this.displayPokemon()
         ])
+        this.pokemonPartyChangeCallback = pokemonPartyChangeCallback;
         
     }
 
@@ -23,18 +24,18 @@ export class PokemonOverviewMenu {
             let y_padding = 25
             let pokemonContainer = this._scene.add.container(0, 0);
 
-            pokemonContainer.add(this._scene.add.rectangle(0, 37 + index * 64, 250, 63, 0x7f8c8d).setOrigin(0).setVisible(false).setName(`${pokemon.key}_SELECTED_INDICATOR`));
+            pokemonContainer.add(this._scene.add.rectangle(0, 37 + index * 64, 250, 63, 0x7f8c8d).setOrigin(0).setVisible(false).setName(`${pokemon.pokemon.uniqueId}_SELECTED_INDICATOR`));
 
-            pokemonContainer.add(this._scene.add.sprite(0, y_padding + index * 64 , `${pokemon.key}IconNormal`, 0).setOrigin(0).setScale(1));
+            pokemonContainer.add(this._scene.add.sprite(0, y_padding + index * 64 , pokemon.pokemon.pokemonImageData.iconImage.assetKey, 0).setOrigin(0).setScale(1));
             let pokemonMetadataContainer = this._scene.add.container(55, y_padding + index * 64 + 35, [
-                this._scene.add.text(0, 0, pokemon.name.substring(0, 10), {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0),
+                this._scene.add.text(0, 0, pokemon.pokemon.name.substring(0, 10), {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0),
                 this._scene.add.text(0, 20, `Lvl. 1`, {fontFamily: 'Audiowide', fontSize: '12px', color: 'white'}).setOrigin(0)
             ])
             
             let hpContainer = this._scene.add.container(130, y_padding + 35 + index * 64, [
-                this._scene.add.rectangle(0, 0, 100, 15, 0x4cd137).setOrigin(0).setStrokeStyle(2, 0x13161a).setName(`${pokemon.key}_HP_BOX`),
-                this._scene.add.text(0, 20, `HP: `, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0).setName(`${pokemon.key}_HP_LABEL`),
-                this._scene.add.text(30, 20, `100/100`, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0).setName(`${pokemon.key}_HP_TEXT`)
+                this._scene.add.rectangle(0, 0, 100, 15, 0x4cd137).setOrigin(0).setStrokeStyle(2, 0x13161a).setName(`${pokemon.pokemon.uniqueId}_HP_BOX`),
+                this._scene.add.text(0, 20, `HP: `, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0).setName(`${pokemon.pokemon.uniqueId}_HP_LABEL`),
+                this._scene.add.text(30, 20, `100/100`, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0).setName(`${pokemon.pokemon.uniqueId}_HP_TEXT`)
             ]).setName(`${pokemon}_HP_Container`)
 
             // Add to Container
@@ -61,17 +62,17 @@ export class PokemonOverviewMenu {
                         if(element.name.includes("_SELECTED_INDICATOR")){
                             if(element.visible){
                                 let pokemonClicked = element.name.split("_")[0];
-                                if(pokemonClicked == pokemon.key || highlighted_pokemon.length > 0){
+                                if(pokemonClicked == pokemon.pokemon.uniqueId || highlighted_pokemon.length > 0){
                                     element.setVisible(false)
                                     return
                                 } 
                                 highlighted_pokemon = pokemonClicked
                             }
-                            if(element.name == `${pokemon.key}_SELECTED_INDICATOR`){
+                            if(element.name == `${pokemon.pokemon.uniqueId}_SELECTED_INDICATOR`){
                                 element.setVisible(true)
                             }
                             else if(highlighted_pokemon.length > 0) {
-                                this.pokemonOrderSwitch(highlighted_pokemon, pokemon.key)
+                                this.pokemonOrderSwitch(highlighted_pokemon, pokemon.pokemon.uniqueId)
                             } 
                             else {
                             }
@@ -85,11 +86,12 @@ export class PokemonOverviewMenu {
     }
 
     pokemonOrderSwitch(pokemonToSwap: string, pokemonToSwapWith: string){
-        let indexOfPokemonToSwap = this.pokemonParty.findIndex((pokemon) => pokemon.key == pokemonToSwap);
-        let indexOfPokemonToSwapWith = this.pokemonParty.findIndex((pokemon) => pokemon.key == pokemonToSwapWith);
+        let indexOfPokemonToSwap = this.pokemonParty.findIndex((pokemon) => pokemon.pokemon.uniqueId == pokemonToSwap);
+        let indexOfPokemonToSwapWith = this.pokemonParty.findIndex((pokemon) => pokemon.pokemon.uniqueId == pokemonToSwapWith);
         [this.pokemonParty[indexOfPokemonToSwap], this.pokemonParty[indexOfPokemonToSwapWith]] = [this.pokemonParty[indexOfPokemonToSwapWith], this.pokemonParty[indexOfPokemonToSwap]];
         this.clearPokemonDisplay();
         this.menuContainer?.addAt(this.displayPokemon(), 2)
+        this.pokemonPartyChangeCallback(this.pokemonParty[indexOfPokemonToSwapWith])
     }
 
     clearPokemonDisplay(){
