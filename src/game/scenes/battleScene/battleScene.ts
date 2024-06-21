@@ -1,11 +1,11 @@
 import Phaser from "phaser";
-import { SCENE_KEYS } from "../sceneKeys";
-import { BATTLE_BACKGROUND_ASSETS } from "./battleSceneKeys";
-import { PokemonOverviewMenu } from "../../components/pokemonOverviewMenu";
+import { SCENE_KEYS } from "../../../commonData/keysScene";
+import { BATTLE_BACKGROUND_ASSETS } from "../../../commonData/keysBattleScene";
+import { PokemonOverviewMenu } from "../../../components/pokemonOverviewMenu";
 import { PokemonPartyType, PokemonPartyMemberType } from "../../../commonTypes/typeDefs";
 
-import {MoveSelectionButton, BattleMenuSelectButton} from '../battleScene/battleMenuComponents/battleMenuButtons'
-import { YourBattleBarComponent, OpponentBattleBarComponent } from "./battleMenuComponents/battleBar";
+import {MoveSelectionButton, BattleMenuSelectButton} from '../../../components/battleMenuComponents/battleMenuButtons'
+import { YourBattleBarComponent, OpponentBattleBarComponent } from "../../../components/battleMenuComponents/battleBar";
 
 export type pokemonBattleSceneData = {
     battleFieldBackgroundAssetKey: string,

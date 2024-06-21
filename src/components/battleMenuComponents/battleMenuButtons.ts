@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { typeColorMap } from "../../../configs/gameConfig";
+import { POKEMON_TYPES } from "../../commonData/typeData";
 
 export class MoveSelectionButton {
     public id: string;
@@ -9,7 +9,7 @@ export class MoveSelectionButton {
     public buttonContainer: Phaser.GameObjects.Container
     public isVisible: boolean;
     public buttonRectangle: Phaser.GameObjects.Rectangle 
-    constructor(id: string, type: keyof typeof typeColorMap, moveName: string, x_pos: number, y_pos: number, scene: Phaser.Scene, isVisible: boolean){
+    constructor(id: string, type: keyof typeof POKEMON_TYPES, moveName: string, x_pos: number, y_pos: number, scene: Phaser.Scene, isVisible: boolean){
         
         this.id = id;
         this._type = type;
@@ -29,7 +29,7 @@ export class MoveSelectionButton {
 
         this.buttonContainer = this._scene.add.container(0, 0, [
             this.buttonRectangle,
-            this._scene.add.rectangle(x_pos + 10 + (type_padding / 4) , y_pos + 5 + (type_padding / 4), width - (type_padding / 2), height - (type_padding / 2)).setAlpha(1).setOrigin(0).setStrokeStyle(4, typeColorMap[type].primaryColor, .9),
+            this._scene.add.rectangle(x_pos + 10 + (type_padding / 4) , y_pos + 5 + (type_padding / 4), width - (type_padding / 2), height - (type_padding / 2)).setAlpha(1).setOrigin(0).setStrokeStyle(4, POKEMON_TYPES[type].primaryColor, .9),
             this._scene.add.text(x_pos + ((width - ((font_size * moveName?.length) / 2)) / 2), y_pos - 1 + ((height - (font_size / 2)) / 2), this.moveName, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: `${font_size}px`, color: '#fffff'}).setOrigin(0)
         ]);
         this.buttonContainer.visible = this.isVisible;

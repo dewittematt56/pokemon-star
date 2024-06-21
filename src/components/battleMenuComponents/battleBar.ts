@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { PokemonPartyMemberType } from "../../../../commonTypes/typeDefs";
+import { PokemonPartyMemberType } from "../../commonTypes/typeDefs";
 
 
 export class StandardBattleBarComponent {

@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 import StarterScene from "./scenes/starterScene";
-import { SCENE_KEYS } from "./scenes/sceneKeys";
+import { SCENE_KEYS } from "../commonData/keysScene";
 import { BattleScene, pokemonBattleSceneData } from "./scenes/battleScene/battleScene";
 import { constMockPokemonParty, constWildPokemonParty } from "../testData/mockData";
 const config = {
