@@ -12,7 +12,9 @@ export const constMockPokemonParty: PokemonPartyType = [
             experience: 0,
             pokemonBattleData: {
                 moves: [
-                    new PokemonMove("EMBER", "Ember")
+                    new PokemonMove("EMBER", "Ember", "FIRE"),
+                    new PokemonMove("GROWL", "Growl", "NORMAL"),
+                    new PokemonMove("TACKLE", "Tackle", "NORMAL")
                 ]
             },
             pokemonImageData: {
