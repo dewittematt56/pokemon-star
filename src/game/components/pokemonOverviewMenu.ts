@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { PokemonPartyType } from "../pokemon/typeDefs";
+import { PokemonPartyType } from "../../commonTypes/typeDefs";
 
 export class PokemonOverviewMenu {
     private _scene: Phaser.Scene

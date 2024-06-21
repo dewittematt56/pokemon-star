@@ -2,7 +2,7 @@ import { useRef, useEffect } from "react";
 import StarterScene from "./scenes/starterScene";
 import { SCENE_KEYS } from "./scenes/sceneKeys";
 import { BattleScene, pokemonBattleSceneData } from "./scenes/battleScene/battleScene";
-import { constMockPokemonParty, constWildPokemonParty } from "./pokemon/mockData";
+import { constMockPokemonParty, constWildPokemonParty } from "../testData/mockData";
 const config = {
     type: Phaser.AUTO,
 	width: "1280",

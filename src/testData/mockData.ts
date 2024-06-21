@@ -1,5 +1,5 @@
-import { v4 as uuidv4 } from 'uuid';
-import { PokemonPartyType } from "./typeDefs";
+import { PokemonPartyType } from "../commonTypes/typeDefs";
+import { PokemonMove } from '../commonClass/pokemonMove';
 
 export const constMockPokemonParty: PokemonPartyType = [
     {
@@ -7,11 +7,13 @@ export const constMockPokemonParty: PokemonPartyType = [
             uniqueId: "2",
             pokeDexKey: "TORCHIC",
             name: "Torchic",
-            level: 1,
+            level: 6,
             sex: "MALE",
             experience: 0,
             pokemonBattleData: {
-                moves: []
+                moves: [
+                    new PokemonMove("EMBER", "Ember")
+                ]
             },
             pokemonImageData: {
                 frontImage: {
@@ -50,7 +52,7 @@ export const constMockPokemonParty: PokemonPartyType = [
             uniqueId: "1",
             pokeDexKey: "BULBASAUR",
             name: "Bulbasaur",
-            level: 1,
+            level: 5,
             sex: "FEMALE",
             experience: 0,
             pokemonBattleData: {
@@ -68,11 +70,11 @@ export const constMockPokemonParty: PokemonPartyType = [
                 },
                 backImage: {
                     assetKey: "BULBASAUR_BACK_0",
-                    path: "/assets/pokemon/bulbasaur/frontSpriteSheet.png",
-                    height: 46,
-                    width: 30,
+                    path: "/assets/pokemon/bulbasaur/backSpriteSheet.png",
+                    height: 37,
+                    width: 32,
                     animStart: 0,
-                    animFinish: 31,
+                    animFinish: 50,
                     frameRate: 10
                 },
                 iconImage: {
@@ -116,16 +118,59 @@ export const constWildPokemonParty: PokemonPartyType = [
                 },
                 backImage: {
                     assetKey: "BULBASAUR_BACK_0",
-                    path: "/assets/pokemon/bulbasaur/frontSpriteSheet.png",
-                    height: 46,
-                    width: 30,
+                    path: "/assets/pokemon/bulbasaur/backSpriteSheet.png.png",
+                    height: 37,
+                    width: 32,
                     animStart: 0,
-                    animFinish: 31,
+                    animFinish: 51,
                     frameRate: 10
                 },
                 iconImage: {
                     assetKey: "BULBASAUR_ICON_0",
                     path: "/assets/sprites/pokemon/bulbasaur/001.png",
+                    height: 64,
+                    width: 64,
+                    animStart: 0,
+                    animFinish: 0,
+                    frameRate: 0
+                }
+            },
+            pokemonMetaData: {}
+        }
+    },
+    {
+        pokemon: {
+            uniqueId: "1",
+            pokeDexKey: "POOCHYENA",
+            name: "Poocheyna",
+            level: 1,
+            sex: "FEMALE",
+            experience: 0,
+            pokemonBattleData: {
+                moves: []
+            },
+            pokemonImageData: {
+                frontImage: {
+                    assetKey: "POOCHYENA_FRONT_0",
+                    path: "/assets/pokemon/poochyena/frontSpriteSheet.png",
+                    height: 44,
+                    width: 52,
+                    animStart: 0,
+                    animFinish: 59,
+                    frameRate: 10
+                },
+                backImage: {
+                    assetKey: "POOCHYENA_BACK_0",
+                    path: "/assets/pokemon/poochyena/backSpriteSheet.png",
+                    height: 53,
+                    width: 44,
+                    animStart: 0,
+                    animFinish: 52,
+                    frameRate: 10
+                },
+                iconImage: {
+                    assetKey: "POOCHYENA_ICON_0",
+                    path: "/assets/sprites/pokemon/poochyena/261.png",
                     height: 64,
                     width: 64,
                     animStart: 0,

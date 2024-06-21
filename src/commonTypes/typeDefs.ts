@@ -1,3 +1,5 @@
+import { PokemonMove } from "../commonClass/pokemonMove"
+
 export type PokemonImageDataType = {
     frontImage: AnimatedImageType,
     backImage: AnimatedImageType,
@@ -12,17 +14,10 @@ export type AnimatedImageType = {
     animStart: number,
     animFinish: number,
     frameRate: number
-}
-
-export type PokemonBattleMove = {
-    id: string
-    name: string,
-    // To-Do Create Generic Types
-    type: string
-}
+} 
 
 export type PokemonBattleDataType = {
-    moves: []
+    moves: PokemonMove []
 } 
 
 export type PokemonMetaDataType = {
