@@ -1,7 +1,6 @@
 import { DIRECTION_TYPE, DIRECTION } from "../controls/direction";
 import { CoordinateType } from "../typeDefs/coordinate";
-import { TILE_SIZE } from "../../configs/gameConfig";
-
+import { TILE_SIZE } from "../../../commonData/configWorld";
 
 /**
  * Take in current position and update it with given direction to find new position.

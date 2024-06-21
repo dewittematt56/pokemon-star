@@ -1,4 +1,4 @@
-import { POKEMON_TYPES } from "../commonData/dataType";
+import { POKEMON_TYPES } from "../../commonData/dataType";
 
 export class PokemonType {
     public id: string;

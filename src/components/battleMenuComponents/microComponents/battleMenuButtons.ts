@@ -1,8 +1,8 @@
 import Phaser from "phaser";
-import { POKEMON_TYPES } from "../../commonData/dataType";
-import { PokemonPartyMemberType } from "../../commonTypes/typeDefs";
+import { PokemonPartyMemberType } from "../../../commonTypes/typeDefs";
+import { PokemonMove } from "../../../commonClass/pokemon/pokemonMove";
 
-export class moveSelectionMenu {
+export class MoveSelectionMenu {
     private scene: Phaser.Scene;
     public pokemon: PokemonPartyMemberType
 
@@ -12,23 +12,19 @@ export class moveSelectionMenu {
     }
 
     generateMoveSelectionButtons(){
-        
+
     }
 }
 
 export class MoveSelectionButton {
-    public id: string;
-    public moveName: string;
+    public move: PokemonMove;
     private _scene: Phaser.Scene;
-    private _type: string;
     public buttonContainer: Phaser.GameObjects.Container
     public isVisible: boolean;
     public buttonRectangle: Phaser.GameObjects.Rectangle 
-    constructor(id: string, type: keyof typeof POKEMON_TYPES, moveName: string, x_pos: number, y_pos: number, scene: Phaser.Scene, isVisible: boolean){
+    constructor(move: PokemonMove, x_pos: number, y_pos: number, scene: Phaser.Scene, isVisible: boolean){
+        this.move = move
         
-        this.id = id;
-        this._type = type;
-        this.moveName = moveName
         this._scene = scene
         this.isVisible = isVisible;
 
@@ -44,8 +40,8 @@ export class MoveSelectionButton {
 
         this.buttonContainer = this._scene.add.container(0, 0, [
             this.buttonRectangle,
-            this._scene.add.rectangle(x_pos + 10 + (type_padding / 4) , y_pos + 5 + (type_padding / 4), width - (type_padding / 2), height - (type_padding / 2)).setAlpha(1).setOrigin(0).setStrokeStyle(4, POKEMON_TYPES[type].primaryColor, .9),
-            this._scene.add.text(x_pos + ((width - ((font_size * moveName?.length) / 2)) / 2), y_pos - 1 + ((height - (font_size / 2)) / 2), this.moveName, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: `${font_size}px`, color: '#fffff'}).setOrigin(0)
+            this._scene.add.rectangle(x_pos + 10 + (type_padding / 4) , y_pos + 5 + (type_padding / 4), width - (type_padding / 2), height - (type_padding / 2)).setAlpha(1).setOrigin(0).setStrokeStyle(4, move.type.primaryColor, .9),
+            this._scene.add.text(x_pos + ((width - ((font_size * move.name?.length) / 2)) / 2), y_pos - 1 + ((height - (font_size / 2)) / 2), move.name, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: `${font_size}px`, color: '#fffff'}).setOrigin(0)
         ]);
         this.buttonContainer.visible = this.isVisible;
         

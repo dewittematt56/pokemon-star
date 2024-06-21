@@ -7,7 +7,7 @@ import animations from "../configs/animations.json"
 import { CHARACTER_ASSET_KEYS } from '../utils/assetKeys';
 import { DialogUI } from '../world/dialog-ui';
 import { getTargetPositionFromGameObjectPositionAndDirection } from '../utils/gridUtils.ts/gridUtils';
-import { TILE_SIZE } from '../configs/gameConfig';
+import { TILE_SIZE } from '../../commonData/configWorld';
 import { SCENE_KEYS } from '../../commonData/keysScene';
 
 export default class StarterScene extends Phaser.Scene {

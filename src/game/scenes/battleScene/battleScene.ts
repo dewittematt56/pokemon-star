@@ -4,8 +4,8 @@ import { BATTLE_BACKGROUND_ASSETS } from "../../../commonData/keysBattleScene";
 import { PokemonOverviewMenu } from "../../../components/pokemonOverviewMenu";
 import { PokemonPartyType, PokemonPartyMemberType } from "../../../commonTypes/typeDefs";
 
-import {MoveSelectionButton, BattleMenuSelectButton} from '../../../components/battleMenuComponents/battleMenuButtons'
-import { YourBattleBarComponent, OpponentBattleBarComponent } from "../../../components/battleMenuComponents/battleBar";
+import { BattleSelectMenu } from "../../../components/battleMenuComponents/battleMenu";
+import { YourBattleBarComponent, OpponentBattleBarComponent } from "../../../components/battleMenuComponents/battlePokemonStatusBar";
 
 export type pokemonBattleSceneData = {
     battleFieldBackgroundAssetKey: string,
@@ -23,10 +23,9 @@ export class BattleScene extends Phaser.Scene {
     public playerPokemonParty: PokemonPartyType | undefined
     public opponentPokemonParty: PokemonPartyType | undefined
 
+    public battleSelectMenu: BattleSelectMenu | undefined;
     public yourBattleBarComponent: YourBattleBarComponent | undefined;
     public opponentBattleBarComponent: OpponentBattleBarComponent | undefined;
-    public battleMenuContainer: Phaser.GameObjects.Container | undefined;
-    public battleMenuCursorImageGameObject: Phaser.GameObjects.Image | undefined
     public fightSubMenuContainer: Phaser.GameObjects.Container | undefined;
 
     constructor(){
@@ -82,35 +81,23 @@ export class BattleScene extends Phaser.Scene {
         let backgroundImage = this.add.image(0, 0, BATTLE_BACKGROUND_ASSETS.FOREST.key).setOrigin(0).setScale(4)
         this._backgroundImageBoundsObject = {...backgroundImage.getBounds()}
 
-        this.createBattleMenu()
-        if(this.opponentPokemon){
+        if(this.opponentPokemon && this.yourPokemon){
+            // Battle Select Menu
+            this.battleSelectMenu = new BattleSelectMenu(this, this.yourPokemon, () => this.scene.switch(SCENE_KEYS.WORLD_SCENE));
+            // Opponent
             this.loadOpponentPokemonOntoPage(this.opponentPokemon)
             this.opponentBattleBarComponent = new OpponentBattleBarComponent(this, -2, 24, this.opponentPokemon);
-        }
-        if(this.yourPokemon){
+            // Your Pokemon
             this.loadYourPokemonOntoPage(this.yourPokemon);
             this.yourBattleBarComponent = new YourBattleBarComponent(this, 642, 450, this.yourPokemon)
-
         }
         if(this.playerPokemonParty){
             new PokemonOverviewMenu(this, this.playerPokemonParty, this.newPlayerPokemon);
         }
     }
 
-    createBattleMenu(){
-        this.battleMenuContainer = this.add.container(0, 0, [
-            this.add.rectangle(0, 572.5, 1012.5, 105, 0x353b48).setOrigin(0).setStrokeStyle(1),
-            this.add.rectangle(2, 575, 640, 100, 0x353b48).setOrigin(0),
-            new BattleMenuSelectButton("FIGHT", 652.5, 580, 0xc23616, this, true, "FIGHT", (visibility: boolean) => {this.setFightMenuVisibility(!visibility)}).container,
-            new BattleMenuSelectButton("BAG", 832.5, 580, 0xe1b12c, this, true, "BAG", () => {}).container,
-            new BattleMenuSelectButton("POKEMON", 652.5, 630, 0x44bd32, this, true, "POKEMON", () => {}).container,
-            new BattleMenuSelectButton("RUN", 832.5, 630, 0x0097e6, this, true, "RUN", () => {this.scene.switch(SCENE_KEYS.WORLD_SCENE)}).container,
-        ])
-        this.fightSubMenuContainer = this.add.container(0, 0 , this.createMoveSelectionButtons(false)); 
-        
-    }
 
-    // Refactor
+    // Refactor -- into battleBokemon.ts class
     loadOpponentPokemonOntoPage(pokemon: PokemonPartyMemberType){
         if(this._backgroundImageBoundsObject){
             let x_pos = (this._backgroundImageBoundsObject.width / 2) - pokemon.pokemon.pokemonImageData.frontImage.width + 225;
@@ -146,22 +133,7 @@ export class BattleScene extends Phaser.Scene {
         this._yourPokemonSprite?.destroy()
         this.loadYourPokemonOntoPage(newPokemon)
         this.yourBattleBarComponent?.switchPokemon(newPokemon);
-    }
-
-    createMoveSelectionButtons(isDefaultVisible: boolean){
-        let moves = ["TACKLE", "TOSS", "TRAP", "SNAG"]
-        return moves.map((move, i) => {
-            if( i == 0){
-                return new MoveSelectionButton("tackle", "FIRE", move, 0, 575, this, isDefaultVisible).buttonContainer
-            } else if(i == 1) {
-                return new MoveSelectionButton("tackle", "FIGHTING", move, 315, 575, this, isDefaultVisible).buttonContainer
-            } else if(i == 2) {
-                return new MoveSelectionButton("tackle", "GHOST", move, 0, 625, this, isDefaultVisible).buttonContainer
-            } else if(i == 3) {
-                return new MoveSelectionButton("tackle", "WATER", move, 315, 625, this, isDefaultVisible).buttonContainer
-            }
-            return new MoveSelectionButton("tackle", "WATER", move, 315, 625, this, isDefaultVisible).buttonContainer
-        })
+        this.battleSelectMenu?.switchPokemon(newPokemon);
     }
     
     // Called every frame of the game
@@ -169,14 +141,4 @@ export class BattleScene extends Phaser.Scene {
 
     }
 
-
-    // Display Functions
-    setFightMenuVisibility(isVisible: boolean){
-        if(this.fightSubMenuContainer){
-            this.fightSubMenuContainer.list.forEach((gameObject: any) => {
-                gameObject.setVisible(isVisible)
-            })
-            this.fightSubMenuContainer.visible = isVisible;
-        }
-    }
 }

@@ -1,5 +1,5 @@
 import { PokemonPartyType } from "../commonTypes/typeDefs";
-import { PokemonMove } from '../commonClass/pokemonMove';
+import { PokemonMove } from '../commonClass/pokemon/pokemonMove';
 
 export const constMockPokemonParty: PokemonPartyType = [
     {
@@ -9,12 +9,17 @@ export const constMockPokemonParty: PokemonPartyType = [
             name: "Torchic",
             level: 6,
             sex: "MALE",
-            experience: 0,
+            pokemonStatData: {
+                currentHp: 10,
+                maxHp: 10,
+                currentExperience: 0,
+                maxExperience: 0  
+            },
             pokemonBattleData: {
                 moves: [
-                    new PokemonMove("EMBER", "Ember", "FIRE"),
-                    new PokemonMove("GROWL", "Growl", "NORMAL"),
-                    new PokemonMove("TACKLE", "Tackle", "NORMAL")
+                    new PokemonMove("EMBER"),
+                    new PokemonMove("GROWL"),
+                    new PokemonMove("TACKLE")
                 ]
             },
             pokemonImageData: {
@@ -56,9 +61,19 @@ export const constMockPokemonParty: PokemonPartyType = [
             name: "Bulbasaur",
             level: 5,
             sex: "FEMALE",
-            experience: 0,
+            pokemonStatData: {
+                currentHp: 12,
+                maxHp: 12,
+                currentExperience: 0,
+                maxExperience: 0  
+            },
             pokemonBattleData: {
-                moves: []
+                moves: [
+                    new PokemonMove("TACKLE"),
+                    new PokemonMove("VINE_WHIP"),
+                    new PokemonMove("SCREECH"),
+                    
+                ]
             },
             pokemonImageData: {
                 frontImage: {
@@ -104,7 +119,12 @@ export const constWildPokemonParty: PokemonPartyType = [
             name: "Bulbasaur",
             level: 1,
             sex: "FEMALE",
-            experience: 0,
+            pokemonStatData: {
+                currentHp: 10,
+                maxHp: 10,
+                currentExperience: 0,
+                maxExperience: 0  
+            },
             pokemonBattleData: {
                 moves: []
             },
@@ -147,7 +167,12 @@ export const constWildPokemonParty: PokemonPartyType = [
             name: "Poocheyna",
             level: 1,
             sex: "FEMALE",
-            experience: 0,
+            pokemonStatData: {
+                currentHp: 10,
+                maxHp: 10,
+                currentExperience: 0,
+                maxExperience: 0  
+            },
             pokemonBattleData: {
                 moves: []
             },

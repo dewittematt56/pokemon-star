@@ -1,4 +1,4 @@
-import { PokemonMove } from "../commonClass/pokemonMove"
+import { PokemonMove } from "../commonClass/pokemon/pokemonMove"
 
 export type PokemonImageDataType = {
     frontImage: AnimatedImageType,
@@ -16,6 +16,14 @@ export type AnimatedImageType = {
     frameRate: number
 } 
 
+export type PokemonStatsType = {
+    currentHp: number,
+    maxHp: number,
+    currentExperience: number,
+    maxExperience: number
+    // To-Do Attack, Defense, Special Attack, Special Defense, Speed...etc
+}
+
 export type PokemonBattleDataType = {
     moves: PokemonMove []
 } 
@@ -30,7 +38,7 @@ export type BasePokemon = {
     name: string,
     level: number,
     sex: "MALE" | "FEMALE" | "UNK",
-    experience: number,
+    pokemonStatData: PokemonStatsType
     pokemonBattleData: PokemonBattleDataType,
     pokemonImageData: PokemonImageDataType,
     pokemonMetaData: PokemonMetaDataType
