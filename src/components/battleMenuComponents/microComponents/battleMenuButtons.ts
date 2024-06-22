@@ -21,8 +21,10 @@ export class MoveSelectionButton {
     private _scene: Phaser.Scene;
     public buttonContainer: Phaser.GameObjects.Container
     public isVisible: boolean;
-    public buttonRectangle: Phaser.GameObjects.Rectangle 
-    constructor(move: PokemonMove, x_pos: number, y_pos: number, scene: Phaser.Scene, isVisible: boolean){
+    public buttonRectangle: Phaser.GameObjects.Rectangle
+    public moveSelectionCallback: any
+    
+    constructor(move: PokemonMove, x_pos: number, y_pos: number, scene: Phaser.Scene, isVisible: boolean, callbackFunction: any){
         this.move = move
         
         this._scene = scene
@@ -37,6 +39,7 @@ export class MoveSelectionButton {
         this.buttonRectangle = this._scene.add.rectangle(x_pos + 10, y_pos + 5, width, height, 0xFFFFFF).setAlpha(0.9).setOrigin(0).setStrokeStyle(4, 0x262b33, 1).setInteractive();
         this.buttonRectangle.on("pointerover", () => {this.buttonRectangle.setStrokeStyle(4, 0xffffff, 1)})
         this.buttonRectangle.on("pointerout", () => {this.buttonRectangle.setStrokeStyle(4, 0x262b33, 1)})
+        this.buttonRectangle.on("pointerdown", () => callbackFunction(move))
 
         this.buttonContainer = this._scene.add.container(0, 0, [
             this.buttonRectangle,

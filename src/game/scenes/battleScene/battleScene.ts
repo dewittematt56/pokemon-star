@@ -7,6 +7,7 @@ import { PokemonPartyType, PokemonPartyMemberType } from "../../../commonTypes/t
 import { BattleSelectMenu } from "../../../components/battleMenuComponents/battleMenu";
 import { YourBattleBarComponent, OpponentBattleBarComponent } from "../../../components/battleMenuComponents/battlePokemonStatusBar";
 import { BattlePokemonSprite } from "../../../components/pokemon/battlePokemonSprite";
+import { PokemonMove } from "../../../commonClass/pokemon/pokemonMove";
 
 export type pokemonBattleSceneData = {
     battleFieldBackgroundAssetKey: string,
@@ -84,7 +85,7 @@ export class BattleScene extends Phaser.Scene {
 
         if(this.opponentPokemon && this.yourPokemon){
             // Battle Select Menu
-            this.battleSelectMenu = new BattleSelectMenu(this, this.yourPokemon, () => this.scene.switch(SCENE_KEYS.WORLD_SCENE));
+            this.battleSelectMenu = new BattleSelectMenu(this, this.yourPokemon, () => this.scene.switch(SCENE_KEYS.WORLD_SCENE), (move: PokemonMove) => this.moveSelectionHandler(move));
             
             // Opponent
             this.opponentPokemonSprite = new BattlePokemonSprite(this, this.opponentPokemon, (this._backgroundImageBoundsObject.width / 2)  * 1.5, (this._backgroundImageBoundsObject.height / 2) * 1.1, true);
@@ -92,17 +93,36 @@ export class BattleScene extends Phaser.Scene {
             
             // Your Pokemon
             this.yourPokemonSprite =  new BattlePokemonSprite(this, this.yourPokemon, (this._backgroundImageBoundsObject.width / 2) * .5, (this._backgroundImageBoundsObject.height / 2) * 1.75, false);
+            this.yourPokemonSprite.pokemonSprite?.setVisible(false);
             this.yourBattleBarComponent = new YourBattleBarComponent(this, 642, 450, this.yourPokemon)
         }
         if(this.playerPokemonParty){
-            new PokemonOverviewMenu(this, this.playerPokemonParty, this.newPlayerPokemon);
+            new PokemonOverviewMenu(this, this.playerPokemonParty, this.changePlayerPokemon);
         }
+        this.initialBattleLoad();
     }
 
-    newPlayerPokemon = (newPokemon: PokemonPartyMemberType) => {
-        this.yourPokemonSprite?.updatePokemon(newPokemon);
-        this.yourBattleBarComponent?.switchPokemon(newPokemon);
+    initialBattleLoad(){
+        this.battleSelectMenu?.displayDialog([`Oh no, a wild ${this.opponentPokemon?.pokemon.name} has appeared......`, `Go ${this.yourPokemon?.pokemon.name}!`], true, () => {
+            this.yourPokemonSprite?.pokemonSprite?.setVisible(true);
+            this.battleSelectMenu?.updateDialogVisibility(false)
+        });    
+    }
+
+    moveSelectionHandler(move: PokemonMove){
+        // To-Do Check Turn
+        this.battleSelectMenu?.displayDialog([`${this.yourPokemon?.pokemon.name} used ${move.name}...`, `Wow! A Critical Hit`], true, () => {
+            this.battleSelectMenu?.updateDialogVisibility(false)
+        });  
+    }
+
+    changePlayerPokemon = (newPokemon: PokemonPartyMemberType) => {
         this.battleSelectMenu?.switchPokemon(newPokemon);
+        this.battleSelectMenu?.displayDialog([`Nice work ${this.yourPokemon?.pokemon.name}...`, `Go ${newPokemon.pokemon.name}, show em what you got!`], true, () => {
+            this.yourPokemonSprite?.updatePokemon(newPokemon);
+            this.yourBattleBarComponent?.switchPokemon(newPokemon);
+            this.battleSelectMenu?.updateDialogVisibility(false)
+        }); 
     }
     
     // Called every frame of the game

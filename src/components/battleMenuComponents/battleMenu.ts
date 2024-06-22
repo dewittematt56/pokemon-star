@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import { PokemonPartyMemberType } from "../../commonTypes/typeDefs";
 import { BattleMenuSelectButton, MoveSelectionButton } from "./microComponents/battleMenuButtons";
+import { BattleMenuDialog } from "./microComponents/battleMenuDialog";
+import { PokemonMove } from "../../commonClass/pokemon/pokemonMove";
 
 export class BattleSelectMenu {
     private scene: Phaser.Scene;
@@ -8,19 +10,26 @@ export class BattleSelectMenu {
     public battleMenuContainer: Phaser.GameObjects.Container;
     public battleMenuOptionsContainer: Phaser.GameObjects.Container;
     public fightOptionsContainer: Phaser.GameObjects.Container;
-    
-    public runCallback: Function;
+    public battleMenuDialog: BattleMenuDialog;
 
-    constructor(scene: Phaser.Scene, pokemon: PokemonPartyMemberType, runCallback: Function){
+    public runCallback: Function;
+    public moveSelectCallBack: Function;
+
+    constructor(scene: Phaser.Scene, pokemon: PokemonPartyMemberType, runCallback: Function, moveSelectCallback: Function){
         this.scene = scene
         this.pokemon = pokemon
+
+        this.battleMenuDialog = new BattleMenuDialog(this.scene, 0, 0, 650, 100, false);
+
         this.battleMenuContainer = this.scene.add.container(0, 570, [
             this.battleMenuOptionsContainer = this.createBattleMenu(),
-            this.fightOptionsContainer = this.scene.add.container(0, 0, [...this.createMoveSelectionButtons(true)])
+            this.fightOptionsContainer = this.scene.add.container(0, 0, [...this.createMoveSelectionButtons(true)]),
+            this.battleMenuDialog.dialogContainer
         ])
 
         // Callback Functions
         this.runCallback = runCallback;
+        this.moveSelectCallBack = moveSelectCallback;
     }
 
     createBattleMenu(){
@@ -35,17 +44,19 @@ export class BattleSelectMenu {
     }
 
     createMoveSelectionButtons(isDefaultVisible: boolean){
+        console.log(this.moveSelectCallBack)
+
         return this.pokemon.pokemon.pokemonBattleData.moves.map((move, i) => {
             if( i == 0){
-                return new MoveSelectionButton(move, 0, 5, this.scene, isDefaultVisible).buttonContainer
+                return new MoveSelectionButton(move, 0, 5, this.scene, isDefaultVisible, (move: PokemonMove) => this.moveSelectCallBack(move)).buttonContainer
             } else if(i == 1) {
-                return new MoveSelectionButton(move, 315, 5, this.scene, isDefaultVisible).buttonContainer
+                return new MoveSelectionButton(move, 315, 5, this.scene, isDefaultVisible, (move: PokemonMove) => this.moveSelectCallBack(move)).buttonContainer
             } else if(i == 2) {
-                return new MoveSelectionButton(move, 0, 55, this.scene, isDefaultVisible).buttonContainer
+                return new MoveSelectionButton(move, 0, 55, this.scene, isDefaultVisible, (move: PokemonMove) => this.moveSelectCallBack(move)).buttonContainer
             } else if(i == 3) {
-                return new MoveSelectionButton(move, 315, 55, this.scene, isDefaultVisible).buttonContainer
+                return new MoveSelectionButton(move, 315, 55, this.scene, isDefaultVisible, (move: PokemonMove) => this.moveSelectCallBack(move)).buttonContainer
             }
-            return new MoveSelectionButton(move, 315, 55, this.scene, isDefaultVisible).buttonContainer
+            return new MoveSelectionButton(move, 315, 55, this.scene, isDefaultVisible, (move: PokemonMove) => this.moveSelectCallBack(move)).buttonContainer
         })
     }
 
@@ -63,6 +74,16 @@ export class BattleSelectMenu {
         this.fightOptionsContainer.removeAll(true);
         this.fightOptionsContainer.add(this.createMoveSelectionButtons(true))
 
+    }
+
+    displayDialog(messages: string[], autoComplete: boolean, callBackFunction: Function){
+        this.fightOptionsContainer.setVisible(false)
+        this.battleMenuDialog.displayDialog(messages, autoComplete, callBackFunction)
+    }
+
+    updateDialogVisibility(visibility: boolean){
+        this.battleMenuDialog.updateVisibility(visibility);
+        this.fightOptionsContainer.setVisible(!visibility)
     }
 }
 
