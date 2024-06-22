@@ -60,8 +60,15 @@ export class YourBattleBarComponent extends StandardBattleBarComponent{
 
 export class OpponentBattleBarComponent extends StandardBattleBarComponent{
 
-    constructor(scene: Phaser.Scene, relativeXPos: number, relativeYPos: number, pokemon: PokemonPartyMemberType){
+    constructor(scene: Phaser.Scene, relativeXPos: number, relativeYPos: number, pokemon: PokemonPartyMemberType, hasBeenCaught: boolean){
         super(scene, relativeXPos, relativeYPos, pokemon, "Opponent_Battle_Bar_Component")
+
+        if(hasBeenCaught){
+            this.container.add([
+                this.scene.add.image(relativeXPos + 13, relativeYPos + 16, "POKEBALL-ICON").setOrigin(0).setScale(0.08).setDepth(99)
+            ])
+        }
+        
     }
 }
 

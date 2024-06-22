@@ -6,6 +6,7 @@ import { PokemonPartyType, PokemonPartyMemberType } from "../../../commonTypes/t
 
 import { BattleSelectMenu } from "../../../components/battleMenuComponents/battleMenu";
 import { YourBattleBarComponent, OpponentBattleBarComponent } from "../../../components/battleMenuComponents/battlePokemonStatusBar";
+import { BattlePokemonSprite } from "../../../components/pokemon/battlePokemonSprite";
 
 export type pokemonBattleSceneData = {
     battleFieldBackgroundAssetKey: string,
@@ -15,9 +16,9 @@ export type pokemonBattleSceneData = {
 
 export class BattleScene extends Phaser.Scene {
     public opponentPokemon: PokemonPartyMemberType | undefined;
-    private _opponentPokemonSprite: Phaser.GameObjects.Sprite | undefined;
+    public opponentPokemonSprite: BattlePokemonSprite | undefined;
     public yourPokemon: PokemonPartyMemberType | undefined;
-    private _yourPokemonSprite: Phaser.GameObjects.Sprite | undefined;
+    public yourPokemonSprite: BattlePokemonSprite | undefined;
     private _backgroundImageBoundsObject: {x: number, y: number, width: number, height: number} | undefined; 
     
     public playerPokemonParty: PokemonPartyType | undefined
@@ -84,11 +85,13 @@ export class BattleScene extends Phaser.Scene {
         if(this.opponentPokemon && this.yourPokemon){
             // Battle Select Menu
             this.battleSelectMenu = new BattleSelectMenu(this, this.yourPokemon, () => this.scene.switch(SCENE_KEYS.WORLD_SCENE));
+            
             // Opponent
-            this.loadOpponentPokemonOntoPage(this.opponentPokemon)
-            this.opponentBattleBarComponent = new OpponentBattleBarComponent(this, -2, 24, this.opponentPokemon);
+            this.opponentPokemonSprite = new BattlePokemonSprite(this, this.opponentPokemon, (this._backgroundImageBoundsObject.width / 2)  * 1.5, (this._backgroundImageBoundsObject.height / 2) * 1.1, true);
+            this.opponentBattleBarComponent = new OpponentBattleBarComponent(this, -2, 24, this.opponentPokemon, true);
+            
             // Your Pokemon
-            this.loadYourPokemonOntoPage(this.yourPokemon);
+            this.yourPokemonSprite =  new BattlePokemonSprite(this, this.yourPokemon, (this._backgroundImageBoundsObject.width / 2) * .5, (this._backgroundImageBoundsObject.height / 2) * 1.75, false);
             this.yourBattleBarComponent = new YourBattleBarComponent(this, 642, 450, this.yourPokemon)
         }
         if(this.playerPokemonParty){
@@ -96,42 +99,8 @@ export class BattleScene extends Phaser.Scene {
         }
     }
 
-
-    // Refactor -- into battleBokemon.ts class
-    loadOpponentPokemonOntoPage(pokemon: PokemonPartyMemberType){
-        if(this._backgroundImageBoundsObject){
-            let x_pos = (this._backgroundImageBoundsObject.width / 2) - pokemon.pokemon.pokemonImageData.frontImage.width + 225;
-            let y_pos = (this._backgroundImageBoundsObject.height / 2) - pokemon.pokemon.pokemonImageData.frontImage.height - 25;
-            this._opponentPokemonSprite = this.add.sprite(x_pos, y_pos, pokemon.pokemon.pokemonImageData.frontImage.assetKey).setOrigin(0).setScale(4);
-            this.anims.create({
-                key: pokemon.pokemon.pokemonImageData.frontImage.assetKey,
-                frames: this.anims.generateFrameNumbers(pokemon.pokemon.pokemonImageData.frontImage.assetKey, { start: 0, end: 31 }),
-                frameRate: pokemon.pokemon.pokemonImageData.frontImage.frameRate,
-                repeat: 0
-            });
-            this._opponentPokemonSprite.play(pokemon.pokemon.pokemonImageData.frontImage.assetKey)
-        }
-    }
-
-    // Refactor
-    loadYourPokemonOntoPage(pokemon: PokemonPartyMemberType){
-        if(this._backgroundImageBoundsObject){
-            let x_pos = (this._backgroundImageBoundsObject.width / 2) - pokemon.pokemon.pokemonImageData.backImage.height - 225;
-            let y_pos = (this._backgroundImageBoundsObject.height / 2) - pokemon.pokemon.pokemonImageData.backImage.height + 125;
-            this._yourPokemonSprite = this.add.sprite(x_pos, y_pos, pokemon.pokemon.pokemonImageData.backImage.assetKey).setOrigin(0).setScale(4)
-            this.anims.create({
-                key: pokemon.pokemon.pokemonImageData.backImage.assetKey,
-                frames: this.anims.generateFrameNumbers(pokemon.pokemon.pokemonImageData.backImage.assetKey, { start: pokemon.pokemon.pokemonImageData.backImage.animStart, end: pokemon.pokemon.pokemonImageData.backImage.animFinish }),
-                frameRate: pokemon.pokemon.pokemonImageData.backImage.frameRate,
-                repeat: 0
-            });
-            this._yourPokemonSprite.play(pokemon.pokemon.pokemonImageData.backImage.assetKey)           
-        }
-    }
-
     newPlayerPokemon = (newPokemon: PokemonPartyMemberType) => {
-        this._yourPokemonSprite?.destroy()
-        this.loadYourPokemonOntoPage(newPokemon)
+        this.yourPokemonSprite?.updatePokemon(newPokemon);
         this.yourBattleBarComponent?.switchPokemon(newPokemon);
         this.battleSelectMenu?.switchPokemon(newPokemon);
     }
