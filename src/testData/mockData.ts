@@ -10,10 +10,15 @@ export const constMockPokemonParty: PokemonPartyType = [
             level: 6,
             sex: "MALE",
             pokemonStatData: {
-                currentHp: 10,
+                currentHp: 9,
                 maxHp: 10,
                 currentExperience: 0,
-                maxExperience: 0  
+                maxExperience: 0,
+                speed: 0,
+                specialAttack: 70,
+                specialDefense: 50,
+                physicalAttack: 60,
+                physicalDefense: 40    
             },
             pokemonBattleData: {
                 moves: [
@@ -65,14 +70,18 @@ export const constMockPokemonParty: PokemonPartyType = [
                 currentHp: 12,
                 maxHp: 12,
                 currentExperience: 0,
-                maxExperience: 0  
+                maxExperience: 0,
+                speed: 0,
+                specialAttack: 65,
+                specialDefense: 65,
+                physicalAttack: 49,
+                physicalDefense: 49    
             },
             pokemonBattleData: {
                 moves: [
                     new PokemonMove("TACKLE"),
                     new PokemonMove("VINE_WHIP"),
                     new PokemonMove("SCREECH"),
-                    
                 ]
             },
             pokemonImageData: {
@@ -115,18 +124,82 @@ export const constWildPokemonParty: PokemonPartyType = [
     {
         pokemon: {
             uniqueId: "1",
-            pokeDexKey: "BULBASAUR",
-            name: "Bulbasaur",
+            pokeDexKey: "POOCHYENA",
+            name: "Poocheyna",
             level: 1,
             sex: "FEMALE",
             pokemonStatData: {
                 currentHp: 10,
                 maxHp: 10,
                 currentExperience: 0,
-                maxExperience: 0  
+                maxExperience: 0,
+                speed: 0,
+                specialAttack: 30,
+                specialDefense: 30,
+                physicalAttack: 55,
+                physicalDefense: 35  
             },
             pokemonBattleData: {
-                moves: []
+                moves: [
+                    new PokemonMove("TACKLE"),
+                    new PokemonMove("GROWL"),
+                ]
+            },
+            pokemonImageData: {
+                frontImage: {
+                    assetKey: "POOCHYENA_FRONT_0",
+                    path: "/assets/pokemon/poochyena/frontSpriteSheet.png",
+                    height: 44,
+                    width: 52,
+                    animStart: 0,
+                    animFinish: 58,
+                    frameRate: 10
+                },
+                backImage: {
+                    assetKey: "POOCHYENA_BACK_0",
+                    path: "/assets/pokemon/poochyena/backSpriteSheet.png",
+                    height: 53,
+                    width: 44,
+                    animStart: 0,
+                    animFinish: 52,
+                    frameRate: 10
+                },
+                iconImage: {
+                    assetKey: "POOCHYENA_ICON_0",
+                    path: "/assets/sprites/pokemon/poochyena/261.png",
+                    height: 64,
+                    width: 64,
+                    animStart: 0,
+                    animFinish: 0,
+                    frameRate: 0
+                }
+            },
+            pokemonMetaData: {}
+        }
+    },
+    {
+        pokemon: {
+            uniqueId: "1",
+            pokeDexKey: "BULBASAUR",
+            name: "Bulbasaur",
+            level: 4,
+            sex: "FEMALE",
+            pokemonStatData: {
+                currentHp: 10,
+                maxHp: 10,
+                currentExperience: 0,
+                maxExperience: 0,
+                speed: 1,
+                specialAttack: 65,
+                specialDefense: 65,
+                physicalAttack: 49,
+                physicalDefense: 49    
+            },
+            pokemonBattleData: {
+                moves: [
+                    new PokemonMove("TACKLE"),
+                    new PokemonMove("VINE_WHIP"),
+                ]
             },
             pokemonImageData: {
                 frontImage: {
@@ -150,54 +223,6 @@ export const constWildPokemonParty: PokemonPartyType = [
                 iconImage: {
                     assetKey: "BULBASAUR_ICON_0",
                     path: "/assets/sprites/pokemon/bulbasaur/001.png",
-                    height: 64,
-                    width: 64,
-                    animStart: 0,
-                    animFinish: 0,
-                    frameRate: 0
-                }
-            },
-            pokemonMetaData: {}
-        }
-    },
-    {
-        pokemon: {
-            uniqueId: "1",
-            pokeDexKey: "POOCHYENA",
-            name: "Poocheyna",
-            level: 1,
-            sex: "FEMALE",
-            pokemonStatData: {
-                currentHp: 10,
-                maxHp: 10,
-                currentExperience: 0,
-                maxExperience: 0  
-            },
-            pokemonBattleData: {
-                moves: []
-            },
-            pokemonImageData: {
-                frontImage: {
-                    assetKey: "POOCHYENA_FRONT_0",
-                    path: "/assets/pokemon/poochyena/frontSpriteSheet.png",
-                    height: 44,
-                    width: 52,
-                    animStart: 0,
-                    animFinish: 59,
-                    frameRate: 10
-                },
-                backImage: {
-                    assetKey: "POOCHYENA_BACK_0",
-                    path: "/assets/pokemon/poochyena/backSpriteSheet.png",
-                    height: 53,
-                    width: 44,
-                    animStart: 0,
-                    animFinish: 52,
-                    frameRate: 10
-                },
-                iconImage: {
-                    assetKey: "POOCHYENA_ICON_0",
-                    path: "/assets/sprites/pokemon/poochyena/261.png",
                     height: 64,
                     width: 64,
                     animStart: 0,

@@ -43,7 +43,7 @@ export class MoveSelectionButton {
 
         this.buttonContainer = this._scene.add.container(0, 0, [
             this.buttonRectangle,
-            this._scene.add.rectangle(x_pos + 10 + (type_padding / 4) , y_pos + 5 + (type_padding / 4), width - (type_padding / 2), height - (type_padding / 2)).setAlpha(1).setOrigin(0).setStrokeStyle(4, move.type.primaryColor, .9),
+            this._scene.add.rectangle(x_pos + 10 + (type_padding / 4) , y_pos + 5 + (type_padding / 4), width - (type_padding / 2), height - (type_padding / 2)).setAlpha(1).setOrigin(0).setStrokeStyle(4, move.moveType.primaryColor, .9),
             this._scene.add.text(x_pos + ((width - ((font_size * move.name?.length) / 2)) / 2), y_pos - 1 + ((height - (font_size / 2)) / 2), move.name, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: `${font_size}px`, color: '#fffff'}).setOrigin(0)
         ]);
         this.buttonContainer.visible = this.isVisible;

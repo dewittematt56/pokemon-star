@@ -44,6 +44,7 @@ export class BattlePokemonSprite {
     }
 
     updatePokemon(pokemon: PokemonPartyMemberType){
+        console.log(pokemon)
         this.pokemon = pokemon;
         this.removeSprite();
         this.buildPokemonSprite();

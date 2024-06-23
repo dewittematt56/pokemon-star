@@ -20,8 +20,12 @@ export type PokemonStatsType = {
     currentHp: number,
     maxHp: number,
     currentExperience: number,
-    maxExperience: number
-    // To-Do Attack, Defense, Special Attack, Special Defense, Speed...etc
+    maxExperience: number,
+    speed: number,
+    physicalAttack: number,
+    specialAttack: number,
+    physicalDefense: number,
+    specialDefense: number
 }
 
 export type PokemonBattleDataType = {
