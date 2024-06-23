@@ -94,7 +94,7 @@ export class BattleScene extends Phaser.Scene {
 
         if(this.opponentPokemon && this.yourPokemon){
             // Battle Select Menu
-            this.battleSelectMenu = new BattleSelectMenu(this, this.yourPokemon, () => this.scene.switch(SCENE_KEYS.WORLD_SCENE), (move: PokemonMove) => this.moveSelectionHandler(move));
+            this.battleSelectMenu = new BattleSelectMenu(this, this.yourPokemon, () => this.exitRun(), (move: PokemonMove) => this.moveSelectionHandler(move));
             
             // Opponent
             this.opponentPokemonSprite = new BattlePokemonSprite(this, this.opponentPokemon, (this._backgroundImageBoundsObject.width / 2)  * 1.5, (this._backgroundImageBoundsObject.height / 2) * 1.1, true);
@@ -115,6 +115,7 @@ export class BattleScene extends Phaser.Scene {
         if(this.playerPokemonParty){
             this.pokemonOverviewMenu = new PokemonOverviewMenu(this, this.playerPokemonParty, this.changePlayerPokemon);
         }
+        this.cameras.main.fadeIn(1000, 0, 0, 0)
         this.initialBattleLoad();
     }
 
@@ -141,7 +142,7 @@ export class BattleScene extends Phaser.Scene {
         if(executeOn == "PLAYER"){
             this.yourPokemon!.pokemon.pokemonStatData.currentHp = newHp;
             this.yourBattleBarComponent?.updatePokemonHp(newHp);
-            
+            this.pokemonOverviewMenu?.updatePokemonHp(this.yourPokemon!.pokemon.uniqueId, newHp, this.yourPokemon!.pokemon.pokemonStatData.maxHp);
             // A Pokemon has fainted
             if(newHp == 0){
                 let newPokemonIndex = findEligiblePokemonPartyMember(this.playerPokemonParty!);
@@ -186,6 +187,12 @@ export class BattleScene extends Phaser.Scene {
     }
 
     exitVictory = () => {
+        this.cameras.main.fadeOut(2000, 0, 0, 0)
+        this.scene.switch(SCENE_KEYS.WORLD_SCENE)
+    }
+
+    exitRun = () => {
+        this.cameras.main.fadeOut(2000, 0, 0, 0)
         this.scene.switch(SCENE_KEYS.WORLD_SCENE)
     }
 

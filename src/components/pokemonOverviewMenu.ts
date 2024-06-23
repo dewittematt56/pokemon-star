@@ -1,22 +1,27 @@
 import Phaser from "phaser";
 import { PokemonPartyType } from "../commonTypes/typeDefs";
+import { hpBarColorGenerator } from "./battleMenuComponents/utils/common";
 
 export class PokemonOverviewMenu {
     private _scene: Phaser.Scene
     public menuContainer: Phaser.GameObjects.Container | undefined
     public pokemonParty: PokemonPartyType
 
+    private pokemonContainers: Phaser.GameObjects.Container;
     // Callback Functions
     public pokemonPartyChangeCallback: Function;
 
     constructor(scene: Phaser.Scene, pokemonParty: PokemonPartyType, pokemonPartyChangeCallback: Function){
         this._scene = scene;
         this.pokemonParty = pokemonParty
+        this.pokemonContainers = this.displayPokemon()
         this.menuContainer = this._scene.add.container(1012, 0, [
             this._scene.add.rectangle(0, 0, 250, 678, 0x353b48).setOrigin(0).setStrokeStyle(2, 0x13161a),
             this._scene.add.text(90, 10, "Team", {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '25px', color: 'white'}).setOrigin(0),
-            this.displayPokemon()
+            this.pokemonContainers
         ])
+
+         
 
         // Callbacks
         this.pokemonPartyChangeCallback = pokemonPartyChangeCallback;
@@ -36,11 +41,14 @@ export class PokemonOverviewMenu {
                 this._scene.add.text(0, 20, `Lvl. ${pokemon.pokemon.level}`, {fontFamily: 'Audiowide', fontSize: '12px', color: 'white'}).setOrigin(0)
             ])
             
+
+            let hpPercentFilled = (pokemon.pokemon.pokemonStatData.currentHp / pokemon.pokemon.pokemonStatData.maxHp)
             let hpContainer = this._scene.add.container(130, y_padding + 35 + index * 64, [
-                this._scene.add.rectangle(0, 0, 100, 15, 0x4cd137).setOrigin(0).setStrokeStyle(2, 0x13161a).setName(`${pokemon.pokemon.uniqueId}_HP_BOX`),
+                this._scene.add.rectangle(0, 0, 100, 15).setOrigin(0).setStrokeStyle(3, 0x13161a).setName(`${pokemon.pokemon.uniqueId}_HP_OUTLINE`),
+                this._scene.add.rectangle(0, 0,  hpPercentFilled * 100, 15, hpBarColorGenerator(hpPercentFilled)).setOrigin(0).setName(`${pokemon.pokemon.uniqueId}_HP_BOX`),
                 this._scene.add.text(0, 20, `HP: `, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0).setName(`${pokemon.pokemon.uniqueId}_HP_LABEL`),
                 this._scene.add.text(30, 20, `${pokemon.pokemon.pokemonStatData.currentHp}/${pokemon.pokemon.pokemonStatData.maxHp}`, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0).setName(`${pokemon.pokemon.uniqueId}_HP_TEXT`)
-            ]).setName(`${pokemon}_HP_Container`)
+            ]).setName(`${pokemon.pokemon.uniqueId}_HP_Container`)
 
             // Add to Container
             pokemonContainer.add(pokemonMetadataContainer);
@@ -84,6 +92,7 @@ export class PokemonOverviewMenu {
                     })
                 })
             })
+            pokemonContainer.setName(pokemon.pokemon.uniqueId)
             return pokemonContainer;
         });
         return this._scene.add.container(0, 15, pokemonContainers).setName("POKEMON-DISPLAY-BOX");
@@ -105,4 +114,26 @@ export class PokemonOverviewMenu {
             }  
         })
     }
+
+    // To-Do Add Status Change
+    updatePokemonHp(idOfPokemonToUpdate: string, newHp: number, maxHp: number){
+        this.pokemonContainers.each((container: Phaser.GameObjects.Container) => {
+            if(container.name == idOfPokemonToUpdate){
+                container.each((subContainer: Phaser.GameObjects.Container) => {
+                    if(subContainer.name == `${idOfPokemonToUpdate}_HP_Container`){
+                        subContainer.each((gameObject: Phaser.GameObjects.Rectangle) => {
+                            if(gameObject.name == `${idOfPokemonToUpdate}_HP_BOX`){
+                                let percentHpLeft = (newHp / maxHp)
+                                // 100 = width of box 
+                                gameObject.width = percentHpLeft * 100
+                                gameObject.setFillStyle(hpBarColorGenerator(percentHpLeft))
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    }
+
+
 }

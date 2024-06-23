@@ -1,11 +1,8 @@
 import Phaser from "phaser";
 import { PokemonPartyMemberType } from "../../commonTypes/typeDefs";
+import { hpBarColorGenerator } from "./utils/common";
 
-function hpBarColorGenerator(percentFull: number){
-    if(percentFull >= .5){return 0x4cd137}
-    else if(percentFull >= .2){return 0xeba52f}
-    else if(percentFull >= .0){return 0xd13737}
-}
+
 
 export class StandardBattleBarComponent {
     public scene: Phaser.Scene;
