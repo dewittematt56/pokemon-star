@@ -42,6 +42,7 @@ export class Character {
 
         this._phaserGameObject = this._scene.add.sprite(config.position.x, config.position.y, config.assetKey, config.idleFrames[config.direction]);
         this._phaserGameObject.setScale(config.scaleSize ? config.scaleSize : 1);
+        this._phaserGameObject.setDepth(2)
 
         this._spriteGridMovementFinishedCallback = config.spriteGridMovementFinishedCallback;
         this._spriteChangedDirectionCallback = config.spriteChangedDirectionCallback;
@@ -58,6 +59,10 @@ export class Character {
 
     get sprite(): Phaser.GameObjects.Sprite {
         return this._phaserGameObject;
+    }
+
+    get position(): CoordinateType {
+        return this._previousTargetPosition
     }
 
     moveCharacter(direction: DIRECTION_TYPE): void {

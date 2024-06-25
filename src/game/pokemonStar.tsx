@@ -1,8 +1,9 @@
 import { useRef, useEffect } from "react";
 import StarterScene from "./scenes/worldScene/worldScene";
 import { SCENE_KEYS } from "../commonData/keysScene";
-import { BattleScene, pokemonBattleSceneData } from "./scenes/battleScene/battleScene";
+import { baseBattleScene } from "./scenes/battleScenes/baseBattleScene";
 import { constMockPokemonParty, constWildPokemonParty } from "../testData/mockData";
+import { WildEncounterScene } from "./scenes/battleScenes/wildEncounterScene";
 
 const config = {
     type: Phaser.AUTO,
@@ -28,12 +29,10 @@ export default function PokemonStar(){
     useEffect(() => {
         gameRef.current = new Phaser.Game(config);
         gameRef.current.scene.add(SCENE_KEYS.WORLD_SCENE, StarterScene);
-        gameRef.current.scene.add(SCENE_KEYS.BATTLE_SCENE, BattleScene);
+        gameRef.current.scene.add(SCENE_KEYS.WILD_ENCOUNTER_SCENE, WildEncounterScene);
         gameRef.current.scene.start(SCENE_KEYS.WORLD_SCENE, {
             battleFieldBackgroundAssetKey: "FOREST",
-            opponentParty: constWildPokemonParty,
-            pokemonParty: constMockPokemonParty
-        } as pokemonBattleSceneData)
+        })
         return () => {
             gameRef.current?.destroy(true);
         };

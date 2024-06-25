@@ -1,5 +1,6 @@
 import { Pokemon } from "../commonClass/pokemon/pokemon/pokemon"
 import { PokemonMove } from "../commonClass/pokemon/pokemonMove"
+import { POKEMON } from "../commonData/dataPokemon"
 
 export type PokemonImageDataType = {
     frontImage: AnimatedImageType,
@@ -52,5 +53,15 @@ export type BasePokemon = {
 /*------------------------- Pokemon Party Types -------------------------*/
 export type PokemonPartyType = Pokemon[];
 
+export type PokemonEncounterType = {
+    pokemon: keyof typeof POKEMON,
+    rate: number,
+    minLevel: number,
+    maxLevel: number
+}
 
+export type activePokemonEncounterType = {
+    pokemon: keyof typeof POKEMON,
+    level: number,
+}
 

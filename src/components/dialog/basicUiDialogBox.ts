@@ -1,12 +1,10 @@
-import { animateText } from "../utils/textUtils";
+import { animateText } from "../../game/utils/textUtils";
 
-export class DialogUI {
+export class BasicUiDialogBox {
     scene: Phaser.Scene;
     width: number;
     height: number;
     container: Phaser.GameObjects.Container;
-    // userInputCursor: Phaser.GameObjects.Image;
-    // userInputCursorTween: Phaser.Tweens.Tween;
     uiText: Phaser.GameObjects.Text;
     isTextAnimationPlaying: boolean;
     textMessagesToShow: string[];
@@ -17,7 +15,6 @@ export class DialogUI {
     constructor(scene: Phaser.Scene, width: number){
         this.scene = scene;
         this.padding = 20;
-        console.log(width)
         this.width = (width / 2) - this.padding * 2;
         this.height = 124 / 2;
         

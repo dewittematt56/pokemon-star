@@ -11,17 +11,11 @@ import { PokemonMove } from "../../../commonClass/pokemon/pokemonMove";
 import { CombatEngine } from "../../../commonEngine/combatEngine/combatEngine";
 import { Pokemon } from "../../../commonClass/pokemon/pokemon/pokemon";
 
-export type pokemonBattleSceneData = {
-    battleFieldBackgroundAssetKey: string,
-    opponentParty: PokemonPartyType
-    pokemonParty: PokemonPartyType
-}
-
 export function findEligiblePokemonPartyMember(pokemonParty: PokemonPartyType): number {
     return pokemonParty.findIndex((pokemon) => pokemon.currentHp > 0);
 }
 
-export class BattleScene extends Phaser.Scene {
+export class baseBattleScene extends Phaser.Scene {
     public opponentPokemon: Pokemon | undefined;
     public opponentPokemonSprite: BattlePokemonSprite | undefined;
     public yourPokemon: Pokemon | undefined;
@@ -40,16 +34,26 @@ export class BattleScene extends Phaser.Scene {
 
     public combatEngine: CombatEngine | undefined;
 
-    constructor(){
+    public playerEndX: number;
+    public playerEndY: number;
+    public backgroundAssetKey: string;
+
+    constructor(key: string){
         super({
-            key: SCENE_KEYS.BATTLE_SCENE
+            key: key
         })
+        this.playerEndX = 0
+        this.playerEndY = 0
+        this.backgroundAssetKey = "FOREST";
     }
 
-    init(data: pokemonBattleSceneData){
-        this.playerPokemonParty = data.pokemonParty;
-        this.opponentPokemonParty = data.opponentParty;
+    init(data: any){
 
+        if(data.pokemonParty){this.playerPokemonParty = data.pokemonParty;}
+        if(data.opponentParty){this.opponentPokemonParty = data.opponentParty;}
+        if(data.playerEndX){this.playerEndX = data.playerEndX}
+        if(data.playerEndY){this.playerEndY = data.playerEndY}
+        if(data.backgroundAssetKey){this.backgroundAssetKey = data.backgroundAssetKey}
         // Default to first pokemon in Party
         // this.yourPokemon = data.pokemonParty[findEligiblePokemonPartyMember(data.pokemonParty)]
         this.yourPokemon = data.pokemonParty[findEligiblePokemonPartyMember(data.pokemonParty)]
@@ -190,12 +194,12 @@ export class BattleScene extends Phaser.Scene {
 
     exitVictory = () => {
         this.cameras.main.fadeOut(2000, 0, 0, 0)
-        this.scene.switch(SCENE_KEYS.WORLD_SCENE)
+        this.scene.start(SCENE_KEYS.WORLD_SCENE, {playerStartX: this.playerEndX, playerStartY: this.playerEndY})
     }
 
     exitRun = () => {
         this.cameras.main.fadeOut(2000, 0, 0, 0)
-        this.scene.switch(SCENE_KEYS.WORLD_SCENE)
+        this.scene.start(SCENE_KEYS.WORLD_SCENE, {playerStartX: this.playerEndX, playerStartY: this.playerEndY})
     }
 
     exitDefeat = () => {

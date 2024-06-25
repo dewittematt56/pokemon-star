@@ -49,6 +49,7 @@
         "assets/maps/routes/route_101/route_101.tmx"
     ],
     "project": "pokemonStar.tiled-project",
+    "property.type": "string",
     "recentFiles": [
         "assets/maps/routes/route_101/route_101.tmx"
     ],

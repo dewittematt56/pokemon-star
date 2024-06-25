@@ -5,7 +5,7 @@ export const POKEMON = Object.freeze({
         pokemonImageData: {
             frontImage: {
                 assetKey: "TORCHIC_FRONT_0",
-                path: "/assets/pokemon/torchic/backSpriteSheet.png",
+                path: "/assets/pokemon/torchic/frontSpriteSheet.png",
                 height: 38,
                 width: 37,
                 animStart: 0,

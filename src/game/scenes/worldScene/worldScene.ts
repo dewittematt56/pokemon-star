@@ -5,19 +5,26 @@ import { Character } from '../../characters/characters';
 import { Player } from '../../characters/player/player';
 import animations from "../../configs/animations.json";
 import { CHARACTER_ASSET_KEYS } from '../../utils/assetKeys';
-import { DialogUI } from '../../world/dialog-ui';
+import { BasicUiDialogBox } from '../../../components/dialog/basicUiDialogBox';
 import { getTargetPositionFromGameObjectPositionAndDirection } from '../../utils/gridUtils.ts/gridUtils';
 import { TILE_SIZE } from '../../../commonData/configWorld';
 import { SCENE_KEYS } from '../../../commonData/keysScene';
+import { didPokemonAppearInZone, getPokemonEncountered } from './utils/encounterUtils';
+import { constMockPokemonParty } from '../../../testData/mockData';
 
 export default class StarterScene extends Phaser.Scene {
     player: Character | undefined;
     controls: Controls | undefined;
-    dialogUI: DialogUI | undefined;
+    dialogUI: BasicUiDialogBox | undefined;
     signLayer: Phaser.Tilemaps.ObjectLayer | undefined;
+    pokemonSpawnLayer: Phaser.Tilemaps.ObjectLayer | undefined;
+    playerStartX: number;
+    playerStartY: number;
 
     constructor() {
         super({ key: SCENE_KEYS.WORLD_SCENE });
+        this.playerStartX = (29 * TILE_SIZE) + 8
+        this.playerStartY = 46 * TILE_SIZE
     }
 
     preload() {
@@ -27,6 +34,12 @@ export default class StarterScene extends Phaser.Scene {
         this.load.spritesheet("NPC_SPRITE_SHEET", "/assets/sprites/npcs/trAceTrainer_F.png", { frameWidth: 64, frameHeight: 64 });
 
         this.load.tilemapTiledJSON("map", "/assets/maps/routes/route_101/route_101.json");
+    }
+
+    init(data: any){
+        console.log(data)
+        if(data.playerStartX){this.playerStartX = data.playerStartX}
+        if(data.playerStartY){this.playerStartY = data.playerStartY}
     }
 
     create() {
@@ -43,6 +56,9 @@ export default class StarterScene extends Phaser.Scene {
         if (map.getObjectLayer('Sign')) {
             this.signLayer = map.getObjectLayer('Sign')!;
         }
+        if (map.getObjectLayer("PokemonSpawns")){
+            this.pokemonSpawnLayer = map.getObjectLayer('PokemonSpawns')!;
+        }
 
         this.createPlayers(collisionLayer);
         this.createAnimations();
@@ -52,7 +68,7 @@ export default class StarterScene extends Phaser.Scene {
 
         this.controls = new Controls(this);
 
-        this.dialogUI = new DialogUI(this, this.scale.width);
+        this.dialogUI = new BasicUiDialogBox(this, this.scale.width);
 
         this.cameras.main.fadeIn(1000, 0, 0, 0);
     }
@@ -62,7 +78,7 @@ export default class StarterScene extends Phaser.Scene {
         const selectedDirectionHeldDown = this.controls!.getDirectionKeyPressedDown();
 
         if (selectedDirectionHeldDown !== DIRECTION.NONE && !this.isPlayerInputLocked()) {
-            this.player?.moveCharacter(selectedDirectionHeldDown); // Use held down direction for continuous movement
+            this.player?.moveCharacter(selectedDirectionHeldDown);
         }
         if (this.controls?.wasSpaceKeyPressed() && !this.player?.isMoving) {
             this.handlePlayerObjectInteractions();
@@ -100,7 +116,7 @@ export default class StarterScene extends Phaser.Scene {
     createPlayers(collisionLayer: Phaser.Tilemaps.TilemapLayer | null) {
         this.player = new Player({
             scene: this,
-            position: { x: (41 * TILE_SIZE) + 8, y: 13 * TILE_SIZE },
+            position: { x: this.playerStartX, y: this.playerStartY },
             assetKey: "PLAYER",
             idleFrames: {
                 DOWN: 0,
@@ -111,7 +127,9 @@ export default class StarterScene extends Phaser.Scene {
             },
             scaleSize: .5,
             direction: DIRECTION.UP,
-            spriteGridMovementFinishedCallback: () => {},
+            spriteGridMovementFinishedCallback: () => {
+                this.checkPokemonSpawnLogic()
+            },
             spriteChangedDirectionCallback: () => {},
             collisionLayer: collisionLayer
         });
@@ -155,5 +173,37 @@ export default class StarterScene extends Phaser.Scene {
 
     isPlayerInputLocked() {
         return this.controls!.isInputLocked || this.dialogUI!.isVisible;
+    }
+
+
+    checkPokemonSpawnLogic() {
+        // Get the player's position
+        let playerPos = this.player?.sprite?.getBounds()!;
+    
+        if (!playerPos) {
+            return; // Exit if the player's position is not available
+        }
+    
+        this.pokemonSpawnLayer?.objects.forEach((object) => {
+            // Get object bounds
+            let xMin = Math.round(object.x!);
+            let xMax = Math.round(object.x!) + Math.round(object.width!);
+            let yMin = Math.round(object.y!);
+            let yMax = Math.round(object.y!) + Math.round(object.height!);
+    
+            // Check if the player's position is within the object's bounds
+            if (playerPos.left >= xMin && playerPos.right <= xMax && playerPos.top >= yMin && playerPos.bottom <= yMax) {
+                if(didPokemonAppearInZone()){
+                    let pokemonEncountered = getPokemonEncountered("101")
+                    this.scene.start(SCENE_KEYS.WILD_ENCOUNTER_SCENE, {
+                        originatorKey: SCENE_KEYS.WORLD_SCENE,
+                        playerEndX: playerPos.x,
+                        playerEndY: playerPos.y, 
+                        pokemonEncountered: pokemonEncountered,
+                        yourPokemonParty: constMockPokemonParty
+                    })
+                }
+            }
+        });
     }
 }
