@@ -1,12 +1,12 @@
 import Phaser from "phaser";
-import { PokemonPartyMemberType } from "../../../commonTypes/typeDefs";
+import { Pokemon } from "../../../commonClass/pokemon/pokemon/pokemon";
 import { PokemonMove } from "../../../commonClass/pokemon/pokemonMove";
 
 export class MoveSelectionMenu {
     private scene: Phaser.Scene;
-    public pokemon: PokemonPartyMemberType
+    public pokemon: Pokemon
 
-    constructor(scene: Phaser.Scene, pokemon: PokemonPartyMemberType){
+    constructor(scene: Phaser.Scene, pokemon: Pokemon){
         this.scene = scene
         this.pokemon = pokemon
     }

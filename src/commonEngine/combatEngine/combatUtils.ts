@@ -1,21 +1,21 @@
 import { PokemonMove, moveClasses } from "../../commonClass/pokemon/pokemonMove";
-import { PokemonPartyMemberType } from "../../commonTypes/typeDefs";
+import { Pokemon } from "../../commonClass/pokemon/pokemon/pokemon";
 
-export function calculateMoveDamage(attacker: PokemonPartyMemberType, attackerMove: PokemonMove, defender: PokemonPartyMemberType, attackType: moveClasses): number {
+export function calculateMoveDamage(attacker: Pokemon, attackerMove: PokemonMove, defender: Pokemon, attackType: moveClasses): number {
     // Base calculation for damage
-    const baseDamage = Math.floor((2 * attacker.pokemon.level) / 5 + 2);
+    const baseDamage = Math.floor((2 * attacker.level) / 5 + 2);
     if (attackType == "PHYSICAL_ATTACK") {
         return Math.floor(
             Math.floor(
-                (baseDamage * attacker.pokemon.pokemonStatData.physicalAttack * attackerMove.moveAttack) /
-                defender.pokemon.pokemonStatData.physicalDefense
+                (baseDamage * attacker.stats.attack * attackerMove.moveAttack) /
+                defender.stats.defense
             ) / 50
         ) + 2;
     } else if (attackType == "SPECIAL_ATTACK") {
         return Math.floor(
             Math.floor(
-                (baseDamage * attacker.pokemon.pokemonStatData.specialAttack * attackerMove.moveAttack) /
-                defender.pokemon.pokemonStatData.specialDefense
+                (baseDamage * attacker.stats.specialAttack * attackerMove.moveAttack) /
+                defender.stats.specialDefense
             ) / 50
         ) + 2;
     } else {

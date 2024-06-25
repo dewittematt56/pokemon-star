@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { PokemonPartyMemberType } from "../../commonTypes/typeDefs";
+import { Pokemon } from "../../commonClass/pokemon/pokemon/pokemon";
 import { hpBarColorGenerator } from "./utils/common";
 
 
@@ -8,10 +8,10 @@ export class StandardBattleBarComponent {
     public scene: Phaser.Scene;
     public id: string
     public container: Phaser.GameObjects.Container;
-    public pokemon: PokemonPartyMemberType
+    public pokemon: Pokemon
 
     private hpBox: Phaser.GameObjects.Rectangle | undefined
-    constructor(scene: Phaser.Scene, relativeXPos: number, relativeYPos: number, pokemon: PokemonPartyMemberType, id: string){
+    constructor(scene: Phaser.Scene, relativeXPos: number, relativeYPos: number, pokemon: Pokemon, id: string){
         this.scene = scene;
         this.id = id
         this.pokemon = pokemon;
@@ -30,16 +30,16 @@ export class StandardBattleBarComponent {
             this.scene.add.rectangle(63, 46, 40, 20, 0x353b48).setOrigin(0).setStrokeStyle(3, 0x2f3640),
             this.scene.add.text(68, 46, "HP", {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '17px', color: '#e1b12c'}).setOrigin(0),
             // Pokemon Name
-            this.scene.add.text(3, 6, this.pokemon.pokemon.name, {fontFamily: 'Audiowide', fontStyle: 'italic', fontSize: '20px'}).setOrigin(0),
+            this.scene.add.text(3, 6, this.pokemon.name, {fontFamily: 'Audiowide', fontStyle: 'italic', fontSize: '20px'}).setOrigin(0),
             // Level Information
-            this.scene.add.text(273, 6, `Lv. ${this.pokemon.pokemon.level}`, {fontFamily: 'Audiowide', fontStyle: 'italic', fontSize: '20px'}).setOrigin(0),
+            this.scene.add.text(273, 6, `Lv. ${this.pokemon.level}`, {fontFamily: 'Audiowide', fontStyle: 'italic', fontSize: '20px'}).setOrigin(0),
             this.scene.add.rectangle(3,35, 350, 1, 0x4f5a67).setOrigin(0).setAlpha(1).setStrokeStyle(.25, 0x4f5a67, 1)
         ])
-        this.createPokemonHpBox(this.pokemon.pokemon.pokemonStatData.currentHp)
+        this.createPokemonHpBox(this.pokemon.currentHp)
     }
 
     createPokemonHpBox(hpValue: number){
-        let hpFillPercentage = hpValue / this.pokemon.pokemon.pokemonStatData.maxHp
+        let hpFillPercentage = hpValue / this.pokemon.stats.hp
 
         this.hpBox = this.scene.add.rectangle(103, 46, (hpFillPercentage * 250), 20, hpBarColorGenerator(hpFillPercentage)).setOrigin(0).setAlpha(.8)
         this.container.add([this.hpBox])
@@ -54,7 +54,7 @@ export class StandardBattleBarComponent {
         this.createPokemonHpBox(newHpValue);
     }
 
-    switchPokemon(pokemon: PokemonPartyMemberType){
+    switchPokemon(pokemon: Pokemon){
         this.pokemon = pokemon;
         this.removeBattleMenu()
         this.generateBattleBar();
@@ -63,7 +63,7 @@ export class StandardBattleBarComponent {
 
 export class YourBattleBarComponent extends StandardBattleBarComponent{
 
-    constructor(scene: Phaser.Scene, relativeXPos: number, relativeYPos: number, pokemon: PokemonPartyMemberType){
+    constructor(scene: Phaser.Scene, relativeXPos: number, relativeYPos: number, pokemon: Pokemon){
         super(scene, relativeXPos, relativeYPos, pokemon, "Your_Battle_Bar_Component")
         this.generateExpBar()
     }
@@ -77,7 +77,7 @@ export class YourBattleBarComponent extends StandardBattleBarComponent{
 
 export class OpponentBattleBarComponent extends StandardBattleBarComponent{
 
-    constructor(scene: Phaser.Scene, relativeXPos: number, relativeYPos: number, pokemon: PokemonPartyMemberType, hasBeenCaught: boolean){
+    constructor(scene: Phaser.Scene, relativeXPos: number, relativeYPos: number, pokemon: Pokemon, hasBeenCaught: boolean){
         super(scene, relativeXPos, relativeYPos, pokemon, "Opponent_Battle_Bar_Component")
 
         if(hasBeenCaught){

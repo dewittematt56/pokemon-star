@@ -1,12 +1,12 @@
 import Phaser from "phaser";
-import { PokemonPartyMemberType } from "../../commonTypes/typeDefs";
 import { BattleMenuSelectButton, MoveSelectionButton } from "./microComponents/battleMenuButtons";
 import { BattleMenuDialog } from "./microComponents/battleMenuDialog";
 import { PokemonMove } from "../../commonClass/pokemon/pokemonMove";
+import { Pokemon } from "../../commonClass/pokemon/pokemon/pokemon";
 
 export class BattleSelectMenu {
     private scene: Phaser.Scene;
-    public pokemon: PokemonPartyMemberType;
+    public pokemon: Pokemon;
     public battleMenuContainer: Phaser.GameObjects.Container;
     public battleMenuOptionsContainer: Phaser.GameObjects.Container;
     public fightOptionsContainer: Phaser.GameObjects.Container;
@@ -15,7 +15,7 @@ export class BattleSelectMenu {
     public runCallback: Function;
     public moveSelectCallBack: Function;
 
-    constructor(scene: Phaser.Scene, pokemon: PokemonPartyMemberType, runCallback: Function, moveSelectCallback: Function){
+    constructor(scene: Phaser.Scene, pokemon: Pokemon, runCallback: Function, moveSelectCallback: Function){
         this.scene = scene
         this.pokemon = pokemon
 
@@ -46,7 +46,7 @@ export class BattleSelectMenu {
     createMoveSelectionButtons(isDefaultVisible: boolean){
         console.log(this.moveSelectCallBack)
 
-        return this.pokemon.pokemon.pokemonBattleData.moves.map((move, i) => {
+        return this.pokemon.moves.map((move, i) => {
             if( i == 0){
                 return new MoveSelectionButton(move, 0, 5, this.scene, isDefaultVisible, (move: PokemonMove) => this.moveSelectCallBack(move)).buttonContainer
             } else if(i == 1) {
@@ -69,7 +69,7 @@ export class BattleSelectMenu {
         }
     }
 
-    switchPokemon(pokemon: PokemonPartyMemberType){
+    switchPokemon(pokemon: Pokemon){
         this.pokemon = pokemon;
         this.fightOptionsContainer.removeAll(true);
         this.fightOptionsContainer.add(this.createMoveSelectionButtons(true))

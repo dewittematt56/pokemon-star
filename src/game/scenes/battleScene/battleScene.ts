@@ -2,13 +2,14 @@ import Phaser from "phaser";
 import { SCENE_KEYS } from "../../../commonData/keysScene";
 import { BATTLE_BACKGROUND_ASSETS } from "../../../commonData/keysBattleScene";
 import { PokemonOverviewMenu } from "../../../components/pokemonOverviewMenu";
-import { PokemonPartyType, PokemonPartyMemberType } from "../../../commonTypes/typeDefs";
+import { PokemonPartyType } from "../../../commonTypes/typeDefs";
 
 import { BattleSelectMenu } from "../../../components/battleMenuComponents/battleMenu";
 import { YourBattleBarComponent, OpponentBattleBarComponent } from "../../../components/battleMenuComponents/battlePokemonStatusBar";
 import { BattlePokemonSprite } from "../../../components/pokemon/battlePokemonSprite";
 import { PokemonMove } from "../../../commonClass/pokemon/pokemonMove";
 import { CombatEngine } from "../../../commonEngine/combatEngine/combatEngine";
+import { Pokemon } from "../../../commonClass/pokemon/pokemon/pokemon";
 
 export type pokemonBattleSceneData = {
     battleFieldBackgroundAssetKey: string,
@@ -16,14 +17,14 @@ export type pokemonBattleSceneData = {
     pokemonParty: PokemonPartyType
 }
 
-export function findEligiblePokemonPartyMember(pokemonParty: PokemonPartyType){
-    return pokemonParty.findIndex((pokemon) => pokemon.pokemon.pokemonStatData.currentHp > 0);
+export function findEligiblePokemonPartyMember(pokemonParty: PokemonPartyType): number {
+    return pokemonParty.findIndex((pokemon) => pokemon.currentHp > 0);
 }
 
 export class BattleScene extends Phaser.Scene {
-    public opponentPokemon: PokemonPartyMemberType | undefined;
+    public opponentPokemon: Pokemon | undefined;
     public opponentPokemonSprite: BattlePokemonSprite | undefined;
-    public yourPokemon: PokemonPartyMemberType | undefined;
+    public yourPokemon: Pokemon | undefined;
     public yourPokemonSprite: BattlePokemonSprite | undefined;
     private _backgroundImageBoundsObject: {x: number, y: number, width: number, height: number} | undefined; 
     
@@ -50,6 +51,7 @@ export class BattleScene extends Phaser.Scene {
         this.opponentPokemonParty = data.opponentParty;
 
         // Default to first pokemon in Party
+        // this.yourPokemon = data.pokemonParty[findEligiblePokemonPartyMember(data.pokemonParty)]
         this.yourPokemon = data.pokemonParty[findEligiblePokemonPartyMember(data.pokemonParty)]
         this.opponentPokemon = data.opponentParty[findEligiblePokemonPartyMember(data.opponentParty)]
     }
@@ -57,19 +59,19 @@ export class BattleScene extends Phaser.Scene {
     preload(){
         this.load.image(BATTLE_BACKGROUND_ASSETS.FOREST.key, BATTLE_BACKGROUND_ASSETS.FOREST.path);
         this.opponentPokemonParty?.forEach((pokemon) => {
-            this.load.spritesheet(pokemon.pokemon.pokemonImageData.frontImage.assetKey, pokemon.pokemon.pokemonImageData.frontImage.path, {
-                frameWidth: pokemon.pokemon.pokemonImageData.frontImage.width,
-                frameHeight: pokemon.pokemon.pokemonImageData.frontImage.height,
-                startFrame: pokemon.pokemon.pokemonImageData.frontImage.animStart,
-                endFrame: pokemon.pokemon.pokemonImageData.frontImage.animFinish,
+            this.load.spritesheet(pokemon.baseData.pokemonImageData.frontImage.assetKey, pokemon.baseData.pokemonImageData.frontImage.path, {
+                frameWidth: pokemon.baseData.pokemonImageData.frontImage.width,
+                frameHeight: pokemon.baseData.pokemonImageData.frontImage.height,
+                startFrame: pokemon.baseData.pokemonImageData.frontImage.animStart,
+                endFrame: pokemon.baseData.pokemonImageData.frontImage.animFinish,
             });
         })
         this.playerPokemonParty?.forEach((pokemon) => {
-            this.load.spritesheet(pokemon.pokemon.pokemonImageData.backImage.assetKey, pokemon.pokemon.pokemonImageData.backImage.path, {
-                frameWidth: pokemon.pokemon.pokemonImageData.backImage.width,
-                frameHeight: pokemon.pokemon.pokemonImageData.backImage.height,
-                startFrame: pokemon.pokemon.pokemonImageData.backImage.animStart,
-                endFrame: pokemon.pokemon.pokemonImageData.backImage.animFinish,
+            this.load.spritesheet(pokemon.baseData.pokemonImageData.backImage.assetKey, pokemon.baseData.pokemonImageData.backImage.path, {
+                frameWidth: pokemon.baseData.pokemonImageData.backImage.width,
+                frameHeight: pokemon.baseData.pokemonImageData.backImage.height,
+                startFrame: pokemon.baseData.pokemonImageData.backImage.animStart,
+                endFrame: pokemon.baseData.pokemonImageData.backImage.animFinish,
             });
         })
 
@@ -79,11 +81,11 @@ export class BattleScene extends Phaser.Scene {
 
     loadPokemonIconSprites = () => {
         this.playerPokemonParty?.forEach((pokemon) => {
-            this.load.spritesheet(pokemon.pokemon.pokemonImageData.iconImage.assetKey, pokemon.pokemon.pokemonImageData.iconImage.path, {
-                frameWidth: pokemon.pokemon.pokemonImageData.iconImage.width,
-                frameHeight: pokemon.pokemon.pokemonImageData.iconImage.height,
-                startFrame: pokemon.pokemon.pokemonImageData.iconImage.animStart,
-                endFrame: pokemon.pokemon.pokemonImageData.iconImage.animFinish,
+            this.load.spritesheet(pokemon.baseData.pokemonImageData.iconImage.assetKey, pokemon.baseData.pokemonImageData.iconImage.path, {
+                frameWidth: pokemon.baseData.pokemonImageData.iconImage.width,
+                frameHeight: pokemon.baseData.pokemonImageData.iconImage.height,
+                startFrame: pokemon.baseData.pokemonImageData.iconImage.animStart,
+                endFrame: pokemon.baseData.pokemonImageData.iconImage.animFinish,
             });
         })
     }
@@ -120,7 +122,7 @@ export class BattleScene extends Phaser.Scene {
     }
 
     initialBattleLoad(){
-        this.battleSelectMenu?.displayDialog([`Oh no, a wild ${this.opponentPokemon?.pokemon.name} has appeared......`, `Go ${this.yourPokemon?.pokemon.name}!`], true, () => {
+        this.battleSelectMenu?.displayDialog([`Oh no, a wild ${this.opponentPokemon?.name} has appeared......`, `Go ${this.yourPokemon?.name}!`], true, () => {
             this.yourPokemonSprite?.pokemonSprite?.setVisible(true);
             this.battleSelectMenu?.updateDialogVisibility(false)
         });    
@@ -140,9 +142,9 @@ export class BattleScene extends Phaser.Scene {
 
     combatHpCallback(newHp: number, executeOn: "PLAYER" | "OPPONENT"){
         if(executeOn == "PLAYER"){
-            this.yourPokemon!.pokemon.pokemonStatData.currentHp = newHp;
+            this.yourPokemon!.currentHp = newHp;
             this.yourBattleBarComponent?.updatePokemonHp(newHp);
-            this.pokemonOverviewMenu?.updatePokemonHp(this.yourPokemon!.pokemon.uniqueId, newHp, this.yourPokemon!.pokemon.pokemonStatData.maxHp);
+            this.pokemonOverviewMenu?.updatePokemonHp(this.yourPokemon!.uniqueId, newHp, this.yourPokemon!.stats.hp);
             // A Pokemon has fainted
             if(newHp == 0){
                 let newPokemonIndex = findEligiblePokemonPartyMember(this.playerPokemonParty!);
@@ -153,7 +155,7 @@ export class BattleScene extends Phaser.Scene {
                 }
             }
         } else if (executeOn == "OPPONENT"){
-            this.opponentPokemon!.pokemon.pokemonStatData.currentHp = newHp;
+            this.opponentPokemon!.currentHp = newHp;
             this.opponentBattleBarComponent?.updatePokemonHp(newHp);
             // A Pokemon has fainted
             if(newHp == 0){
@@ -167,11 +169,11 @@ export class BattleScene extends Phaser.Scene {
         }
     }
 
-    changePlayerPokemon = (newPokemon: PokemonPartyMemberType) => {
+    changePlayerPokemon = (newPokemon: Pokemon) => {
         
         this.battleSelectMenu?.switchPokemon(newPokemon);
         this.combatEngine?.switchPokemon(newPokemon, "PLAYER");
-        this.battleSelectMenu?.displayDialog([`Nice work ${this.yourPokemon?.pokemon.name}...`, `Go ${newPokemon.pokemon.name}, show em what you got!`], true, () => {
+        this.battleSelectMenu?.displayDialog([`Nice work ${this.yourPokemon?.name}...`, `Go ${newPokemon.name}, show em what you got!`], true, () => {
             this.yourPokemon = newPokemon;
             this.yourPokemonSprite?.updatePokemon(newPokemon);
             this.yourBattleBarComponent?.switchPokemon(newPokemon);
@@ -179,7 +181,7 @@ export class BattleScene extends Phaser.Scene {
         }); 
     }
     
-    changeOpponentPokemon = (newPokemon: PokemonPartyMemberType) => {
+    changeOpponentPokemon = (newPokemon: Pokemon) => {
         this.combatEngine?.switchPokemon(newPokemon, "OPPONENT");
         this.opponentPokemonSprite?.updatePokemon(newPokemon);
         this.opponentBattleBarComponent?.switchPokemon(newPokemon);

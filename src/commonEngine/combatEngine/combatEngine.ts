@@ -1,23 +1,23 @@
+import { Pokemon } from "../../commonClass/pokemon/pokemon/pokemon";
 import { PokemonMove } from "../../commonClass/pokemon/pokemonMove";
-import { PokemonPartyMemberType } from "../../commonTypes/typeDefs";
 
 import { calculateMoveDamage, calculateDidMoveHitOpponent, calculateCriticalHit, calculateTypeDamageMultiplier } from "./combatUtils";
 
 type moveExecutionType = {
     executor: "PLAYER" | "OPPONENT",
-    pokemon: PokemonPartyMemberType
+    pokemon: Pokemon
     move: PokemonMove
 } 
 
 export class CombatEngine{
-    public playerPokemon: PokemonPartyMemberType
-    public opponentPokemon: PokemonPartyMemberType
+    public playerPokemon: Pokemon
+    public opponentPokemon: Pokemon
 
     // Callback Functions
     public dialogCallback: Function
     public updateHpCallback: Function
 
-    constructor(playerPokemon: PokemonPartyMemberType, opponentPokemon: PokemonPartyMemberType, dialogCallback: Function, updateHpCallback: Function){
+    constructor(playerPokemon: Pokemon, opponentPokemon: Pokemon, dialogCallback: Function, updateHpCallback: Function){
         this.playerPokemon = playerPokemon;
         this.opponentPokemon = opponentPokemon;
 
@@ -25,13 +25,13 @@ export class CombatEngine{
         this.updateHpCallback = updateHpCallback;
     }
 
-    switchPokemon(newPokemon: PokemonPartyMemberType, party: "PLAYER" | "OPPONENT"){
+    switchPokemon(newPokemon: Pokemon, party: "PLAYER" | "OPPONENT"){
         if(party == "PLAYER"){this.playerPokemon = newPokemon}
         else if(party == "OPPONENT"){this.opponentPokemon = newPokemon}
     }
 
     opponentMoveSelector(): PokemonMove{
-        let moves = this.opponentPokemon.pokemon.pokemonBattleData.moves
+        let moves = this.opponentPokemon.moves
         let movesAvailable = moves.length
         let randomMove = Math.floor(Math.random() * ((movesAvailable - 1)  - 0 + 1)) + 0;
         return moves[randomMove];
@@ -50,8 +50,8 @@ export class CombatEngine{
             }
         }
         // Toggle Speed Check if Different
-        else if(this.playerPokemon.pokemon.pokemonStatData.speed !== this.opponentPokemon.pokemon.pokemonStatData.speed){
-            if(this.playerPokemon.pokemon.pokemonStatData.speed > this.opponentPokemon.pokemon.pokemonStatData.speed){
+        else if(this.playerPokemon.stats.speed !== this.opponentPokemon.stats.speed){
+            if(this.playerPokemon.stats.speed > this.opponentPokemon.stats.speed){
                 // Player Move First
                 return [playerMoveExecution, opponentMoveExecution];
             } else {
@@ -68,7 +68,7 @@ export class CombatEngine{
         let opponentMove = this.opponentMoveSelector();
         let moveExecutions = this.determineMovePriority(playerMove, opponentMove); 
         moveExecutions.forEach((moveToExecute, index) => {
-            if(moveToExecute.pokemon.pokemon.pokemonStatData.currentHp > 0){
+            if(moveToExecute.pokemon.currentHp > 0){
                 this.executeMove(moveToExecute)
             }
         })
@@ -78,15 +78,15 @@ export class CombatEngine{
     executeMove(moveToExecute: moveExecutionType): void{
         let messages = []
         if(moveToExecute.executor == "PLAYER"){
-            messages.unshift(`Your ${this.playerPokemon.pokemon.name} uses ${moveToExecute.move.name}.`)
+            messages.unshift(`Your ${this.playerPokemon.name} uses ${moveToExecute.move.name}.`)
             if(calculateDidMoveHitOpponent()){
                 let damageGiven = calculateMoveDamage(this.playerPokemon, moveToExecute.move, this.opponentPokemon, moveToExecute.move.moveClass);
-                this.updateHpCallback(Math.max(this.opponentPokemon.pokemon.pokemonStatData.currentHp -= damageGiven, 0), "OPPONENT");            }
+                this.updateHpCallback(Math.max(this.opponentPokemon.currentHp -= damageGiven, 0), "OPPONENT");            }
         } else if(moveToExecute.executor == "OPPONENT"){
-            messages.unshift(`Foe ${this.opponentPokemon.pokemon.name} uses ${moveToExecute.move.name}.`)
+            messages.unshift(`Foe ${this.opponentPokemon.name} uses ${moveToExecute.move.name}.`)
             if(calculateDidMoveHitOpponent()){
                 let damageGiven = calculateMoveDamage(this.opponentPokemon, moveToExecute.move, this.playerPokemon, moveToExecute.move.moveClass);
-                this.updateHpCallback(Math.max(this.playerPokemon.pokemon.pokemonStatData.currentHp -= damageGiven, 0), "PLAYER");
+                this.updateHpCallback(Math.max(this.playerPokemon.currentHp -= damageGiven, 0), "PLAYER");
             }
         }
         this.dialogCallback(messages, false)

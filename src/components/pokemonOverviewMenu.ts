@@ -33,22 +33,22 @@ export class PokemonOverviewMenu {
             let y_padding = 25
             let pokemonContainer = this._scene.add.container(0, 0);
 
-            pokemonContainer.add(this._scene.add.rectangle(0, 37 + index * 64, 250, 63, 0x7f8c8d).setOrigin(0).setVisible(false).setName(`${pokemon.pokemon.uniqueId}_SELECTED_INDICATOR`));
+            pokemonContainer.add(this._scene.add.rectangle(0, 37 + index * 64, 250, 63, 0x7f8c8d).setOrigin(0).setVisible(false).setName(`${pokemon.uniqueId}_SELECTED_INDICATOR`));
 
-            pokemonContainer.add(this._scene.add.sprite(0, y_padding + index * 64 , pokemon.pokemon.pokemonImageData.iconImage.assetKey, 0).setOrigin(0).setScale(1));
+            pokemonContainer.add(this._scene.add.sprite(0, y_padding + index * 64 , pokemon.baseData.pokemonImageData.iconImage.assetKey, 0).setOrigin(0).setScale(1));
             let pokemonMetadataContainer = this._scene.add.container(55, y_padding + index * 64 + 35, [
-                this._scene.add.text(0, 0, pokemon.pokemon.name.substring(0, 10), {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0),
-                this._scene.add.text(0, 20, `Lvl. ${pokemon.pokemon.level}`, {fontFamily: 'Audiowide', fontSize: '12px', color: 'white'}).setOrigin(0)
+                this._scene.add.text(0, 0, pokemon.name.substring(0, 10), {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0),
+                this._scene.add.text(0, 20, `Lvl. ${pokemon.level}`, {fontFamily: 'Audiowide', fontSize: '12px', color: 'white'}).setOrigin(0)
             ])
             
 
-            let hpPercentFilled = (pokemon.pokemon.pokemonStatData.currentHp / pokemon.pokemon.pokemonStatData.maxHp)
+            let hpPercentFilled = (pokemon.currentHp / pokemon.stats.hp)
             let hpContainer = this._scene.add.container(130, y_padding + 35 + index * 64, [
-                this._scene.add.rectangle(0, 0, 100, 15).setOrigin(0).setStrokeStyle(3, 0x13161a).setName(`${pokemon.pokemon.uniqueId}_HP_OUTLINE`),
-                this._scene.add.rectangle(0, 0,  hpPercentFilled * 100, 15, hpBarColorGenerator(hpPercentFilled)).setOrigin(0).setName(`${pokemon.pokemon.uniqueId}_HP_BOX`),
-                this._scene.add.text(0, 20, `HP: `, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0).setName(`${pokemon.pokemon.uniqueId}_HP_LABEL`),
-                this._scene.add.text(30, 20, `${pokemon.pokemon.pokemonStatData.currentHp}/${pokemon.pokemon.pokemonStatData.maxHp}`, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0).setName(`${pokemon.pokemon.uniqueId}_HP_TEXT`)
-            ]).setName(`${pokemon.pokemon.uniqueId}_HP_Container`)
+                this._scene.add.rectangle(0, 0, 100, 15).setOrigin(0).setStrokeStyle(3, 0x13161a).setName(`${pokemon.uniqueId}_HP_OUTLINE`),
+                this._scene.add.rectangle(0, 0,  hpPercentFilled * 100, 15, hpBarColorGenerator(hpPercentFilled)).setOrigin(0).setName(`${pokemon.uniqueId}_HP_BOX`),
+                this._scene.add.text(0, 20, `HP: `, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0).setName(`${pokemon.uniqueId}_HP_LABEL`),
+                this._scene.add.text(30, 20, `${pokemon.currentHp}/${pokemon.stats.hp}`, {fontFamily: 'Audiowide', fontStyle: 'bolder', fontSize: '12px', color: 'white'}).setOrigin(0).setName(`${pokemon.uniqueId}_HP_TEXT`)
+            ]).setName(`${pokemon.uniqueId}_HP_Container`)
 
             // Add to Container
             pokemonContainer.add(pokemonMetadataContainer);
@@ -74,17 +74,17 @@ export class PokemonOverviewMenu {
                         if(element.name.includes("_SELECTED_INDICATOR")){
                             if(element.visible){
                                 let pokemonClicked = element.name.split("_")[0];
-                                if(pokemonClicked == pokemon.pokemon.uniqueId || highlighted_pokemon.length > 0){
+                                if(pokemonClicked == pokemon.uniqueId || highlighted_pokemon.length > 0){
                                     element.setVisible(false)
                                     return
                                 } 
                                 highlighted_pokemon = pokemonClicked
                             }
-                            if(element.name == `${pokemon.pokemon.uniqueId}_SELECTED_INDICATOR`){
+                            if(element.name == `${pokemon.uniqueId}_SELECTED_INDICATOR`){
                                 element.setVisible(true)
                             }
                             else if(highlighted_pokemon.length > 0) {
-                                this.pokemonOrderSwitch(highlighted_pokemon, pokemon.pokemon.uniqueId)
+                                this.pokemonOrderSwitch(highlighted_pokemon, pokemon.uniqueId)
                             } 
                             else {
                             }
@@ -92,15 +92,15 @@ export class PokemonOverviewMenu {
                     })
                 })
             })
-            pokemonContainer.setName(pokemon.pokemon.uniqueId)
+            pokemonContainer.setName(pokemon.uniqueId)
             return pokemonContainer;
         });
         return this._scene.add.container(0, 15, pokemonContainers).setName("POKEMON-DISPLAY-BOX");
     }
 
     pokemonOrderSwitch(pokemonToSwap: string, pokemonToSwapWith: string){
-        let indexOfPokemonToSwap = this.pokemonParty.findIndex((pokemon) => pokemon.pokemon.uniqueId == pokemonToSwap);
-        let indexOfPokemonToSwapWith = this.pokemonParty.findIndex((pokemon) => pokemon.pokemon.uniqueId == pokemonToSwapWith);
+        let indexOfPokemonToSwap = this.pokemonParty.findIndex((pokemon) => pokemon.uniqueId == pokemonToSwap);
+        let indexOfPokemonToSwapWith = this.pokemonParty.findIndex((pokemon) => pokemon.uniqueId == pokemonToSwapWith);
         [this.pokemonParty[indexOfPokemonToSwap], this.pokemonParty[indexOfPokemonToSwapWith]] = [this.pokemonParty[indexOfPokemonToSwapWith], this.pokemonParty[indexOfPokemonToSwap]];
         this.clearPokemonDisplay();
         this.menuContainer?.addAt(this.displayPokemon(), 2)
@@ -117,6 +117,7 @@ export class PokemonOverviewMenu {
 
     // To-Do Add Status Change
     updatePokemonHp(idOfPokemonToUpdate: string, newHp: number, maxHp: number){
+        console.log(newHp, maxHp)
         this.pokemonContainers.each((container: Phaser.GameObjects.Container) => {
             if(container.name == idOfPokemonToUpdate){
                 container.each((subContainer: Phaser.GameObjects.Container) => {

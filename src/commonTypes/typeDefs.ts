@@ -1,3 +1,4 @@
+import { Pokemon } from "../commonClass/pokemon/pokemon/pokemon"
 import { PokemonMove } from "../commonClass/pokemon/pokemonMove"
 
 export type PokemonImageDataType = {
@@ -49,11 +50,7 @@ export type BasePokemon = {
 }
 
 /*------------------------- Pokemon Party Types -------------------------*/
-export type PokemonPartyMemberType = {
-    pokemon: BasePokemon,
-}
-
-export type PokemonPartyType = PokemonPartyMemberType[];
+export type PokemonPartyType = Pokemon[];
 
 
 
