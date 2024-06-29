@@ -19,7 +19,9 @@ export type CharacterConfig = {
     spriteGridMovementFinishedCallback: Function;
     spriteChangedDirectionCallback: Function
     idleFrames: CharacterIdleFrameConfig,
-    collisionLayer?: Phaser.Tilemaps.TilemapLayer | null
+    collisionLayer?: Phaser.Tilemaps.TilemapLayer | null,
+    isAggressive: boolean
+    sightRange: number
 }
 
 export class Character {
@@ -32,6 +34,8 @@ export class Character {
     _spriteGridMovementFinishedCallback: Function;
     _spriteChangedDirectionCallback: Function;
     _collisionLayer?: Phaser.Tilemaps.TilemapLayer | null;
+    public isAggressive: boolean = false;
+    public sightRange: number = 5;
 
     constructor(config: CharacterConfig) {
         this._scene = config.scene;
@@ -47,6 +51,9 @@ export class Character {
         this._spriteGridMovementFinishedCallback = config.spriteGridMovementFinishedCallback;
         this._spriteChangedDirectionCallback = config.spriteChangedDirectionCallback;
         this._collisionLayer = config.collisionLayer;
+
+        this.isAggressive = config.isAggressive
+        this.sightRange = config.sightRange
     }
 
     get isMoving(): boolean {
@@ -123,7 +130,7 @@ export class Character {
 
         this._scene.add.tween({
             delay: 0,
-            duration: 300,
+            duration: 300 * .5,
             y: {
                 from: this._phaserGameObject.y,
                 to: this._targetPosition.y

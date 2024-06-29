@@ -33,10 +33,12 @@ export class BasicUiDialogBox {
 
         //Setup Container on screen
         this.container = this.scene.add.container(0,0, [panel]);
-        this.uiText = this.scene.add.text(18, 12, "Hello World", {wordWrap: {width: this.width - 18}})
-        this.uiText.setColor("0x2d3436")
-        this.uiText.setFont("Goudy Bookletter 1911")
-        this.uiText.setFontSize("16px")
+        this.uiText = this.scene.add.text(18, 12, "",  {
+            wordWrap: { width: width - 18 },
+            fontFamily: "Audiowide",
+            fontSize: "12px",
+            color: "0x2d3436"
+        })
         this.container.add(this.uiText);
 
         // Default modal to hidden
@@ -80,7 +82,6 @@ export class BasicUiDialogBox {
             return;
         }
         this.uiText.setText('').setAlpha(1);
-
         animateText(this.scene, this.uiText, this.textMessagesToShow.shift() as string, {
             delay: 50,
             callback: () => {
@@ -90,7 +91,4 @@ export class BasicUiDialogBox {
         this.isTextAnimationPlaying = true
     }
 
-    createPlayerInputCursor(){
-        // this.userInputCursor = this.scene.add.in
-    }
 }

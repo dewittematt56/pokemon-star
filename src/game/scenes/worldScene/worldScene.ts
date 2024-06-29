@@ -3,19 +3,18 @@ import { Controls } from '../../utils/controls/control';
 import { DIRECTION } from '../../utils/controls/direction';
 import { Character } from '../../characters/characters';
 import { Player } from '../../characters/player/player';
-import animations from "../../configs/animations.json";
 import { CHARACTER_ASSET_KEYS } from '../../utils/assetKeys';
 import { BasicUiDialogBox } from '../../../components/dialog/basicUiDialogBox';
 import { getTargetPositionFromGameObjectPositionAndDirection } from '../../utils/gridUtils.ts/gridUtils';
 import { TILE_SIZE } from '../../../commonData/configWorld';
-import { SCENE_KEYS, WORLD_KEYS } from '../../../commonData/keysScene';
+import { SCENE_KEYS, SCENE_INFO } from '../../../commonData/dataScenes';
 import { didPokemonAppearInZone, getPokemonEncountered } from './utils/encounterUtils';
-import { constMockPokemonParty } from '../../../testData/mockData';
-import { PokemonPartyType, playerSessionType } from '../../../commonTypes/typeDefs';
-import { writeGameDataToSave } from '../../../gameSaves/utils';
+import { SceneType, playerSessionType } from '../../../commonTypes/typeDefs';
+import { writeGameDataToSave } from '../../utils/gameSaves/utils';
 
 export default class StarterScene extends Phaser.Scene {
-    player: Character | undefined;
+    player: Player | undefined;
+    characters: Character[];
     controls: Controls | undefined;
     dialogUI: BasicUiDialogBox | undefined;
     signLayer: Phaser.Tilemaps.ObjectLayer | undefined;
@@ -23,7 +22,8 @@ export default class StarterScene extends Phaser.Scene {
     playerStartX: number;
     playerStartY: number;
 
-    private currentWorldScene: keyof typeof WORLD_KEYS;
+    private currentWorldScene: keyof typeof SCENE_INFO;
+    private currentWorldInfo: SceneType;
     private playerSession: playerSessionType | undefined;
 
     constructor() {
@@ -31,11 +31,14 @@ export default class StarterScene extends Phaser.Scene {
         this.playerStartX = (29 * TILE_SIZE) + 8
         this.playerStartY = 46 * TILE_SIZE
 
+        this.characters = [];
+
         this.currentWorldScene = "ROUTE_101";
+        this.currentWorldInfo = SCENE_INFO[this.currentWorldScene];
     }
 
     preload() {
-        let world_data = WORLD_KEYS[this.currentWorldScene]
+        let world_data = SCENE_INFO[this.currentWorldScene]
         this.load.image("standardTileSet", "/assets/pokemonStarStandradTileSet.png");
         this.load.image("backgroundImage", world_data.mapPath);
         this.load.spritesheet("PLAYER", CHARACTER_ASSET_KEYS.PATH, { frameWidth: 64, frameHeight: 64 });
@@ -45,12 +48,12 @@ export default class StarterScene extends Phaser.Scene {
     }
 
     init(data: {playerSession: playerSessionType}){
-        console.log(data.playerSession)
         if(data.playerSession){
             this.playerSession = data.playerSession
             this.playerStartX = data.playerSession.location.x
             this.playerStartY = data.playerSession.location.y
-            this.currentWorldScene = data.playerSession.location.currentWorldScene
+            this.currentWorldScene = data.playerSession.location.currentWorldScene 
+            this.currentWorldInfo = SCENE_INFO[this.currentWorldScene];
         }
         // Save Game Listeners
         window.addEventListener("beforeunload", () => this.saveGameHandler())
@@ -76,8 +79,7 @@ export default class StarterScene extends Phaser.Scene {
             this.pokemonSpawnLayer = map.getObjectLayer('PokemonSpawns')!;
         }
 
-        this.createPlayers(collisionLayer);
-        this.createAnimations();
+        this.createCharacters(collisionLayer);
 
         this.cameras.main.setBounds(0, 0, 32 * 32, 32 * 32);
         this.cameras.main.setZoom(2);
@@ -90,7 +92,6 @@ export default class StarterScene extends Phaser.Scene {
     }
 
     update(time: number, delta: number): void {
-        const selectedDirection = this.controls!.getDirectionKeyJustPressed();
         const selectedDirectionHeldDown = this.controls!.getDirectionKeyPressedDown();
 
         if (selectedDirectionHeldDown !== DIRECTION.NONE && !this.isPlayerInputLocked()) {
@@ -129,7 +130,8 @@ export default class StarterScene extends Phaser.Scene {
         }
     }
 
-    createPlayers(collisionLayer: Phaser.Tilemaps.TilemapLayer | null) {
+    createCharacters(collisionLayer: Phaser.Tilemaps.TilemapLayer | null) {
+        // Create Player Object
         this.player = new Player({
             scene: this,
             position: { x: this.playerStartX, y: this.playerStartY },
@@ -144,53 +146,41 @@ export default class StarterScene extends Phaser.Scene {
             scaleSize: .5,
             direction: this.playerSession!.location.direction,
             spriteGridMovementFinishedCallback: () => {
+                this.checkOpponentViewLogic()
                 this.checkPokemonSpawnLogic()
             },
             spriteChangedDirectionCallback: () => {},
-            collisionLayer: collisionLayer
+            collisionLayer: collisionLayer,
+            isAggressive: false,
+            sightRange: 0
         });
         this.cameras.main.startFollow(this.player.sprite);
-
-        new Character({
-            scene: this,
-            position: { x: 472, y: 390 },
-            assetKey: "NPC_SPRITE_SHEET",
-            idleFrames: {
-                DOWN: 0,
-                UP: 12,
-                NONE: 0,
-                LEFT: 4,
-                RIGHT: 8
-            },
-            scaleSize: .5,
-            direction: DIRECTION.DOWN,
-            spriteGridMovementFinishedCallback: () => {},
-            spriteChangedDirectionCallback: () => {},
-            collisionLayer: collisionLayer
-        });
-    }
-
-    createAnimations() {
-        animations.forEach((animationObject) => {
-            const frames = animationObject.frames
-                ? this.anims.generateFrameNames(animationObject.assetKey, { frames: animationObject.frames })
-                : this.anims.generateFrameNames(animationObject.assetKey);
-
-            this.anims.create({
-                key: animationObject.key,
-                frames: frames,
-                frameRate: animationObject.frameRate,
-                repeat: animationObject.repeat,
-                delay: animationObject.delay,
-                yoyo: animationObject.yoyo
-            });
-        });
+        // Generate all NPC
+        this.characters = this.currentWorldInfo.npcs.map((npc) => {
+            return new Character({
+                     scene: this,
+                     position: { x: npc.location.x, y: npc.location.y },
+                     assetKey: "NPC_SPRITE_SHEET",
+                     idleFrames: npc.idleFrames,
+                     scaleSize: npc.scaleSize,
+                     direction: npc.location.direction,
+                     spriteGridMovementFinishedCallback: npc.spriteGridMovementFinishedCallback,
+                     spriteChangedDirectionCallback: npc.spriteChangedDirectionCallback,
+                     collisionLayer: collisionLayer,
+                     isAggressive: npc.isAggressive,
+                     sightRange: npc.sightRange
+                });
+        })
+        
     }
 
     isPlayerInputLocked() {
         return this.controls!.isInputLocked || this.dialogUI!.isVisible;
     }
 
+    startNpcBattle(character: Character) {
+        
+    }
 
     checkPokemonSpawnLogic() {
         // Get the player's position
@@ -222,6 +212,57 @@ export default class StarterScene extends Phaser.Scene {
             }
         });
     }
+
+    checkOpponentViewLogic() {
+        if (!this.player || !this.player.sprite) {
+            return; // Exit if the player or player sprite is not available
+        }
+    
+        const playerPos = this.player.sprite.getBounds();
+        const playerPosAdjustX = playerPos.x / TILE_SIZE + 0.5;
+        const playerPosAdjustY = playerPos.y / TILE_SIZE;
+    
+        this.characters.forEach((character) => {
+            if (character.isAggressive) {
+                const characterPos = character.sprite.getBounds();
+                const characterPosAdjustX = characterPos.x / TILE_SIZE + 0.5;
+                const characterPosAdjustY = characterPos.y / TILE_SIZE;
+    
+                switch (character.direction) {
+                    case "DOWN":
+                        if (playerPosAdjustX === characterPosAdjustX &&
+                            playerPosAdjustY >= characterPosAdjustY &&
+                            playerPosAdjustY <= characterPosAdjustY + character.sightRange) {
+                            this.startNpcBattle(character)
+                        }
+                        break;
+                    case "UP":
+                        if (playerPosAdjustX === characterPosAdjustX &&
+                            playerPosAdjustY <= characterPosAdjustY &&
+                            playerPosAdjustY >= characterPosAdjustY - character.sightRange) {
+                            this.startNpcBattle(character)
+                        }
+                        break;
+                    case "LEFT":
+                        if (playerPosAdjustY === characterPosAdjustY &&
+                            playerPosAdjustX <= characterPosAdjustX &&
+                            playerPosAdjustX >= characterPosAdjustX - character.sightRange) {
+                            this.startNpcBattle(character)
+                        }
+                        break;
+                    case "RIGHT":
+                        if (playerPosAdjustY === characterPosAdjustY &&
+                            playerPosAdjustX >= characterPosAdjustX &&
+                            playerPosAdjustX <= characterPosAdjustX + character.sightRange) {
+                            this.startNpcBattle(character)
+                        }
+                        break;
+                }
+            }
+        });
+    }
+
+
 
     saveGameHandler(){
         this.playerSession!.location.x = this.player!._targetPosition.x;

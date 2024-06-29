@@ -1,5 +1,5 @@
-import { Pokemon } from "../commonClass/pokemon/pokemon/pokemon";
-import { playerSessionType } from "../commonTypes/typeDefs";
+import { Pokemon } from "../../../commonClass/pokemon/pokemon/pokemon";
+import { playerSessionType } from "../../../commonTypes/typeDefs";
 
 function setCookie(name: string, value: string) {
     document.cookie = name + "=" + value + ";";

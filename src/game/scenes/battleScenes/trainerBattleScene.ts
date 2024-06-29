@@ -4,15 +4,14 @@ import { PokemonPartyType, activePokemonEncounterType, playerSessionType } from 
 import { baseBattleScene, findEligiblePokemonPartyMember } from "./baseBattleScene";
  
 
-export class WildEncounterScene extends baseBattleScene {
+export class TrainerBattleScene extends baseBattleScene {
     constructor(){
-        super(SCENE_KEYS.WILD_ENCOUNTER_SCENE)
+        super(SCENE_KEYS.TRAINER_BATTLE_SCENE)
     }
 
     init(data: any){
         this.playerSession = data.playerSession;
         
-        console.log(this.playerSession)
         if(data.backgroundAssetKey){this.backgroundAssetKey = data.backgroundAssetKey}
         // To-Do Generate Random Move Sets
         let encounteredPokemon = data.pokemonEncountered

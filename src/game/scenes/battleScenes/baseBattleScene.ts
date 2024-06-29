@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { SCENE_KEYS } from "../../../commonData/keysScene";
+import { SCENE_KEYS } from "../../../commonData/dataScenes";
 import { BATTLE_BACKGROUND_ASSETS } from "../../../commonData/keysBattleScene";
 import { PokemonOverviewMenu } from "../../../components/pokemonOverviewMenu";
 import { PokemonPartyType, playerSessionType } from "../../../commonTypes/typeDefs";

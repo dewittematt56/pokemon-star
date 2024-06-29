@@ -1,7 +1,7 @@
 import { Pokemon } from "../commonClass/pokemon/pokemon/pokemon"
 import { PokemonMove } from "../commonClass/pokemon/pokemonMove"
 import { POKEMON } from "../commonData/dataPokemon"
-import { SCENE_KEYS, WORLD_KEYS } from "../commonData/keysScene"
+import { SCENE_KEYS, SCENE_INFO } from "../commonData/dataScenes"
 import { DIRECTION } from "../game/utils/controls/direction"
 
 export type PokemonImageDataType = {
@@ -61,10 +61,25 @@ export type playerSessionType = {
 }
 
 export type playerLocation = {
-    currentWorldScene: keyof typeof WORLD_KEYS
+    currentWorldScene: keyof typeof SCENE_INFO
     x: number,
     y: number,
     direction: keyof typeof DIRECTION
+}
+
+
+/*------------------------- Scene Types -------------------------*/
+
+// Define the type for a scene
+export interface SceneType {
+    mapPath: string;
+    mapKey: string;
+    npcs: NPC[];
+}
+
+// Define the type for SCENE_INFO
+export interface SceneInfoType {
+    [key: string]: SceneType;
 }
 
 /*------------------------- Pokemon Party Types -------------------------*/
@@ -80,5 +95,43 @@ export type PokemonEncounterType = {
 export type activePokemonEncounterType = {
     pokemon: keyof typeof POKEMON,
     level: number,
+}
+
+/*------------------------- NPC Types -------------------------*/
+
+// Define the type for the dialog
+export type Dialog = {
+    openingMessages: string[];
+}
+
+// Define the type for the location
+export type Location = {
+    x: number;
+    y: number;
+    direction: keyof typeof DIRECTION;
+}
+
+// Define the type for idleFrames
+export type IdleFrames = {
+    DOWN: number;
+    UP: number;
+    NONE: number;
+    LEFT: number;
+    RIGHT: number;
+}
+
+// Define the type for an NPC
+export type NPC = {
+    id: string;
+    name: string;
+    dialog: Dialog;
+    location: Location;
+    idleFrames: IdleFrames;
+    scaleSize: number;
+    spriteGridMovementFinishedCallback: Function;
+    spriteChangedDirectionCallback: Function;
+    pokemonParty: PokemonPartyType; 
+    isAggressive: boolean;
+    sightRange: number
 }
 

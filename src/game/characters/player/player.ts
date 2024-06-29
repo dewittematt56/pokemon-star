@@ -1,5 +1,6 @@
 import { Character, CharacterConfig } from "../characters";
 import { DIRECTION_TYPE, DIRECTION } from "../../utils/controls/direction";
+import { ANIMATIONS } from "../../../commonData/commonAnimations";
 
 export class Player extends Character {
     constructor(config: CharacterConfig){
@@ -7,6 +8,23 @@ export class Player extends Character {
             ...config,
             assetKey: "PLAYER"
         })
+        ANIMATIONS.PLAYER.forEach((animationObject) => {
+            const frames = animationObject.frames
+                ? this._scene.anims.generateFrameNames(animationObject.assetKey, { frames: animationObject.frames })
+                : this._scene.anims.generateFrameNames(animationObject.assetKey);
+
+                this._scene.anims.create({
+                key: animationObject.key,
+                frames: frames,
+                frameRate: animationObject.frameRate * 2,
+                repeat: animationObject.repeat,
+                delay: animationObject.delay,
+                yoyo: animationObject.yoyo,
+                
+            });
+        });
+
+        this.sprite.setDepth(3)
     }
 
     
