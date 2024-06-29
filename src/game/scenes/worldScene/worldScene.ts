@@ -37,7 +37,6 @@ export default class StarterScene extends Phaser.Scene {
     }
 
     init(data: any){
-        console.log(data)
         if(data.playerStartX){this.playerStartX = data.playerStartX}
         if(data.playerStartY){this.playerStartY = data.playerStartY}
     }

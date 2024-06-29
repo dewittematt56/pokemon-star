@@ -68,6 +68,7 @@ export class baseBattleScene extends Phaser.Scene {
                 frameHeight: pokemon.baseData.pokemonImageData.frontImage.height,
                 startFrame: pokemon.baseData.pokemonImageData.frontImage.animStart,
                 endFrame: pokemon.baseData.pokemonImageData.frontImage.animFinish,
+                margin: 0,
             });
         })
         this.playerPokemonParty?.forEach((pokemon) => {
@@ -76,6 +77,7 @@ export class baseBattleScene extends Phaser.Scene {
                 frameHeight: pokemon.baseData.pokemonImageData.backImage.height,
                 startFrame: pokemon.baseData.pokemonImageData.backImage.animStart,
                 endFrame: pokemon.baseData.pokemonImageData.backImage.animFinish,
+                
             });
         })
 
