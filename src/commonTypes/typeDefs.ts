@@ -2,6 +2,7 @@ import { Pokemon } from "../commonClass/pokemon/pokemon/pokemon"
 import { PokemonMove } from "../commonClass/pokemon/pokemonMove"
 import { POKEMON } from "../commonData/dataPokemon"
 import { SCENE_KEYS, WORLD_KEYS } from "../commonData/keysScene"
+import { DIRECTION } from "../game/utils/controls/direction"
 
 export type PokemonImageDataType = {
     frontImage: AnimatedImageType,
@@ -53,6 +54,7 @@ export type BasePokemon = {
 
 /*------------------------- Game Types -------------------------*/
 export type playerSessionType = {
+    id: string
     // Add Trainer Class (name, badges, money...etc)
     party: PokemonPartyType
     location: playerLocation
@@ -61,7 +63,8 @@ export type playerSessionType = {
 export type playerLocation = {
     currentWorldScene: keyof typeof WORLD_KEYS
     x: number,
-    y: number
+    y: number,
+    direction: keyof typeof DIRECTION
 }
 
 /*------------------------- Pokemon Party Types -------------------------*/

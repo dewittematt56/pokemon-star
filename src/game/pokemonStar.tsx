@@ -4,6 +4,7 @@ import { SCENE_KEYS } from "../commonData/keysScene";
 import { baseBattleScene } from "./scenes/battleScenes/baseBattleScene";
 import { constMockPokemonParty, constWildPokemonParty } from "../testData/mockData";
 import { WildEncounterScene } from "./scenes/battleScenes/wildEncounterScene";
+import { loadSave, mockPlayerSession } from "../gameSaves/utils";
 
 const config = {
     type: Phaser.AUTO,
@@ -27,22 +28,27 @@ export default function PokemonStar(){
     const gameRef = useRef<Phaser.Game | null>(null);
 
     useEffect(() => {
+        let playerSession = loadSave("1");
+        // playerSession = undefined;
+
         gameRef.current = new Phaser.Game(config);
         gameRef.current.scene.add(SCENE_KEYS.WORLD_SCENE, StarterScene);
         gameRef.current.scene.add(SCENE_KEYS.WILD_ENCOUNTER_SCENE, WildEncounterScene);
-        // gameRef.current.scene.start(SCENE_KEYS.WORLD_SCENE, {
-        //     battleFieldBackgroundAssetKey: "FOREST",
-        // })
-        gameRef.current.scene.start(SCENE_KEYS.WILD_ENCOUNTER_SCENE, {
-            originatorKey: SCENE_KEYS.WORLD_SCENE,
-            playerEndX: 0,
-            playerEndY: 0, 
-            pokemonEncountered: {
-                pokemon: "BULBASAUR",
-                level: 5
-            },
-            yourPokemonParty: constMockPokemonParty
+        gameRef.current.scene.start(SCENE_KEYS.WORLD_SCENE, {
+            playerSession: playerSession ? playerSession : mockPlayerSession,
+            battleFieldBackgroundAssetKey: "FOREST",
         })
+
+        // gameRef.current.scene.start(SCENE_KEYS.WILD_ENCOUNTER_SCENE, {
+        //     originatorKey: SCENE_KEYS.WORLD_SCENE,
+        //     playerEndX: 0,
+        //     playerEndY: 0, 
+        //     pokemonEncountered: {
+        //         pokemon: "BULBASAUR",
+        //         level: 5
+        //     },
+        //     yourPokemonParty: constMockPokemonParty
+        // })
         
         return () => {
             gameRef.current?.destroy(true);

@@ -12,8 +12,10 @@ export class Pokemon {
     public baseData: typeof POKEMON[PokemonKey];
     private ivData: IvData;
     private evData: EvData;
+    private pokemonKey: PokemonKey
     public stats: StatData
     public moves: PokemonMove[]
+    
     // To-Do Implement Natures
 
     public name: string;
@@ -22,9 +24,10 @@ export class Pokemon {
     public currentHp: number;
     
 
-    constructor(pokemon: PokemonKey, level: number, ivData: IvData | undefined, evData: EvData | undefined, currentHp: number | undefined, name: string | undefined, moves: pokemonMoves[]){
-        this.uniqueId = uuidv4();
+    constructor(uniqueId: string | undefined, pokemon: PokemonKey, level: number, ivData: IvData | undefined, evData: EvData | undefined, currentHp: number | undefined, name: string | undefined, moves: pokemonMoves[]){
+        this.uniqueId = uniqueId ? uniqueId : uuidv4();
         
+        this.pokemonKey = pokemon;
         this.baseData = POKEMON[pokemon];
         this.ivData = ivData ? ivData : generateIvData();
         this.evData = evData ? evData : generateBaseEvData();

@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { SCENE_KEYS } from "../../../commonData/keysScene";
 import { BATTLE_BACKGROUND_ASSETS } from "../../../commonData/keysBattleScene";
 import { PokemonOverviewMenu } from "../../../components/pokemonOverviewMenu";
-import { PokemonPartyType } from "../../../commonTypes/typeDefs";
+import { PokemonPartyType, playerSessionType } from "../../../commonTypes/typeDefs";
 
 import { BattleSelectMenu } from "../../../components/battleMenuComponents/battleMenu";
 import { YourBattleBarComponent, OpponentBattleBarComponent } from "../../../components/battleMenuComponents/battlePokemonStatusBar";
@@ -22,7 +22,6 @@ export class baseBattleScene extends Phaser.Scene {
     public yourPokemonSprite: BattlePokemonSprite | undefined;
     private _backgroundImageBoundsObject: {x: number, y: number, width: number, height: number} | undefined; 
     
-    public playerPokemonParty: PokemonPartyType | undefined
     public opponentPokemonParty: PokemonPartyType | undefined
 
     public pokemonOverviewMenu: PokemonOverviewMenu | undefined;
@@ -34,29 +33,27 @@ export class baseBattleScene extends Phaser.Scene {
 
     public combatEngine: CombatEngine | undefined;
 
-    public playerEndX: number;
-    public playerEndY: number;
+    public playerSession: playerSessionType | undefined;
     public backgroundAssetKey: string;
 
     constructor(key: string){
         super({
             key: key
         })
-        this.playerEndX = 0
-        this.playerEndY = 0
         this.backgroundAssetKey = "FOREST";
     }
 
-    init(data: any){
+    init(data: {playerSession: playerSessionType, backgroundAssetKey: string, opponentParty: PokemonPartyType}){
 
-        if(data.pokemonParty){this.playerPokemonParty = data.pokemonParty;}
+        if(data.playerSession){
+            this.playerSession = data.playerSession;
+        }
         if(data.opponentParty){this.opponentPokemonParty = data.opponentParty;}
-        if(data.playerEndX){this.playerEndX = data.playerEndX}
-        if(data.playerEndY){this.playerEndY = data.playerEndY}
         if(data.backgroundAssetKey){this.backgroundAssetKey = data.backgroundAssetKey}
         // Default to first pokemon in Party
         // this.yourPokemon = data.pokemonParty[findEligiblePokemonPartyMember(data.pokemonParty)]
-        this.yourPokemon = data.pokemonParty[findEligiblePokemonPartyMember(data.pokemonParty)]
+        console.log(this.playerSession)
+        this.yourPokemon = this.playerSession?.party[findEligiblePokemonPartyMember(this.playerSession.party)]
         this.opponentPokemon = data.opponentParty[findEligiblePokemonPartyMember(data.opponentParty)]
     }
 
@@ -71,7 +68,7 @@ export class baseBattleScene extends Phaser.Scene {
                 margin: 0,
             });
         })
-        this.playerPokemonParty?.forEach((pokemon) => {
+        this.playerSession?.party?.forEach((pokemon) => {
             this.load.spritesheet(pokemon.baseData.pokemonImageData.backImage.assetKey, pokemon.baseData.pokemonImageData.backImage.path, {
                 frameWidth: pokemon.baseData.pokemonImageData.backImage.width,
                 frameHeight: pokemon.baseData.pokemonImageData.backImage.height,
@@ -86,7 +83,7 @@ export class baseBattleScene extends Phaser.Scene {
     }
 
     loadPokemonIconSprites = () => {
-        this.playerPokemonParty?.forEach((pokemon) => {
+        this.playerSession?.party?.forEach((pokemon) => {
             this.load.spritesheet(pokemon.baseData.pokemonImageData.iconImage.assetKey, pokemon.baseData.pokemonImageData.iconImage.path, {
                 frameWidth: pokemon.baseData.pokemonImageData.iconImage.width,
                 frameHeight: pokemon.baseData.pokemonImageData.iconImage.height,
@@ -120,8 +117,8 @@ export class baseBattleScene extends Phaser.Scene {
                 (newHp: number, executeOn: "PLAYER" | "OPPONENT") => this.combatHpCallback(newHp, executeOn)
             );
         }
-        if(this.playerPokemonParty){
-            this.pokemonOverviewMenu = new PokemonOverviewMenu(this, this.playerPokemonParty, this.changePlayerPokemon);
+        if(this.playerSession?.party){
+            this.pokemonOverviewMenu = new PokemonOverviewMenu(this, this.playerSession.party, this.changePlayerPokemon);
         }
         this.cameras.main.fadeIn(1000, 0, 0, 0)
         this.initialBattleLoad();
@@ -153,11 +150,11 @@ export class baseBattleScene extends Phaser.Scene {
             this.pokemonOverviewMenu?.updatePokemonHp(this.yourPokemon!.uniqueId, newHp, this.yourPokemon!.stats.hp);
             // A Pokemon has fainted
             if(newHp == 0){
-                let newPokemonIndex = findEligiblePokemonPartyMember(this.playerPokemonParty!);
+                let newPokemonIndex = findEligiblePokemonPartyMember(this.playerSession?.party!);
                 if(newPokemonIndex == -1){
                     this.exitDefeat();
                 } else {
-                    this.changePlayerPokemon(this.playerPokemonParty![newPokemonIndex])
+                    this.changePlayerPokemon(this.playerSession!.party[newPokemonIndex])
                 }
             }
         } else if (executeOn == "OPPONENT"){
@@ -176,10 +173,11 @@ export class baseBattleScene extends Phaser.Scene {
     }
 
     changePlayerPokemon = (newPokemon: Pokemon) => {
-        
         this.battleSelectMenu?.switchPokemon(newPokemon);
         this.combatEngine?.switchPokemon(newPokemon, "PLAYER");
+        
         this.battleSelectMenu?.displayDialog([`Nice work ${this.yourPokemon?.name}...`, `Go ${newPokemon.name}, show em what you got!`], true, () => {
+            this.updatePokemonPlayerSessionData();
             this.yourPokemon = newPokemon;
             this.yourPokemonSprite?.updatePokemon(newPokemon);
             this.yourBattleBarComponent?.switchPokemon(newPokemon);
@@ -194,17 +192,31 @@ export class baseBattleScene extends Phaser.Scene {
         this.opponentPokemon = newPokemon;
     }
 
+    updatePokemonPlayerSessionData(){
+        let indexToUpdate= this.playerSession?.party.findIndex((pokemon) => this.yourPokemon?.uniqueId == pokemon.uniqueId);
+        if(indexToUpdate){
+            this.playerSession!.party[indexToUpdate] = this.yourPokemon!;
+        }
+    }
+
     exitVictory = () => {
+        this.updatePokemonPlayerSessionData();
         this.cameras.main.fadeOut(2000, 0, 0, 0)
-        this.scene.start(SCENE_KEYS.WORLD_SCENE, {playerStartX: this.playerEndX, playerStartY: this.playerEndY})
+        this.scene.start(SCENE_KEYS.WORLD_SCENE, {
+            playerSession: this.playerSession
+        })
     }
 
     exitRun = () => {
+        this.updatePokemonPlayerSessionData();
         this.cameras.main.fadeOut(2000, 0, 0, 0)
-        this.scene.start(SCENE_KEYS.WORLD_SCENE, {playerStartX: this.playerEndX, playerStartY: this.playerEndY})
+        this.scene.start(SCENE_KEYS.WORLD_SCENE, {
+            playerSession: this.playerSession
+        })
     }
 
     exitDefeat = () => {
+        this.updatePokemonPlayerSessionData();
         this.scene.switch("")
     }
 

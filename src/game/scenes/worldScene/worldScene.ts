@@ -8,9 +8,11 @@ import { CHARACTER_ASSET_KEYS } from '../../utils/assetKeys';
 import { BasicUiDialogBox } from '../../../components/dialog/basicUiDialogBox';
 import { getTargetPositionFromGameObjectPositionAndDirection } from '../../utils/gridUtils.ts/gridUtils';
 import { TILE_SIZE } from '../../../commonData/configWorld';
-import { SCENE_KEYS } from '../../../commonData/keysScene';
+import { SCENE_KEYS, WORLD_KEYS } from '../../../commonData/keysScene';
 import { didPokemonAppearInZone, getPokemonEncountered } from './utils/encounterUtils';
 import { constMockPokemonParty } from '../../../testData/mockData';
+import { PokemonPartyType, playerSessionType } from '../../../commonTypes/typeDefs';
+import { writeGameDataToSave } from '../../../gameSaves/utils';
 
 export default class StarterScene extends Phaser.Scene {
     player: Character | undefined;
@@ -21,24 +23,38 @@ export default class StarterScene extends Phaser.Scene {
     playerStartX: number;
     playerStartY: number;
 
+    private currentWorldScene: keyof typeof WORLD_KEYS;
+    private playerSession: playerSessionType | undefined;
+
     constructor() {
         super({ key: SCENE_KEYS.WORLD_SCENE });
         this.playerStartX = (29 * TILE_SIZE) + 8
         this.playerStartY = 46 * TILE_SIZE
+
+        this.currentWorldScene = "ROUTE_101";
     }
 
     preload() {
+        let world_data = WORLD_KEYS[this.currentWorldScene]
         this.load.image("standardTileSet", "/assets/pokemonStarStandradTileSet.png");
-        this.load.image("backgroundImage", "/assets/maps/routes/route_101/route_101.png");
+        this.load.image("backgroundImage", world_data.mapPath);
         this.load.spritesheet("PLAYER", CHARACTER_ASSET_KEYS.PATH, { frameWidth: 64, frameHeight: 64 });
         this.load.spritesheet("NPC_SPRITE_SHEET", "/assets/sprites/npcs/trAceTrainer_F.png", { frameWidth: 64, frameHeight: 64 });
 
         this.load.tilemapTiledJSON("map", "/assets/maps/routes/route_101/route_101.json");
     }
 
-    init(data: any){
-        if(data.playerStartX){this.playerStartX = data.playerStartX}
-        if(data.playerStartY){this.playerStartY = data.playerStartY}
+    init(data: {playerSession: playerSessionType}){
+        if(data.playerSession){
+            this.playerSession = data.playerSession
+            this.playerStartX = data.playerSession.location.x
+            this.playerStartY = data.playerSession.location.y
+            this.currentWorldScene = data.playerSession.location.currentWorldScene
+        }
+        // Save Game Listeners
+        window.addEventListener("beforeunload", () => {writeGameDataToSave(this.playerSession!)})
+        window.addEventListener("unload", () => {writeGameDataToSave(this.playerSession!)})
+        window.addEventListener("visibilitychange", () => {writeGameDataToSave(this.playerSession!)})
     }
 
     create() {
@@ -125,7 +141,7 @@ export default class StarterScene extends Phaser.Scene {
                 RIGHT: 8
             },
             scaleSize: .5,
-            direction: DIRECTION.UP,
+            direction: this.playerSession!.location.direction,
             spriteGridMovementFinishedCallback: () => {
                 this.checkPokemonSpawnLogic()
             },
@@ -193,13 +209,13 @@ export default class StarterScene extends Phaser.Scene {
             // Check if the player's position is within the object's bounds
             if (playerPos.left >= xMin && playerPos.right <= xMax && playerPos.top >= yMin && playerPos.bottom <= yMax) {
                 if(didPokemonAppearInZone()){
-                    let pokemonEncountered = getPokemonEncountered("101")
+                    let pokemonEncountered = getPokemonEncountered(this.currentWorldScene)
+                    this.playerSession!.location.x = this.player!._targetPosition.x;
+                    this.playerSession!.location.y = this.player!._targetPosition.y;
+                    this.playerSession!.location.direction = this.player!._direction;
                     this.scene.start(SCENE_KEYS.WILD_ENCOUNTER_SCENE, {
-                        originatorKey: SCENE_KEYS.WORLD_SCENE,
-                        playerEndX: playerPos.x,
-                        playerEndY: playerPos.y, 
+                        playerSession: this.playerSession,
                         pokemonEncountered: pokemonEncountered,
-                        yourPokemonParty: constMockPokemonParty
                     })
                 }
             }

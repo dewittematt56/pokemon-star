@@ -30,7 +30,6 @@ export class BattlePokemonSprite {
         let endFrame = this.isFront ? this.pokemon.baseData.pokemonImageData.frontImage.animFinish : this.pokemon.baseData.pokemonImageData.backImage.animFinish
 
         this.pokemonSprite = this.scene.add.sprite((this.xPos + (spriteWidth / 2)), this.yPos - (spriteHeight / 2), this.assetKey).setScale(4);
-
         this.scene.anims.create({
             key: this.assetKey,
             frames: this.scene.anims.generateFrameNumbers(this.assetKey, { start: startFrame, end: endFrame }),

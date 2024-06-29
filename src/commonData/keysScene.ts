@@ -7,6 +7,9 @@ export const SCENE_KEYS = {
 export const WORLD_KEYS = {
     "ROUTE_101": {
         mapPath: "/assets/maps/routes/route_101/route_101.png",
-        mapKey: "ROUTE_101"
+        mapKey: "ROUTE_101",
+        npcs: [
+                
+        ]
     }
 } 

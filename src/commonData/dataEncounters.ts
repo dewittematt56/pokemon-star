@@ -1,7 +1,7 @@
 import { PokemonEncounterType } from "../commonTypes/typeDefs";
 
 export const pokemonRouteEncounters = Object.freeze<{[key: string]: PokemonEncounterType[]}>({
-    "101": [
+    "ROUTE_101": [
             {
                 pokemon: "POOCHYENA",
                 rate: 0.66,

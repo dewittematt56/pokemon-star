@@ -4,7 +4,6 @@ import { PokemonType } from "./pokemonType";
 
 export type moveClasses = "PHYSICAL_ATTACK" | "SPECIAL_ATTACK" | "STAT" | "NONE"
 
-
 export class PokemonMove {
     public id: string;
     public name: string;

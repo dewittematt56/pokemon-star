@@ -1,6 +1,6 @@
 import { Pokemon } from "../../../commonClass/pokemon/pokemon/pokemon";
 import { SCENE_KEYS } from "../../../commonData/keysScene";
-import { PokemonPartyType, activePokemonEncounterType } from "../../../commonTypes/typeDefs";
+import { PokemonPartyType, activePokemonEncounterType, playerSessionType } from "../../../commonTypes/typeDefs";
 import { baseBattleScene, findEligiblePokemonPartyMember } from "./baseBattleScene";
  
 
@@ -10,17 +10,16 @@ export class WildEncounterScene extends baseBattleScene {
     }
 
     init(data: any){
-        this.playerPokemonParty = data.yourPokemonParty as PokemonPartyType
+        this.playerSession = data.playerSession;
         
-        if(data.playerEndX){this.playerEndX = data.playerEndX}
-        if(data.playerEndY){this.playerEndY = data.playerEndY}
+        console.log(this.playerSession)
         if(data.backgroundAssetKey){this.backgroundAssetKey = data.backgroundAssetKey}
         // To-Do Generate Random Move Sets
-        let encounteredPokemon = data.pokemonEncountered as activePokemonEncounterType
-        this.opponentPokemonParty = [new Pokemon(encounteredPokemon.pokemon, encounteredPokemon.level, undefined, undefined, undefined, undefined, ["TACKLE", "GROWL"])]
+        let encounteredPokemon = data.pokemonEncountered
+        this.opponentPokemonParty = [new Pokemon(undefined, encounteredPokemon.pokemon, encounteredPokemon.level, undefined, undefined, undefined, undefined, ["TACKLE", "GROWL"])]
         
-        this.yourPokemon = this.playerPokemonParty[findEligiblePokemonPartyMember(this.playerPokemonParty)]
-        this.opponentPokemon =  this.opponentPokemonParty[findEligiblePokemonPartyMember( this.opponentPokemonParty)]
+        this.yourPokemon = this.playerSession?.party[findEligiblePokemonPartyMember(this.playerSession.party)]
+        this.opponentPokemon = this.opponentPokemonParty[findEligiblePokemonPartyMember(this.opponentPokemonParty)]
 
     }   
 }

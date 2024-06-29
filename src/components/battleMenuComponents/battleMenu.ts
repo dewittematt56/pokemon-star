@@ -44,8 +44,6 @@ export class BattleSelectMenu {
     }
 
     createMoveSelectionButtons(isDefaultVisible: boolean){
-        console.log(this.moveSelectCallBack)
-
         return this.pokemon.moves.map((move, i) => {
             if( i == 0){
                 return new MoveSelectionButton(move, 0, 5, this.scene, isDefaultVisible, (move: PokemonMove) => this.moveSelectCallBack(move)).buttonContainer
