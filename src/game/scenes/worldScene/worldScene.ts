@@ -45,6 +45,7 @@ export default class StarterScene extends Phaser.Scene {
     }
 
     init(data: {playerSession: playerSessionType}){
+        console.log(data.playerSession)
         if(data.playerSession){
             this.playerSession = data.playerSession
             this.playerStartX = data.playerSession.location.x
@@ -52,9 +53,9 @@ export default class StarterScene extends Phaser.Scene {
             this.currentWorldScene = data.playerSession.location.currentWorldScene
         }
         // Save Game Listeners
-        window.addEventListener("beforeunload", () => {writeGameDataToSave(this.playerSession!)})
-        window.addEventListener("unload", () => {writeGameDataToSave(this.playerSession!)})
-        window.addEventListener("visibilitychange", () => {writeGameDataToSave(this.playerSession!)})
+        window.addEventListener("beforeunload", () => this.saveGameHandler())
+        window.addEventListener("unload", () => this.saveGameHandler())
+        window.addEventListener("visibilitychange", () => this.saveGameHandler())
     }
 
     create() {
@@ -220,5 +221,12 @@ export default class StarterScene extends Phaser.Scene {
                 }
             }
         });
+    }
+
+    saveGameHandler(){
+        this.playerSession!.location.x = this.player!._targetPosition.x;
+        this.playerSession!.location.y = this.player!._targetPosition.y;
+        this.playerSession!.location.direction = this.player!._direction;
+        writeGameDataToSave(this.playerSession!)
     }
 }
