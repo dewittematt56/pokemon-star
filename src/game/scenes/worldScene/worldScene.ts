@@ -11,10 +11,11 @@ import { SCENE_KEYS, SCENE_INFO } from '../../../commonData/dataScenes';
 import { didPokemonAppearInZone, getPokemonEncountered } from './utils/encounterUtils';
 import { SceneType, playerSessionType } from '../../../commonTypes/typeDefs';
 import { writeGameDataToSave } from '../../utils/gameSaves/utils';
+import { NpcTrainer } from '../../characters/npcTrainer/npcTrainer';
 
 export default class StarterScene extends Phaser.Scene {
     player: Player | undefined;
-    characters: Character[];
+    npcTrainers: NpcTrainer[];
     controls: Controls | undefined;
     dialogUI: BasicUiDialogBox | undefined;
     signLayer: Phaser.Tilemaps.ObjectLayer | undefined;
@@ -31,7 +32,7 @@ export default class StarterScene extends Phaser.Scene {
         this.playerStartX = (29 * TILE_SIZE) + 8
         this.playerStartY = 46 * TILE_SIZE
 
-        this.characters = [];
+        this.npcTrainers = []
 
         this.currentWorldScene = "ROUTE_101";
         this.currentWorldInfo = SCENE_INFO[this.currentWorldScene];
@@ -156,20 +157,22 @@ export default class StarterScene extends Phaser.Scene {
         });
         this.cameras.main.startFollow(this.player.sprite);
         // Generate all NPC
-        this.characters = this.currentWorldInfo.npcs.map((npc) => {
-            return new Character({
-                     scene: this,
-                     position: { x: npc.location.x, y: npc.location.y },
-                     assetKey: "NPC_SPRITE_SHEET",
-                     idleFrames: npc.idleFrames,
-                     scaleSize: npc.scaleSize,
-                     direction: npc.location.direction,
-                     spriteGridMovementFinishedCallback: npc.spriteGridMovementFinishedCallback,
-                     spriteChangedDirectionCallback: npc.spriteChangedDirectionCallback,
-                     collisionLayer: collisionLayer,
-                     isAggressive: npc.isAggressive,
-                     sightRange: npc.sightRange
-                });
+        this.npcTrainers = this.currentWorldInfo.npcs.filter((npc) => npc.type == "TRAINER").map((npc) => {
+            return new NpcTrainer({
+                scene: this,
+                position: { x: npc.location.x, y: npc.location.y },
+                assetKey: "NPC_SPRITE_SHEET",
+                idleFrames: npc.idleFrames,
+                scaleSize: npc.scaleSize,
+                direction: npc.location.direction,
+                spriteGridMovementFinishedCallback: npc.spriteGridMovementFinishedCallback,
+                spriteChangedDirectionCallback: npc.spriteChangedDirectionCallback,
+                collisionLayer: collisionLayer,
+                isAggressive: npc.isAggressive,
+                sightRange: npc.sightRange
+            }, {
+                pokemon: npc.pokemonParty
+            });
         })
         
     }
@@ -222,7 +225,7 @@ export default class StarterScene extends Phaser.Scene {
         const playerPosAdjustX = playerPos.x / TILE_SIZE + 0.5;
         const playerPosAdjustY = playerPos.y / TILE_SIZE;
     
-        this.characters.forEach((character) => {
+        this.npcTrainers.forEach((character) => {
             if (character.isAggressive) {
                 const characterPos = character.sprite.getBounds();
                 const characterPosAdjustX = characterPos.x / TILE_SIZE + 0.5;

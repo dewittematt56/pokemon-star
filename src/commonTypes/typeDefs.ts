@@ -1,4 +1,5 @@
-import { Pokemon } from "../commonClass/pokemon/pokemon/pokemon"
+import { Pokemon, pokemonMoves } from "../commonClass/pokemon/pokemon/pokemon"
+import { IvData, EvData } from "../commonClass/pokemon/pokemon/typeDefs"
 import { PokemonMove } from "../commonClass/pokemon/pokemonMove"
 import { POKEMON } from "../commonData/dataPokemon"
 import { SCENE_KEYS, SCENE_INFO } from "../commonData/dataScenes"
@@ -52,6 +53,15 @@ export type BasePokemon = {
     pokemonMetaData: PokemonMetaDataType
 }
 
+export type PokemonConfig = {
+    pokemon: keyof typeof POKEMON,
+    level: number,
+    ivData: IvData | undefined,
+    evData: EvData | undefined,
+    currentHp: number | undefined,
+    moves: pokemonMoves[]
+}
+
 /*------------------------- Game Types -------------------------*/
 export type playerSessionType = {
     id: string
@@ -99,6 +109,8 @@ export type activePokemonEncounterType = {
 
 /*------------------------- NPC Types -------------------------*/
 
+export type npcType = "TRAINER" | "NPC"
+
 // Define the type for the dialog
 export type Dialog = {
     openingMessages: string[];
@@ -124,13 +136,14 @@ export type IdleFrames = {
 export type NPC = {
     id: string;
     name: string;
+    type: npcType
     dialog: Dialog;
     location: Location;
     idleFrames: IdleFrames;
     scaleSize: number;
     spriteGridMovementFinishedCallback: Function;
     spriteChangedDirectionCallback: Function;
-    pokemonParty: PokemonPartyType; 
+    pokemonParty: PokemonConfig[]; 
     isAggressive: boolean;
     sightRange: number
 }

@@ -17,7 +17,6 @@ function getCookie(name: string) {
 }
 
 export function writeGameDataToSave(playerSession: playerSessionType){
-    console.log("CHECK")
     setCookie(playerSession.id, JSON.stringify(playerSession))
 }
 

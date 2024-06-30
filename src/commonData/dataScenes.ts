@@ -17,6 +17,7 @@ export const SCENE_INFO: SceneInfoType = Object.freeze({
             {
                 id: "1",
                 name: "Lacy Stephanie",
+                type: "TRAINER",
                 dialog: {
                     openingMessages: []
                 },
@@ -31,7 +32,16 @@ export const SCENE_INFO: SceneInfoType = Object.freeze({
                 scaleSize: .5,
                 spriteGridMovementFinishedCallback: () => {},
                 spriteChangedDirectionCallback: () => {},
-                pokemonParty: [],
+                pokemonParty: [
+                    {
+                        pokemon: "POOCHYENA",
+                        level: 5,
+                        ivData: undefined,
+                        evData: undefined,
+                        currentHp: undefined,
+                        moves: ["TACKLE", "GROWL"]
+                    }
+                ],
                 isAggressive: true,
                 sightRange: 5
             }
