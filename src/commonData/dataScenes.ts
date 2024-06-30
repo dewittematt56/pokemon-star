@@ -19,7 +19,7 @@ export const SCENE_INFO: SceneInfoType = Object.freeze({
                 name: "Lacy Stephanie",
                 type: "TRAINER",
                 dialog: {
-                    openingMessages: []
+                    openingMessages: ["Oh hey! Almost missed you there.... is this your first battle?"]
                 },
                 location: {x: 30 * TILE_SIZE + 8, y: 24 * TILE_SIZE, direction: DIRECTION.DOWN},
                 idleFrames: {
@@ -43,7 +43,19 @@ export const SCENE_INFO: SceneInfoType = Object.freeze({
                     }
                 ],
                 isAggressive: true,
-                sightRange: 5
+                sightRange: 5,
+                spriteInfo: {
+                    worldImage: undefined,
+                    portraitImage: {
+                        assetKey: "portraitSprite_Spr_BW_Clerk_F",
+                        path: "/assets/sprites/npcs/trAceTrainer_F/portraitSpirte_Spr_BW_Clerk_F.png",
+                        height: 80,
+                        width: 80,
+                        animStart: 0,
+                        animFinish: 37,
+                        frameRate: 10
+                    }
+                }
             }
         ]
     }

@@ -43,8 +43,14 @@ export default class StarterScene extends Phaser.Scene {
         this.load.image("standardTileSet", "/assets/pokemonStarStandradTileSet.png");
         this.load.image("backgroundImage", world_data.mapPath);
         this.load.spritesheet("PLAYER", CHARACTER_ASSET_KEYS.PATH, { frameWidth: 64, frameHeight: 64 });
-        this.load.spritesheet("NPC_SPRITE_SHEET", "/assets/sprites/npcs/trAceTrainer_F.png", { frameWidth: 64, frameHeight: 64 });
-
+        this.load.spritesheet("NPC_SPRITE_SHEET", "/assets/sprites/npcs/trAceTrainer_F/gameSprite_Spr_BW_Clerk_F.png", { frameWidth: 64, frameHeight: 64 });
+        // Load NPC World Image Info
+        world_data.npcs.forEach((npc) => {
+            if(npc.spriteInfo){
+                this.load.spritesheet(npc.spriteInfo.portraitImage.assetKey, npc.spriteInfo.portraitImage.path, { frameWidth: npc.spriteInfo.portraitImage.width, frameHeight: npc.spriteInfo.portraitImage.height });
+            }
+        })
+        
         this.load.tilemapTiledJSON("map", "/assets/maps/routes/route_101/route_101.json");
     }
 
@@ -157,7 +163,7 @@ export default class StarterScene extends Phaser.Scene {
         });
         this.cameras.main.startFollow(this.player.sprite);
         // Generate all NPC
-        this.npcTrainers = this.currentWorldInfo.npcs.filter((npc) => npc.type == "TRAINER").map((npc) => {
+        this.npcTrainers = this.currentWorldInfo.npcs.filter((npc) => npc.type == "TRAINER" && npc.spriteInfo).map((npc) => {
             return new NpcTrainer({
                 scene: this,
                 position: { x: npc.location.x, y: npc.location.y },
@@ -171,7 +177,9 @@ export default class StarterScene extends Phaser.Scene {
                 isAggressive: npc.isAggressive,
                 sightRange: npc.sightRange
             }, {
-                pokemon: npc.pokemonParty
+                pokemon: npc.pokemonParty,
+                dialog: npc.dialog,
+                portrait: npc.spriteInfo!.portraitImage
             });
         })
         
@@ -181,8 +189,12 @@ export default class StarterScene extends Phaser.Scene {
         return this.controls!.isInputLocked || this.dialogUI!.isVisible;
     }
 
-    startNpcBattle(character: Character) {
-        
+    startNpcBattle(npcTrainer: NpcTrainer) {
+        this.updateGameSession()
+        this.scene.start(SCENE_KEYS.TRAINER_BATTLE_SCENE, {
+            playerSession: this.playerSession,
+            npcTrainer: npcTrainer,
+        })
     }
 
     checkPokemonSpawnLogic() {
@@ -204,9 +216,7 @@ export default class StarterScene extends Phaser.Scene {
             if (playerPos.left >= xMin && playerPos.right <= xMax && playerPos.top >= yMin && playerPos.bottom <= yMax) {
                 if(didPokemonAppearInZone()){
                     let pokemonEncountered = getPokemonEncountered(this.currentWorldScene)
-                    this.playerSession!.location.x = this.player!._targetPosition.x;
-                    this.playerSession!.location.y = this.player!._targetPosition.y;
-                    this.playerSession!.location.direction = this.player!._direction;
+                    this.updateGameSession()
                     this.scene.start(SCENE_KEYS.WILD_ENCOUNTER_SCENE, {
                         playerSession: this.playerSession,
                         pokemonEncountered: pokemonEncountered,
@@ -266,11 +276,14 @@ export default class StarterScene extends Phaser.Scene {
     }
 
 
-
-    saveGameHandler(){
+    updateGameSession(){
         this.playerSession!.location.x = this.player!._targetPosition.x;
         this.playerSession!.location.y = this.player!._targetPosition.y;
         this.playerSession!.location.direction = this.player!._direction;
+    }
+
+    saveGameHandler(){
+        this.updateGameSession()
         writeGameDataToSave(this.playerSession!)
     }
 }

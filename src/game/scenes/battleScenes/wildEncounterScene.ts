@@ -21,5 +21,14 @@ export class WildEncounterScene extends baseBattleScene {
         this.yourPokemon = this.playerSession?.party[findEligiblePokemonPartyMember(this.playerSession.party)]
         this.opponentPokemon = this.opponentPokemonParty[findEligiblePokemonPartyMember(this.opponentPokemonParty)]
 
-    }   
+    }
+    
+    // Overwrite Parent Method
+    initialBattleLoad(){
+        this.opponentPokemonSprite!.pokemonSprite?.setVisible(true)
+        this.battleSelectMenu?.displayDialog([`Oh no, a wild ${this.opponentPokemon?.name} has appeared......`, `Go ${this.yourPokemon?.name}!`], true, () => {
+            this.yourPokemonSprite?.pokemonSprite?.setVisible(true);
+            this.battleSelectMenu?.updateDialogVisibility(false)
+        });    
+    }
 }

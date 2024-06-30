@@ -112,7 +112,7 @@ export type activePokemonEncounterType = {
 export type npcType = "TRAINER" | "NPC"
 
 // Define the type for the dialog
-export type Dialog = {
+export type npcDialog = {
     openingMessages: string[];
 }
 
@@ -137,7 +137,7 @@ export type NPC = {
     id: string;
     name: string;
     type: npcType
-    dialog: Dialog;
+    dialog: npcDialog;
     location: Location;
     idleFrames: IdleFrames;
     scaleSize: number;
@@ -145,6 +145,10 @@ export type NPC = {
     spriteChangedDirectionCallback: Function;
     pokemonParty: PokemonConfig[]; 
     isAggressive: boolean;
-    sightRange: number
+    sightRange: number,
+    spriteInfo: {
+        worldImage: undefined,
+        portraitImage: AnimatedImageType 
+    } | undefined
 }
 

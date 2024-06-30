@@ -45,7 +45,7 @@ export class BattleMenuDialog {
         this.updateVisibility(true);
         this.messageQueue.push(...messages);
         if (autoComplete) {
-            this.displayMessage_r(30, 500, callBackFunction);
+            this.displayMessage_r(30, 30, callBackFunction);
         } else {
             this.displayMessage();
         }
@@ -63,7 +63,7 @@ export class BattleMenuDialog {
         this.displayMessage();
     }
 
-    async displayMessage_r(speed: number, pauseDelay: number, callBackFunction: any) {
+    async displayMessage_r(speed: number, pauseDelayFactor: number, callBackFunction: any) {
         if (this.isAnimating || this.messageQueue.length === 0) {
             callBackFunction();
             return;
@@ -74,8 +74,8 @@ export class BattleMenuDialog {
         await this.animateTextWithPromise(message, speed);
         this.isAnimating = false;
         this.scene.time.addEvent({
-            delay: pauseDelay,
-            callback: () => { this.displayMessage_r(speed, pauseDelay, callBackFunction); }
+            delay: pauseDelayFactor * message.length,
+            callback: () => { this.displayMessage_r(speed, pauseDelayFactor, callBackFunction); }
         });
     }
 

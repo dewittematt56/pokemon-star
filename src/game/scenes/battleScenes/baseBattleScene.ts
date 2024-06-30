@@ -20,7 +20,7 @@ export class baseBattleScene extends Phaser.Scene {
     public opponentPokemonSprite: BattlePokemonSprite | undefined;
     public yourPokemon: Pokemon | undefined;
     public yourPokemonSprite: BattlePokemonSprite | undefined;
-    private _backgroundImageBoundsObject: {x: number, y: number, width: number, height: number} | undefined; 
+    public _backgroundImageBoundsObject: {x: number, y: number, width: number, height: number} | undefined; 
     
     public opponentPokemonParty: PokemonPartyType | undefined
 
@@ -51,8 +51,6 @@ export class baseBattleScene extends Phaser.Scene {
         if(data.opponentParty){this.opponentPokemonParty = data.opponentParty;}
         if(data.backgroundAssetKey){this.backgroundAssetKey = data.backgroundAssetKey}
         // Default to first pokemon in Party
-        // this.yourPokemon = data.pokemonParty[findEligiblePokemonPartyMember(data.pokemonParty)]
-        console.log(this.playerSession)
         this.yourPokemon = this.playerSession?.party[findEligiblePokemonPartyMember(this.playerSession.party)]
         this.opponentPokemon = data.opponentParty[findEligiblePokemonPartyMember(data.opponentParty)]
     }
@@ -103,6 +101,7 @@ export class baseBattleScene extends Phaser.Scene {
             
             // Opponent
             this.opponentPokemonSprite = new BattlePokemonSprite(this, this.opponentPokemon, (this._backgroundImageBoundsObject.width / 2)  * 1.5, (this._backgroundImageBoundsObject.height / 2) * 1.1, true);
+            this.opponentPokemonSprite.pokemonSprite?.setVisible(false);
             this.opponentBattleBarComponent = new OpponentBattleBarComponent(this, -2, 24, this.opponentPokemon, true);
             
             // Your Pokemon
@@ -124,12 +123,7 @@ export class baseBattleScene extends Phaser.Scene {
         this.initialBattleLoad();
     }
 
-    initialBattleLoad(){
-        this.battleSelectMenu?.displayDialog([`Oh no, a wild ${this.opponentPokemon?.name} has appeared......`, `Go ${this.yourPokemon?.name}!`], true, () => {
-            this.yourPokemonSprite?.pokemonSprite?.setVisible(true);
-            this.battleSelectMenu?.updateDialogVisibility(false)
-        });    
-    }
+    initialBattleLoad(){}
 
     moveSelectionHandler(move: PokemonMove){
         if(this.combatEngine){
