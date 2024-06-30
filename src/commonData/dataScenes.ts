@@ -45,7 +45,50 @@ export const SCENE_INFO: SceneInfoType = Object.freeze({
                 isAggressive: true,
                 sightRange: 5,
                 spriteInfo: {
-                    worldImage: undefined,
+                    worldImage: {
+                        spriteKey: "worldSprite_NPC_TRAINER_CLERK_F",
+                        spritePath: "/assets/sprites/npcs/trAceTrainer_F/gameSprite_Spr_BW_Clerk_F.png",
+                        spriteWidth: 64,
+                        spriteHeight: 64,
+                        animations: [
+                            {
+                                "key": "worldSprite_NPC_TRAINER_CLERK_F-DOWN",
+                                "frames": [1, 2, 3],
+                                "frameRate": 3,
+                                "repeat": -1,
+                                "delay": 0,
+                                "yoyo": true,
+                                "assetKey": "worldSprite_NPC_TRAINER_CLERK_F"
+                            },
+                            {
+                                "key": "worldSprite_NPC_TRAINER_CLERK_F-UP",
+                                "frames": [12, 13, 14],
+                                "frameRate": 3,
+                                "repeat": -1,
+                                "delay": 0,
+                                "yoyo": true,
+                                "assetKey": "worldSprite_NPC_TRAINER_CLERK_F"
+                            },
+                            {
+                                "key": "worldSprite_NPC_TRAINER_CLERK_F-RIGHT",
+                                "frames": [9, 10, 11],
+                                "frameRate": 3,
+                                "repeat": -1,
+                                "delay": 0,
+                                "yoyo": true,
+                                "assetKey": "worldSprite_NPC_TRAINER_CLERK_F"
+                            },
+                            {
+                                "key": "worldSprite_NPC_TRAINER_CLERK_F-LEFT",
+                                "frames": [5, 6, 7],
+                                "frameRate": 3,
+                                "repeat": -1,
+                                "delay": 0,
+                                "yoyo": true,
+                                "assetKey": "worldSprite_NPC_TRAINER_CLERK_F"
+                            }                    
+                        ]
+                    },
                     portraitImage: {
                         assetKey: "portraitSprite_Spr_BW_Clerk_F",
                         path: "/assets/sprites/npcs/trAceTrainer_F/portraitSpirte_Spr_BW_Clerk_F.png",
@@ -55,7 +98,8 @@ export const SCENE_INFO: SceneInfoType = Object.freeze({
                         animFinish: 37,
                         frameRate: 10
                     }
-                }
+                },
+                movementPattern: ["DOWN", "DOWN", "DOWN", "DOWN", "UP", "UP", "UP", "UP"]
             }
         ]
     }

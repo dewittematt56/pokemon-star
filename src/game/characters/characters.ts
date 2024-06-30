@@ -36,6 +36,7 @@ export class Character {
     _collisionLayer?: Phaser.Tilemaps.TilemapLayer | null;
     public isAggressive: boolean = false;
     public sightRange: number = 5;
+    public spriteSpeedFactor: number = 1;
 
     constructor(config: CharacterConfig) {
         this._scene = config.scene;
@@ -130,7 +131,7 @@ export class Character {
 
         this._scene.add.tween({
             delay: 0,
-            duration: 300 * .5,
+            duration: 300 * this.spriteSpeedFactor,
             y: {
                 from: this._phaserGameObject.y,
                 to: this._targetPosition.y

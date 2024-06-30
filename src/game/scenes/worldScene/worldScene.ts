@@ -43,11 +43,11 @@ export default class StarterScene extends Phaser.Scene {
         this.load.image("standardTileSet", "/assets/pokemonStarStandradTileSet.png");
         this.load.image("backgroundImage", world_data.mapPath);
         this.load.spritesheet("PLAYER", CHARACTER_ASSET_KEYS.PATH, { frameWidth: 64, frameHeight: 64 });
-        this.load.spritesheet("NPC_SPRITE_SHEET", "/assets/sprites/npcs/trAceTrainer_F/gameSprite_Spr_BW_Clerk_F.png", { frameWidth: 64, frameHeight: 64 });
         // Load NPC World Image Info
         world_data.npcs.forEach((npc) => {
             if(npc.spriteInfo){
                 this.load.spritesheet(npc.spriteInfo.portraitImage.assetKey, npc.spriteInfo.portraitImage.path, { frameWidth: npc.spriteInfo.portraitImage.width, frameHeight: npc.spriteInfo.portraitImage.height });
+                this.load.spritesheet(npc.spriteInfo.worldImage.spriteKey, npc.spriteInfo.worldImage.spritePath, { frameWidth: npc.spriteInfo.worldImage.spriteWidth, frameHeight: npc.spriteInfo.worldImage.spriteHeight });
             }
         })
         
@@ -167,7 +167,7 @@ export default class StarterScene extends Phaser.Scene {
             return new NpcTrainer({
                 scene: this,
                 position: { x: npc.location.x, y: npc.location.y },
-                assetKey: "NPC_SPRITE_SHEET",
+                assetKey: npc.spriteInfo!.worldImage.spriteKey,
                 idleFrames: npc.idleFrames,
                 scaleSize: npc.scaleSize,
                 direction: npc.location.direction,
@@ -179,7 +179,9 @@ export default class StarterScene extends Phaser.Scene {
             }, {
                 pokemon: npc.pokemonParty,
                 dialog: npc.dialog,
-                portrait: npc.spriteInfo!.portraitImage
+                portrait: npc.spriteInfo!.portraitImage,
+                npcWorldImage: npc.spriteInfo!.worldImage,
+                movementPattern: npc.movementPattern
             });
         })
         

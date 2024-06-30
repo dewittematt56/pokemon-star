@@ -36,5 +36,5 @@ export const ANIMATIONS = Object.freeze({
             "yoyo": true,
             "assetKey": "PLAYER"
         }
-    ]
+    ],
 });

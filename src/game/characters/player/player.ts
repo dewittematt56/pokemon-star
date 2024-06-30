@@ -8,6 +8,7 @@ export class Player extends Character {
             ...config,
             assetKey: "PLAYER"
         })
+        this.spriteSpeedFactor = .5;
         ANIMATIONS.PLAYER.forEach((animationObject) => {
             const frames = animationObject.frames
                 ? this._scene.anims.generateFrameNames(animationObject.assetKey, { frames: animationObject.frames })

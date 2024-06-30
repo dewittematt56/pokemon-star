@@ -3,7 +3,7 @@ import { IvData, EvData } from "../commonClass/pokemon/pokemon/typeDefs"
 import { PokemonMove } from "../commonClass/pokemon/pokemonMove"
 import { POKEMON } from "../commonData/dataPokemon"
 import { SCENE_KEYS, SCENE_INFO } from "../commonData/dataScenes"
-import { DIRECTION } from "../game/utils/controls/direction"
+import { DIRECTION, DIRECTION_TYPE } from "../game/utils/controls/direction"
 
 export type PokemonImageDataType = {
     frontImage: AnimatedImageType,
@@ -132,6 +132,22 @@ export type IdleFrames = {
     RIGHT: number;
 }
 
+export type NpcWorldImage = {
+    spriteKey: string,
+    spritePath: string,
+    spriteWidth: number,
+    spriteHeight: number,
+    animations: {
+        key: string,
+        frames: number[],
+        frameRate: number,
+        repeat: number,
+        delay: number,
+        yoyo: boolean,
+        assetKey: string
+    }[]
+}
+
 // Define the type for an NPC
 export type NPC = {
     id: string;
@@ -147,8 +163,9 @@ export type NPC = {
     isAggressive: boolean;
     sightRange: number,
     spriteInfo: {
-        worldImage: undefined,
+        worldImage: NpcWorldImage,
         portraitImage: AnimatedImageType 
-    } | undefined
+    } | undefined,
+    movementPattern: DIRECTION_TYPE[]
 }
 
