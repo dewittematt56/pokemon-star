@@ -21,14 +21,15 @@ export type CharacterConfig = {
     idleFrames: CharacterIdleFrameConfig,
     collisionLayer?: Phaser.Tilemaps.TilemapLayer | null,
     isAggressive: boolean
-    sightRange: number
+    sightRange: number,
+
 }
 
 export class Character {
     _scene: Phaser.Scene;
     _phaserGameObject: Phaser.GameObjects.Sprite;
     _direction: DIRECTION_TYPE;
-    _isMoving: boolean;
+    public _isMoving: boolean;
     _targetPosition: CoordinateType;
     _previousTargetPosition: CoordinateType;
     _spriteGridMovementFinishedCallback: Function;
@@ -55,6 +56,7 @@ export class Character {
 
         this.isAggressive = config.isAggressive
         this.sightRange = config.sightRange
+
     }
 
     get isMoving(): boolean {
@@ -117,7 +119,7 @@ export class Character {
         const targetPosition = { ...this._targetPosition };
         const updatedPosition = getTargetPositionFromGameObjectPositionAndDirection(targetPosition, this._direction);
 
-        return this.doesCollisionCollideWithPosition(updatedPosition);
+        return this.doesCollisionCollideWithPosition(updatedPosition)
     }
 
     handleSpriteMovement() {
@@ -144,6 +146,8 @@ export class Character {
             onComplete: () => {
                 this._isMoving = false;
                 this._phaserGameObject.anims.stop();
+                this._previousTargetPosition = { ...this._targetPosition };
+                this._targetPosition = { ...updatedPosition };
                 if (this._spriteGridMovementFinishedCallback) {
                     this._spriteGridMovementFinishedCallback();
                 }
@@ -160,4 +164,6 @@ export class Character {
         const tile = this._collisionLayer.getTileAtWorldXY(x, y, true);
         return tile.index !== -1;
     }
+
+
 }

@@ -1,8 +1,13 @@
 import { Character, CharacterConfig } from "../characters";
 import { DIRECTION_TYPE, DIRECTION } from "../../utils/controls/direction";
 import { ANIMATIONS } from "../../../commonData/commonAnimations";
+import { getTargetPositionFromGameObjectPositionAndDirection } from "../../utils/gridUtils.ts/gridUtils";
+import { CoordinateType } from "../../utils/typeDefs/coordinate";
+
 
 export class Player extends Character {
+    private _collisionCharacterSprites?: Character[]
+
     constructor(config: CharacterConfig){
         super({
             ...config,
@@ -24,11 +29,15 @@ export class Player extends Character {
                 
             });
         });
+        this._collisionCharacterSprites = []
 
         this.sprite.setDepth(3)
     }
 
-    
+    setCollisionCharacterSprites(characters: Character[]){
+        this._collisionCharacterSprites = characters;
+    }
+
     /**
      * Move player -- called via Scene Control
      *
@@ -55,6 +64,20 @@ export class Player extends Character {
         }
     }
 
-    
+    _isBlockingTile() {
+        if (this._direction === DIRECTION.NONE) {
+            return false;
+        }
+        
+        const targetPosition = { ...this._targetPosition };
+        const updatedPosition = getTargetPositionFromGameObjectPositionAndDirection(targetPosition, this._direction);
+        let result: boolean = this.doesMovementCollideWithCharacters(updatedPosition) || this.doesCollisionCollideWithPosition(updatedPosition)
+        return result;
+    }
 
+    doesMovementCollideWithCharacters(targetPosition: CoordinateType): boolean{
+        return this._collisionCharacterSprites?.findIndex((character) => {
+            return character.position.x == targetPosition.x && character.position.y == targetPosition.y
+        }) !== -1
+    }
 }

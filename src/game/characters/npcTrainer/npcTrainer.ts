@@ -3,13 +3,16 @@ import { DIRECTION_TYPE, DIRECTION } from "../../utils/controls/direction";
 import { ANIMATIONS } from "../../../commonData/commonAnimations";
 import { AnimatedImageType, NpcWorldImage, PokemonConfig, PokemonPartyType, npcDialog } from "../../../commonTypes/typeDefs";
 import { Pokemon } from "../../../commonClass/pokemon/pokemon/pokemon";
+import { getTargetPositionFromGameObjectPositionAndDirection } from "../../utils/gridUtils.ts/gridUtils";
+import { CoordinateType } from "../../utils/typeDefs/coordinate";
 
 export type NpcTrainerConfig = {
     pokemon: PokemonConfig[],
     dialog: npcDialog,
     portrait: AnimatedImageType,
     npcWorldImage: NpcWorldImage,
-    movementPattern: DIRECTION_TYPE[]
+    movementPattern: DIRECTION_TYPE[],
+    collisionSprites: Character[]
 }
 
 export class NpcTrainer extends Character {
@@ -17,9 +20,13 @@ export class NpcTrainer extends Character {
     public dialog: npcDialog;
     private npcPortraitInfo: AnimatedImageType | undefined;
     public npcTrainerSprite: Phaser.GameObjects.Sprite | undefined;
+    public alertIcon: Phaser.GameObjects.Image | undefined;
 
     public movementPattern: DIRECTION_TYPE[];
     public movementIndex: number;
+
+    public _collisionCharacterSprites: Character[]
+    public hasBeenBeaten: boolean = false;
 
     constructor(config: CharacterConfig, trainerConfig: NpcTrainerConfig){
         super({
@@ -58,7 +65,10 @@ export class NpcTrainer extends Character {
             }
             this.moveCharacter(this.movementPattern[this.movementIndex])
         }
-        this.moveCharacter(this.movementPattern[this.movementIndex])
+        this._collisionCharacterSprites = trainerConfig.collisionSprites
+        // this.moveCharacter(this.movementPattern[this.movementIndex])
+        // this.moveToTargetPosition({x: config.position.x - 32, y: config.position.y - 48})
+        this.buildAlertIcon()
     }
 
     // To-Do Implement Game Sprite and Dialog
@@ -77,11 +87,75 @@ export class NpcTrainer extends Character {
 
     }
 
-    
-    // To-Do Implement Walking Movement Pattern
-    performCharacterMovements(){
+    // ------------------------- MOVEMENT 
+    _isBlockingTile() {
+        if (this._direction === DIRECTION.NONE) {
+            return false;
+        }
         
+        const targetPosition = { ...this._targetPosition };
+        const updatedPosition = getTargetPositionFromGameObjectPositionAndDirection(targetPosition, this._direction);
+        let result: boolean = this.doesMovementCollideWithCharacters(updatedPosition) || this.doesCollisionCollideWithPosition(updatedPosition)
+        return result;
     }
 
+    _moveSprite(direction: DIRECTION_TYPE) {
+        const changedDirection = this._direction !== direction;
+        this._direction = direction;
 
+        if (changedDirection && this._spriteChangedDirectionCallback) {
+            this._spriteChangedDirectionCallback();
+        }
+
+        if (this._isBlockingTile()) {
+            return setTimeout(() => this.moveCharacter(this.handleBlockedMovement(direction)), 500);
+        }
+
+        this._isMoving = true;
+        this._phaserGameObject.anims.play(`${this._phaserGameObject.texture.key}-${direction}`, true);
+        this.handleSpriteMovement();
+    }
+
+    moveCharacter(direction: DIRECTION_TYPE): void {
+        if (this._isMoving) {
+            return;
+        }
+        this._moveSprite(direction);
+    }
+
+    doesMovementCollideWithCharacters(targetPosition: CoordinateType): boolean{
+        return this._collisionCharacterSprites?.findIndex((character) => {
+            return character.position.x == targetPosition.x && character.position.y == targetPosition.y
+        }) !== -1
+    }
+
+    handleBlockedMovement(direction: DIRECTION_TYPE){
+        let anticipatedDirectionIndex = this.movementPattern.findIndex((movement, index) => movement !== direction && index > this.movementIndex) 
+        this.movementIndex = Math.max(anticipatedDirectionIndex, 0);
+        return this.movementPattern[this.movementIndex];
+    }
+
+    async moveToTargetPosition(targetPosition: CoordinateType){
+        
+        while(targetPosition.x !== this.position.x && targetPosition.y !== this.position.y){
+            console.log("DOWN")
+            this.moveCharacter("DOWN");
+            // console.log("MOVE")
+        }
+    }
+
+    // ------------------------- AlertIcon
+    buildAlertIcon(){
+        this.alertIcon = this._scene.add.image(0, 0, "alertIcon").setScale(1).setVisible(false).setDepth(4)
+    }
+
+    displayAlertIcon(){
+        this.alertIcon?.setX(this.position.x)
+        this.alertIcon?.setY(this.position.y - 16);
+        this.alertIcon?.setVisible(true)
+    }
+
+    hideAlertIcon(){
+        this.alertIcon?.setVisible(false)
+    }
 }

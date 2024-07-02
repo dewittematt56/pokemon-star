@@ -22,6 +22,7 @@ export default class StarterScene extends Phaser.Scene {
     pokemonSpawnLayer: Phaser.Tilemaps.ObjectLayer | undefined;
     playerStartX: number;
     playerStartY: number;
+    private interactionInProgress: boolean = false;
 
     private currentWorldScene: keyof typeof SCENE_INFO;
     private currentWorldInfo: SceneType;
@@ -42,6 +43,7 @@ export default class StarterScene extends Phaser.Scene {
         let world_data = SCENE_INFO[this.currentWorldScene]
         this.load.image("standardTileSet", "/assets/pokemonStarStandradTileSet.png");
         this.load.image("backgroundImage", world_data.mapPath);
+        this.load.image("alertIcon", "/assets/misc/alertIcon.png");
         this.load.spritesheet("PLAYER", CHARACTER_ASSET_KEYS.PATH, { frameWidth: 64, frameHeight: 64 });
         // Load NPC World Image Info
         world_data.npcs.forEach((npc) => {
@@ -99,6 +101,9 @@ export default class StarterScene extends Phaser.Scene {
     }
 
     update(time: number, delta: number): void {
+        if(this.interactionInProgress){
+            return;
+        }
         const selectedDirectionHeldDown = this.controls!.getDirectionKeyPressedDown();
 
         if (selectedDirectionHeldDown !== DIRECTION.NONE && !this.isPlayerInputLocked()) {
@@ -107,6 +112,8 @@ export default class StarterScene extends Phaser.Scene {
         if (this.controls?.wasSpaceKeyPressed() && !this.player?.isMoving) {
             this.handlePlayerObjectInteractions();
         }
+       
+        this.checkOpponentViewLogic()
         this.player?.update(time);
     }
 
@@ -138,7 +145,6 @@ export default class StarterScene extends Phaser.Scene {
     }
 
     createCharacters(collisionLayer: Phaser.Tilemaps.TilemapLayer | null) {
-        // Create Player Object
         this.player = new Player({
             scene: this,
             position: { x: this.playerStartX, y: this.playerStartY },
@@ -153,7 +159,6 @@ export default class StarterScene extends Phaser.Scene {
             scaleSize: .5,
             direction: this.playerSession!.location.direction,
             spriteGridMovementFinishedCallback: () => {
-                this.checkOpponentViewLogic()
                 this.checkPokemonSpawnLogic()
             },
             spriteChangedDirectionCallback: () => {},
@@ -162,7 +167,6 @@ export default class StarterScene extends Phaser.Scene {
             sightRange: 0
         });
         this.cameras.main.startFollow(this.player.sprite);
-        // Generate all NPC
         this.npcTrainers = this.currentWorldInfo.npcs.filter((npc) => npc.type == "TRAINER" && npc.spriteInfo).map((npc) => {
             return new NpcTrainer({
                 scene: this,
@@ -181,22 +185,29 @@ export default class StarterScene extends Phaser.Scene {
                 dialog: npc.dialog,
                 portrait: npc.spriteInfo!.portraitImage,
                 npcWorldImage: npc.spriteInfo!.worldImage,
-                movementPattern: npc.movementPattern
+                movementPattern: npc.movementPattern,
+                collisionSprites: [this.player!]
             });
         })
-        
+
+        this.player.setCollisionCharacterSprites(this.npcTrainers)
     }
 
     isPlayerInputLocked() {
         return this.controls!.isInputLocked || this.dialogUI!.isVisible;
     }
 
-    startNpcBattle(npcTrainer: NpcTrainer) {
+    async startNpcBattle (npcTrainer: NpcTrainer) {
+        this.interactionInProgress = true
+        this.player!._isMoving = true;
         this.updateGameSession()
-        this.scene.start(SCENE_KEYS.TRAINER_BATTLE_SCENE, {
-            playerSession: this.playerSession,
-            npcTrainer: npcTrainer,
-        })
+        npcTrainer.displayAlertIcon();
+        npcTrainer.moveToTargetPosition(this.player!.position)
+        await setTimeout(() => {return}, 500)
+        // this.scene.start(SCENE_KEYS.TRAINER_BATTLE_SCENE, {
+        //     playerSession: this.playerSession,
+        //     npcTrainer: npcTrainer,
+        // })
     }
 
     checkPokemonSpawnLogic() {
@@ -238,7 +249,7 @@ export default class StarterScene extends Phaser.Scene {
         const playerPosAdjustY = playerPos.y / TILE_SIZE;
     
         this.npcTrainers.forEach((character) => {
-            if (character.isAggressive) {
+            if (character.isAggressive && !character.hasBeenBeaten) {
                 const characterPos = character.sprite.getBounds();
                 const characterPosAdjustX = characterPos.x / TILE_SIZE + 0.5;
                 const characterPosAdjustY = characterPos.y / TILE_SIZE;

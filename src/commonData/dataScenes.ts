@@ -16,10 +16,11 @@ export const SCENE_INFO: SceneInfoType = Object.freeze({
         npcs: [
             {
                 id: "1",
-                name: "Lacy Stephanie",
+                name: "Lady Stephanie",
                 type: "TRAINER",
                 dialog: {
-                    openingMessages: ["Oh hey! Almost missed you there.... is this your first battle?"]
+                    openingMessages: ["Oh hey! Almost missed you there.... is this your first battle?"],
+                    defeatMessages: ["Congrats! You've defeated Lady Stephanie", "$1000 has been added to your inventory"]
                 },
                 location: {x: 30 * TILE_SIZE + 8, y: 24 * TILE_SIZE, direction: DIRECTION.DOWN},
                 idleFrames: {

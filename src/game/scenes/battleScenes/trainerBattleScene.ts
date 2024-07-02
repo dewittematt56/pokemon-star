@@ -41,8 +41,19 @@ export class TrainerBattleScene extends baseBattleScene {
 
 
     exitRun = () => {
-        this.battleSelectMenu?.displayDialog(["Cannot run during a trainer battle."], true, () => {
+        this.battleSelectMenu?.displayDialog(this.npcTrainer!.dialog.defeatMessages, true, () => {
+            this.npcTrainer!.hasBeenBeaten = true;
             this.battleSelectMenu?.updateDialogVisibility(false)
         })
+    }
+
+    exitVictory = () => {
+        this.updatePokemonPlayerSessionData();
+        this.battleSelectMenu?.displayDialog([], true, () => {
+            this.cameras.main.fadeOut(2000, 0, 0, 0)
+            this.scene.start(SCENE_KEYS.WORLD_SCENE, {
+                playerSession: this.playerSession
+            })
+        });
     }
 }

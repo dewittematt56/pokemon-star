@@ -114,6 +114,7 @@ export type npcType = "TRAINER" | "NPC"
 // Define the type for the dialog
 export type npcDialog = {
     openingMessages: string[];
+    defeatMessages: string[]
 }
 
 // Define the type for the location
