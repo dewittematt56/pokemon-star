@@ -20,7 +20,7 @@ export const SCENE_INFO: SceneInfoType = Object.freeze({
                 type: "TRAINER",
                 dialog: {
                     openingWorldMessages: ["Oh hey! Almost missed you there.... is this your first battle?"],
-                    openingBattleMessages: ["Oh hey! Almost missed you there.... is this your first battle?"],
+                    openingBattleMessages: ["Hehe, let's see what you got"],
                     defeatMessages: ["Congrats! You've defeated Lady Stephanie", "$1000 has been added to your inventory"]
                 },
                 location: {x: 30 * TILE_SIZE + 8, y: 24 * TILE_SIZE, direction: DIRECTION.DOWN},

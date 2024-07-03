@@ -63,11 +63,22 @@ export type PokemonConfig = {
 }
 
 /*------------------------- Game Types -------------------------*/
+export type playerSessionNpcInfo = {
+    npcId: string,
+    hasBeenBeaten: boolean
+}
+
+export type playerSessionSceneData = {
+    sceneId: keyof typeof SCENE_INFO
+    npcInfo: playerSessionNpcInfo[]
+}
+
 export type playerSessionType = {
     id: string
     // Add Trainer Class (name, badges, money...etc)
     party: PokemonPartyType
-    location: playerLocation
+    location: playerLocation,
+    scenes: playerSessionSceneData[] 
 }
 
 export type playerLocation = {

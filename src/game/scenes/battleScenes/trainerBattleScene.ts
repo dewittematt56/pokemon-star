@@ -1,6 +1,6 @@
 import { NpcTrainer } from "../../../commonClass/characters/npcTrainer/npcTrainer";
 import { Pokemon } from "../../../commonClass/pokemon/pokemon/pokemon";
-import { SCENE_KEYS } from "../../../commonData/dataScenes";
+import { SCENE_INFO, SCENE_KEYS } from "../../../commonData/dataScenes";
 import { PokemonPartyType, activePokemonEncounterType, playerSessionType } from "../../../commonTypes/typeDefs";
 import { baseBattleScene, findEligiblePokemonPartyMember } from "./baseBattleScene";
  
@@ -47,8 +47,27 @@ export class TrainerBattleScene extends baseBattleScene {
         })
     }
 
+    updateSceneInfo = (isTrainerBeaten: boolean) => {
+        let currentWorldScene = this.playerSession!.location.currentWorldScene;
+        if(!this.playerSession?.scenes){
+            this.playerSession!.scenes = [{
+                sceneId: this.playerSession!.location.currentWorldScene,
+                npcInfo: []
+            }]
+        }
+        let playerSessionScene = this.playerSession?.scenes.find((scene) => scene.sceneId == currentWorldScene)
+        let currentNpcData = playerSessionScene?.npcInfo.find((npcInfo) => npcInfo.npcId == this.npcTrainer!.id);
+        if(currentNpcData){
+            currentNpcData.hasBeenBeaten = isTrainerBeaten;
+        } else {
+            playerSessionScene!.npcInfo.push({npcId: this.npcTrainer!.id, hasBeenBeaten: isTrainerBeaten});
+        }
+        console.log(this.playerSession)
+    }
+
     exitVictory = () => {
         this.updatePokemonPlayerSessionData();
+        this.updateSceneInfo(true);
         this.battleSelectMenu?.displayDialog([], true, () => {
             this.cameras.main.fadeOut(2000, 0, 0, 0)
             this.scene.start(SCENE_KEYS.WORLD_SCENE, {

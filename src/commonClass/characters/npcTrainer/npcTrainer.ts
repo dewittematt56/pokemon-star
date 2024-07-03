@@ -6,6 +6,7 @@ import { getTargetPositionFromGameObjectPositionAndDirection } from "../../../ga
 import { CoordinateType } from "../../../game/utils/typeDefs/coordinate";
 
 export type NpcTrainerConfig = {
+    id: string
     pokemon: PokemonConfig[],
     dialog: npcDialog,
     portrait: AnimatedImageType,
@@ -15,6 +16,7 @@ export type NpcTrainerConfig = {
 }
 
 export class NpcTrainer extends Character {
+    public id: string;
     public pokemonParty: PokemonPartyType;
     public dialog: npcDialog;
     private npcPortraitInfo: AnimatedImageType | undefined;
@@ -33,6 +35,7 @@ export class NpcTrainer extends Character {
             ...config,
             assetKey: config.assetKey
         })
+        this.id = trainerConfig.id
         // Create NPC Movement Animations
         trainerConfig.npcWorldImage.animations.forEach((animationObject) => {
             const frames = animationObject.frames

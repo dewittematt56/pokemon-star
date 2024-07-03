@@ -30,6 +30,7 @@ export default function PokemonStar(){
 
     useEffect(() => {
         let playerSession = loadSave("1");
+        console.log(playerSession)
         // playerSession = undefined;
 
         gameRef.current = new Phaser.Game(config);

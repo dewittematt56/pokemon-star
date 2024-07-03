@@ -63,6 +63,17 @@ export default class StarterScene extends Phaser.Scene {
             this.playerStartY = data.playerSession.location.y
             this.currentWorldScene = data.playerSession.location.currentWorldScene 
             this.currentWorldInfo = SCENE_INFO[this.currentWorldScene];
+
+            let scene = data.playerSession.scenes.find((scene) => scene.sceneId == this.currentWorldScene)
+            this.currentWorldInfo.npcs.forEach((npc) => {
+                if(scene){
+                    let npcToUpdate = scene.npcInfo.find((saveNpc) => saveNpc.npcId == npc.id);
+                    if(npcToUpdate){
+                        // If beaten make no longer aggressive
+                        npc.isAggressive = !npcToUpdate.hasBeenBeaten
+                    }
+                }
+            })
         }
         // Save Game Listeners
         window.addEventListener("beforeunload", () => this.saveGameHandler())
@@ -181,6 +192,7 @@ export default class StarterScene extends Phaser.Scene {
                 isAggressive: npc.isAggressive,
                 sightRange: npc.sightRange
             }, {
+                id: npc.id,
                 pokemon: npc.pokemonParty,
                 dialog: npc.dialog,
                 portrait: npc.spriteInfo!.portraitImage,
@@ -188,10 +200,6 @@ export default class StarterScene extends Phaser.Scene {
                 movementPattern: npc.movementPattern,
                 collisionSprites: [this.player!]
             });
-        })
-        this.scene.start(SCENE_KEYS.TRAINER_BATTLE_SCENE, {
-            playerSession: this.playerSession,
-            npcTrainer: this.npcTrainers[0],
         })
         this.player.setCollisionCharacterSprites(this.npcTrainers)
     }
@@ -201,8 +209,6 @@ export default class StarterScene extends Phaser.Scene {
     }
 
     async startNpcBattle (npcTrainer: NpcTrainer) {
-        // this.player!._isMoving = true;
-        console.log("START")
         if(!this.interactionInProgress){
             this.interactionInProgress = true
             this.updateGameSession()
@@ -228,7 +234,7 @@ export default class StarterScene extends Phaser.Scene {
         let playerPos = this.player?.sprite?.getBounds()!;
     
         if (!playerPos) {
-            return; // Exit if the player's position is not available
+            return;
         }
     
         this.pokemonSpawnLayer?.objects.forEach((object) => {
@@ -237,7 +243,6 @@ export default class StarterScene extends Phaser.Scene {
             let xMax = Math.round(object.x!) + Math.round(object.width!);
             let yMin = Math.round(object.y!);
             let yMax = Math.round(object.y!) + Math.round(object.height!);
-    
             // Check if the player's position is within the object's bounds
             if (playerPos.left >= xMin && playerPos.right <= xMax && playerPos.top >= yMin && playerPos.bottom <= yMax) {
                 if(didPokemonAppearInZone()){
@@ -301,7 +306,6 @@ export default class StarterScene extends Phaser.Scene {
             });
         }
     }
-
 
     updateGameSession(){
         this.playerSession!.location.x = this.player!._targetPosition.x;

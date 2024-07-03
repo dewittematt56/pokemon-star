@@ -30,7 +30,8 @@ export function loadSave(id: string): playerSessionType | undefined{
         return {
             id: saveGameDict["id"],
             party: pokemonParty,
-            location: saveGameDict["location"]
+            location: saveGameDict["location"],
+            scenes: saveGameDict["scenes"]
         } as playerSessionType
     }
     return undefined
@@ -47,5 +48,13 @@ export const mockPlayerSession: playerSessionType = {
         x: 472,
         y: 736,
         direction: "UP"
-    }
+    },
+    scenes: [
+        {
+            sceneId: "ROUTE_101",
+            npcInfo: [
+
+            ]
+        }
+    ]
 }
