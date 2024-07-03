@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { BattleMenuSelectButton, MoveSelectionButton } from "./microComponents/battleMenuButtons";
-import { BattleMenuDialog } from "./microComponents/battleMenuDialog";
+import { BattleMenuDialog } from "../dialog/battleMenuDialog";
 import { PokemonMove } from "../../commonClass/pokemon/pokemonMove";
 import { Pokemon } from "../../commonClass/pokemon/pokemon/pokemon";
 
@@ -19,12 +19,12 @@ export class BattleSelectMenu {
         this.scene = scene
         this.pokemon = pokemon
 
-        this.battleMenuDialog = new BattleMenuDialog(this.scene, 0, 0, 650, 100, false);
+        this.battleMenuDialog = new BattleMenuDialog(this.scene, 0, 0, 650, 100, true);
 
         this.battleMenuContainer = this.scene.add.container(0, 570, [
             this.battleMenuOptionsContainer = this.createBattleMenu(),
             this.fightOptionsContainer = this.scene.add.container(0, 0, [...this.createMoveSelectionButtons(true)]),
-            this.battleMenuDialog.dialogContainer
+            this.battleMenuDialog.container
         ])
 
         // Callback Functions
@@ -76,7 +76,7 @@ export class BattleSelectMenu {
 
     displayDialog(messages: string[], autoComplete: boolean, callBackFunction: Function){
         this.fightOptionsContainer.setVisible(false)
-        this.battleMenuDialog.displayDialog(messages, autoComplete, callBackFunction)
+        this.battleMenuDialog.showDialogModal(messages, autoComplete, callBackFunction)
     }
 
     updateDialogVisibility(visibility: boolean){

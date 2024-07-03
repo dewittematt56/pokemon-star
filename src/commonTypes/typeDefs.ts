@@ -113,7 +113,8 @@ export type npcType = "TRAINER" | "NPC"
 
 // Define the type for the dialog
 export type npcDialog = {
-    openingMessages: string[];
+    openingWorldMessages: string[];
+    openingBattleMessages: string[];
     defeatMessages: string[]
 }
 

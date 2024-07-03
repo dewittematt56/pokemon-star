@@ -118,7 +118,7 @@ export default class StarterScene extends Phaser.Scene {
     }
 
     handlePlayerObjectInteractions() {
-        if (this.dialogUI?.isAnimatonPlaying) {
+        if (this.dialogUI?.isAnimating) {
             return;
         }
         const { x, y } = this.player!.sprite;
@@ -135,7 +135,7 @@ export default class StarterScene extends Phaser.Scene {
             return;
         }
         if (this.dialogUI?.isVisible && this.dialogUI.moreMessagesToShow) {
-            this.dialogUI.showNextMessage();
+            this.dialogUI.displayMessage();
             return;
         }
         if (this.dialogUI?.isVisible && !this.dialogUI.moreMessagesToShow) {
@@ -189,7 +189,10 @@ export default class StarterScene extends Phaser.Scene {
                 collisionSprites: [this.player!]
             });
         })
-
+        this.scene.start(SCENE_KEYS.TRAINER_BATTLE_SCENE, {
+            playerSession: this.playerSession,
+            npcTrainer: this.npcTrainers[0],
+        })
         this.player.setCollisionCharacterSprites(this.npcTrainers)
     }
 
@@ -198,16 +201,26 @@ export default class StarterScene extends Phaser.Scene {
     }
 
     async startNpcBattle (npcTrainer: NpcTrainer) {
-        this.interactionInProgress = true
-        this.player!._isMoving = true;
-        this.updateGameSession()
-        npcTrainer.displayAlertIcon();
-        npcTrainer.moveToTargetPosition(this.player!.position)
-        await setTimeout(() => {return}, 500)
-        // this.scene.start(SCENE_KEYS.TRAINER_BATTLE_SCENE, {
-        //     playerSession: this.playerSession,
-        //     npcTrainer: npcTrainer,
-        // })
+        // this.player!._isMoving = true;
+        console.log("START")
+        if(!this.interactionInProgress){
+            this.interactionInProgress = true
+            this.updateGameSession()
+            npcTrainer.displayAlertIcon();
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            npcTrainer.hideAlertIcon();
+            await npcTrainer.moveToTargetPosition(this.player!.position)
+            
+            this.dialogUI?.showDialogModal(npcTrainer.dialog.openingWorldMessages, true, () => {
+                this.dialogUI?.hideDialogModal();
+                this.scene.start(SCENE_KEYS.TRAINER_BATTLE_SCENE, {
+                    playerSession: this.playerSession,
+                    npcTrainer: npcTrainer,
+                })
+            })
+        }
+
+
     }
 
     checkPokemonSpawnLogic() {
@@ -247,45 +260,46 @@ export default class StarterScene extends Phaser.Scene {
         const playerPos = this.player.sprite.getBounds();
         const playerPosAdjustX = playerPos.x / TILE_SIZE + 0.5;
         const playerPosAdjustY = playerPos.y / TILE_SIZE;
-    
-        this.npcTrainers.forEach((character) => {
-            if (character.isAggressive && !character.hasBeenBeaten) {
-                const characterPos = character.sprite.getBounds();
-                const characterPosAdjustX = characterPos.x / TILE_SIZE + 0.5;
-                const characterPosAdjustY = characterPos.y / TILE_SIZE;
-    
-                switch (character.direction) {
-                    case "DOWN":
-                        if (playerPosAdjustX === characterPosAdjustX &&
-                            playerPosAdjustY >= characterPosAdjustY &&
-                            playerPosAdjustY <= characterPosAdjustY + character.sightRange) {
-                            this.startNpcBattle(character)
-                        }
-                        break;
-                    case "UP":
-                        if (playerPosAdjustX === characterPosAdjustX &&
-                            playerPosAdjustY <= characterPosAdjustY &&
-                            playerPosAdjustY >= characterPosAdjustY - character.sightRange) {
-                            this.startNpcBattle(character)
-                        }
-                        break;
-                    case "LEFT":
-                        if (playerPosAdjustY === characterPosAdjustY &&
-                            playerPosAdjustX <= characterPosAdjustX &&
-                            playerPosAdjustX >= characterPosAdjustX - character.sightRange) {
-                            this.startNpcBattle(character)
-                        }
-                        break;
-                    case "RIGHT":
-                        if (playerPosAdjustY === characterPosAdjustY &&
-                            playerPosAdjustX >= characterPosAdjustX &&
-                            playerPosAdjustX <= characterPosAdjustX + character.sightRange) {
-                            this.startNpcBattle(character)
-                        }
-                        break;
+        if(!this.interactionInProgress){
+            this.npcTrainers.forEach((character) => {
+                if (character.isAggressive && !character.hasBeenBeaten) {
+                    const characterPos = character.sprite.getBounds();
+                    const characterPosAdjustX = characterPos.x / TILE_SIZE + 0.5;
+                    const characterPosAdjustY = characterPos.y / TILE_SIZE;
+        
+                    switch (character.direction) {
+                        case "DOWN":
+                            if (playerPosAdjustX === characterPosAdjustX &&
+                                playerPosAdjustY >= characterPosAdjustY &&
+                                playerPosAdjustY <= characterPosAdjustY + character.sightRange) {
+                                this.startNpcBattle(character)
+                            }
+                            break;
+                        case "UP":
+                            if (playerPosAdjustX === characterPosAdjustX &&
+                                playerPosAdjustY <= characterPosAdjustY &&
+                                playerPosAdjustY >= characterPosAdjustY - character.sightRange) {
+                                this.startNpcBattle(character)
+                            }
+                            break;
+                        case "LEFT":
+                            if (playerPosAdjustY === characterPosAdjustY &&
+                                playerPosAdjustX <= characterPosAdjustX &&
+                                playerPosAdjustX >= characterPosAdjustX - character.sightRange) {
+                                this.startNpcBattle(character)
+                            }
+                            break;
+                        case "RIGHT":
+                            if (playerPosAdjustY === characterPosAdjustY &&
+                                playerPosAdjustX >= characterPosAdjustX &&
+                                playerPosAdjustX <= characterPosAdjustX + character.sightRange) {
+                                this.startNpcBattle(character)
+                            }
+                            break;
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
 

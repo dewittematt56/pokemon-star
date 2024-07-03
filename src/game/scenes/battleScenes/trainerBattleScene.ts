@@ -29,7 +29,7 @@ export class TrainerBattleScene extends baseBattleScene {
     initialBattleLoad(){
         // To-Do Display Trainer Sprite
         this.npcTrainer?.buildTrainerSpite((this._backgroundImageBoundsObject!.width / 1.45), (this._backgroundImageBoundsObject!.height / 3.3));
-        this.battleSelectMenu?.displayDialog(this.npcTrainer!.dialog.openingMessages, true, () => {
+        this.battleSelectMenu?.displayDialog(this.npcTrainer!.dialog.openingBattleMessages, true, () => {
             // Hide Opponent Trainer Sprite
             this.npcTrainer?.npcTrainerSprite?.setVisible(false);
             // Display Pokemon

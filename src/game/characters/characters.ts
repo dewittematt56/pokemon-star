@@ -75,7 +75,7 @@ export class Character {
         return this._previousTargetPosition
     }
 
-    moveCharacter(direction: DIRECTION_TYPE): void {
+    moveCharacter(direction: DIRECTION_TYPE, moveOnce: boolean = true): void {
         if (this._isMoving) {
             return;
         }

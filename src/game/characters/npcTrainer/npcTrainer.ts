@@ -1,6 +1,5 @@
 import { Character, CharacterConfig } from "../characters";
 import { DIRECTION_TYPE, DIRECTION } from "../../utils/controls/direction";
-import { ANIMATIONS } from "../../../commonData/commonAnimations";
 import { AnimatedImageType, NpcWorldImage, PokemonConfig, PokemonPartyType, npcDialog } from "../../../commonTypes/typeDefs";
 import { Pokemon } from "../../../commonClass/pokemon/pokemon/pokemon";
 import { getTargetPositionFromGameObjectPositionAndDirection } from "../../utils/gridUtils.ts/gridUtils";
@@ -27,6 +26,7 @@ export class NpcTrainer extends Character {
 
     public _collisionCharacterSprites: Character[]
     public hasBeenBeaten: boolean = false;
+    public lockMovementPattern: boolean = false
 
     constructor(config: CharacterConfig, trainerConfig: NpcTrainerConfig){
         super({
@@ -54,20 +54,23 @@ export class NpcTrainer extends Character {
         this.dialog = trainerConfig.dialog
         this.npcPortraitInfo = trainerConfig.portrait
         
+
+
         this.movementIndex = 0
         this.movementPattern = trainerConfig.movementPattern
         
         this.spriteSpeedFactor = 1.25;
         this._spriteGridMovementFinishedCallback = () => {
-            this.movementIndex++;
-            if(this.movementIndex > this.movementPattern.length){
-                this.movementIndex = 0;
+            if(!this.lockMovementPattern){
+                this.movementIndex++;
+                if(this.movementIndex > this.movementPattern.length){
+                    this.movementIndex = 0;
+                }
+                this.moveCharacter(this.movementPattern[this.movementIndex])
             }
-            this.moveCharacter(this.movementPattern[this.movementIndex])
         }
         this._collisionCharacterSprites = trainerConfig.collisionSprites
-        // this.moveCharacter(this.movementPattern[this.movementIndex])
-        // this.moveToTargetPosition({x: config.position.x - 32, y: config.position.y - 48})
+        this.moveCharacter(this.movementPattern[this.movementIndex])
         this.buildAlertIcon()
     }
 
@@ -99,7 +102,7 @@ export class NpcTrainer extends Character {
         return result;
     }
 
-    _moveSprite(direction: DIRECTION_TYPE) {
+    _moveSprite(direction: DIRECTION_TYPE, stopBlock: boolean = false) {
         const changedDirection = this._direction !== direction;
         this._direction = direction;
 
@@ -108,7 +111,11 @@ export class NpcTrainer extends Character {
         }
 
         if (this._isBlockingTile()) {
-            return setTimeout(() => this.moveCharacter(this.handleBlockedMovement(direction)), 500);
+            if(!stopBlock){
+                return setTimeout(() => this.moveCharacter(this.handleBlockedMovement(direction), stopBlock), 500);
+            } else {
+                return
+            }
         }
 
         this._isMoving = true;
@@ -116,11 +123,11 @@ export class NpcTrainer extends Character {
         this.handleSpriteMovement();
     }
 
-    moveCharacter(direction: DIRECTION_TYPE): void {
+    moveCharacter(direction: DIRECTION_TYPE, stopBlock: boolean = false): void {
         if (this._isMoving) {
             return;
         }
-        this._moveSprite(direction);
+        this._moveSprite(direction, stopBlock);
     }
 
     doesMovementCollideWithCharacters(targetPosition: CoordinateType): boolean{
@@ -135,13 +142,38 @@ export class NpcTrainer extends Character {
         return this.movementPattern[this.movementIndex];
     }
 
-    async moveToTargetPosition(targetPosition: CoordinateType){
+    async moveToTargetPosition (targetPosition: CoordinateType){
+        this.lockMovementPattern = true
+
+        let differenceX = targetPosition.x - this.position.x
+        let numberOfXMoves = differenceX / 16
+
+        let differenceY = targetPosition.y - this.position.y
+        let numberOfYMoves = differenceY / 16
+
+        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+        if(numberOfXMoves > 0){for(let i: number = 0; i < numberOfXMoves; i++){
+            await delay(i * 150);
+            this.moveCharacter("RIGHT", true);
+        }}
+        else if(numberOfXMoves < 0){for(let i: number = 0; i < numberOfXMoves; i++){
+            await delay(i * 150);
+            this.moveCharacter("LEFT", true);
+        }} 
         
-        while(targetPosition.x !== this.position.x && targetPosition.y !== this.position.y){
-            console.log("DOWN")
-            this.moveCharacter("DOWN");
-            // console.log("MOVE")
-        }
+        // Y-Axis Movements
+        if(numberOfYMoves < 0){for(let i: number = 0; i < numberOfYMoves; i++){
+            await delay(i * 400);
+            this.moveCharacter("UP", true);
+        }}
+        else if(numberOfYMoves > 0){
+            for (let i: number = 0; i < numberOfYMoves; i++){
+                await delay(i * 150);
+                this.moveCharacter("DOWN", true);
+            }
+        } 
+        return
     }
 
     // ------------------------- AlertIcon
@@ -159,3 +191,4 @@ export class NpcTrainer extends Character {
         this.alertIcon?.setVisible(false)
     }
 }
+
