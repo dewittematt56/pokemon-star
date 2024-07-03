@@ -1,9 +1,9 @@
-import { Character, CharacterConfig } from "../characters";
-import { DIRECTION_TYPE, DIRECTION } from "../../utils/controls/direction";
+import { Character, CharacterConfig } from "../../../commonClass/characters/characters";
 import { AnimatedImageType, NpcWorldImage, PokemonConfig, PokemonPartyType, npcDialog } from "../../../commonTypes/typeDefs";
 import { Pokemon } from "../../../commonClass/pokemon/pokemon/pokemon";
-import { getTargetPositionFromGameObjectPositionAndDirection } from "../../utils/gridUtils.ts/gridUtils";
-import { CoordinateType } from "../../utils/typeDefs/coordinate";
+import { DIRECTION, DIRECTION_TYPE } from "../../../game/utils/controls/direction";
+import { getTargetPositionFromGameObjectPositionAndDirection } from "../../../game/utils/gridUtils.ts/gridUtils";
+import { CoordinateType } from "../../../game/utils/typeDefs/coordinate";
 
 export type NpcTrainerConfig = {
     pokemon: PokemonConfig[],

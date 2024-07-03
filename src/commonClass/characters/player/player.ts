@@ -1,8 +1,8 @@
-import { Character, CharacterConfig } from "../characters";
-import { DIRECTION_TYPE, DIRECTION } from "../../utils/controls/direction";
+import { Character, CharacterConfig } from "../../../commonClass/characters/characters";
+import { DIRECTION, DIRECTION_TYPE } from "../../../game/utils/controls/direction";
 import { ANIMATIONS } from "../../../commonData/commonAnimations";
-import { getTargetPositionFromGameObjectPositionAndDirection } from "../../utils/gridUtils.ts/gridUtils";
-import { CoordinateType } from "../../utils/typeDefs/coordinate";
+import { getTargetPositionFromGameObjectPositionAndDirection } from "../../../game/utils/gridUtils.ts/gridUtils";
+import { CoordinateType } from "../../../game/utils/typeDefs/coordinate";
 
 
 export class Player extends Character {

@@ -1,7 +1,7 @@
+import { NpcTrainer } from "../../../commonClass/characters/npcTrainer/npcTrainer";
 import { Pokemon } from "../../../commonClass/pokemon/pokemon/pokemon";
 import { SCENE_KEYS } from "../../../commonData/dataScenes";
 import { PokemonPartyType, activePokemonEncounterType, playerSessionType } from "../../../commonTypes/typeDefs";
-import { NpcTrainer } from "../../characters/npcTrainer/npcTrainer";
 import { baseBattleScene, findEligiblePokemonPartyMember } from "./baseBattleScene";
  
 

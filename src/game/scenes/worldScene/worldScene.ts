@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import { Controls } from '../../utils/controls/control';
 import { DIRECTION } from '../../utils/controls/direction';
-import { Character } from '../../characters/characters';
-import { Player } from '../../characters/player/player';
+import { Character } from '../../../commonClass/characters/characters';
+import { Player } from '../../../commonClass/characters/player/player';
 import { CHARACTER_ASSET_KEYS } from '../../utils/assetKeys';
 import { BasicUiDialogBox } from '../../../components/dialog/basicUiDialogBox';
 import { getTargetPositionFromGameObjectPositionAndDirection } from '../../utils/gridUtils.ts/gridUtils';
@@ -11,7 +11,7 @@ import { SCENE_KEYS, SCENE_INFO } from '../../../commonData/dataScenes';
 import { didPokemonAppearInZone, getPokemonEncountered } from './utils/encounterUtils';
 import { SceneType, playerSessionType } from '../../../commonTypes/typeDefs';
 import { writeGameDataToSave } from '../../utils/gameSaves/utils';
-import { NpcTrainer } from '../../characters/npcTrainer/npcTrainer';
+import { NpcTrainer } from '../../../commonClass/characters/npcTrainer/npcTrainer';
 
 export default class StarterScene extends Phaser.Scene {
     player: Player | undefined;

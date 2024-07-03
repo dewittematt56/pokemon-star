@@ -1,6 +1,6 @@
-import { DIRECTION, DIRECTION_TYPE } from "../utils/controls/direction";
-import { CoordinateType } from "../utils/typeDefs/coordinate";
-import { getTargetPositionFromGameObjectPositionAndDirection } from "../utils/gridUtils.ts/gridUtils";
+import { DIRECTION, DIRECTION_TYPE } from "../../game/utils/controls/direction";
+import { CoordinateType } from "../../game/utils/typeDefs/coordinate";
+import { getTargetPositionFromGameObjectPositionAndDirection } from "../../game/utils/gridUtils.ts/gridUtils";
 
 export type CharacterIdleFrameConfig = {
     DOWN: number,
