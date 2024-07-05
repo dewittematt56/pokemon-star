@@ -64,18 +64,18 @@ export class CombatEngine{
         }
     }
 
-    executeCombatTurn(playerMove: PokemonMove){
+    async executeCombatTurn(playerMove: PokemonMove){
         let opponentMove = this.opponentMoveSelector();
         let moveExecutions = this.determineMovePriority(playerMove, opponentMove); 
-        moveExecutions.forEach((moveToExecute, index) => {
+        moveExecutions.forEach(async (moveToExecute, index) => {
             if(moveToExecute.pokemon.currentHp > 0){
-                this.executeMove(moveToExecute)
+                await this.executeMove(moveToExecute)
             }
         })
         this.dialogCallback([], true)
     }
 
-    executeMove(moveToExecute: moveExecutionType): void{
+    async executeMove (moveToExecute: moveExecutionType): Promise<void>{
         let messages = []
         if(moveToExecute.executor == "PLAYER"){
             messages.unshift(`Your ${this.playerPokemon.name} uses ${moveToExecute.move.name}.`)
@@ -89,7 +89,6 @@ export class CombatEngine{
                 this.updateHpCallback(Math.max(this.playerPokemon.currentHp -= damageGiven, 0), "PLAYER");
             }
         }
-        console.log(messages)
         this.dialogCallback(messages, false)
     }
 }
