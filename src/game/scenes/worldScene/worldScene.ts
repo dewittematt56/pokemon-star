@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 import { Controls } from '../../utils/controls/control';
 import { DIRECTION } from '../../utils/controls/direction';
-import { Character } from '../../../commonClass/characters/characters';
 import { Player } from '../../../commonClass/characters/player/player';
 import { CHARACTER_ASSET_KEYS } from '../../utils/assetKeys';
 import { BasicUiDialogBox } from '../../../components/dialog/basicUiDialogBox';
@@ -85,7 +84,9 @@ export default class StarterScene extends Phaser.Scene {
         const map = this.make.tilemap({ key: "map", tileHeight: 16, tileWidth: 16 });
         const tileSet = map.addTilesetImage("pokemonStarStandradTileSet", "standardTileSet");
         const collisionLayer = map.createLayer("CollisionLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
-        collisionLayer?.setVisible(true);
+        const jumpableLayer = map.createLayer("JumpableLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
+        jumpableLayer?.setVisible(true);
+        collisionLayer?.setVisible(false);
         const terrainLayer = map.createLayer("TerrainLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
         const intermediaryLayer = map.createLayer("IntermediaryLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
         const vegetationLayer = map.createLayer("VegetationLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
@@ -99,7 +100,8 @@ export default class StarterScene extends Phaser.Scene {
             this.pokemonSpawnLayer = map.getObjectLayer('PokemonSpawns')!;
         }
 
-        this.createCharacters(collisionLayer);
+        console.log(jumpableLayer)
+        this.createCharacters(collisionLayer, jumpableLayer);
 
         this.cameras.main.setBounds(0, 0, 32 * 32, 32 * 32);
         this.cameras.main.setZoom(2);
@@ -155,7 +157,7 @@ export default class StarterScene extends Phaser.Scene {
         }
     }
 
-    createCharacters(collisionLayer: Phaser.Tilemaps.TilemapLayer | null) {
+    createCharacters(collisionLayer: Phaser.Tilemaps.TilemapLayer | null, jumpableLayer: Phaser.Tilemaps.TilemapLayer | null) {
         this.player = new Player({
             scene: this,
             position: { x: this.playerStartX, y: this.playerStartY },
@@ -174,8 +176,10 @@ export default class StarterScene extends Phaser.Scene {
             },
             spriteChangedDirectionCallback: () => {},
             collisionLayer: collisionLayer,
+            jumpableLayer: jumpableLayer,
             isAggressive: false,
-            sightRange: 0
+            sightRange: 0,
+            
         });
         this.cameras.main.startFollow(this.player.sprite);
         this.npcTrainers = this.currentWorldInfo.npcs.filter((npc) => npc.type == "TRAINER" && npc.spriteInfo).map((npc) => {
@@ -189,6 +193,7 @@ export default class StarterScene extends Phaser.Scene {
                 spriteGridMovementFinishedCallback: npc.spriteGridMovementFinishedCallback,
                 spriteChangedDirectionCallback: npc.spriteChangedDirectionCallback,
                 collisionLayer: collisionLayer,
+                jumpableLayer: jumpableLayer,
                 isAggressive: npc.isAggressive,
                 sightRange: npc.sightRange
             }, {
