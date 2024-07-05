@@ -5,12 +5,12 @@
     },
     "activeFile": "assets/maps/routes/route_101/route_101.tmx",
     "expandedProjectPaths": [
-        "assets",
         "assets/maps/routes",
-        ".",
+        "assets/maps",
         "assets/maps/routes/route_101",
-        "assets/maps"
+        "assets"
     ],
+    "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "": {
             "scaleInDock": 1
@@ -22,8 +22,8 @@
             "scale": 1.5,
             "selectedLayer": 5,
             "viewCenter": {
-                "x": 594.3333333333333,
-                "y": 397.33333333333326
+                "x": 595.6666666666667,
+                "y": 398.66666666666663
             }
         },
         "assets/maps/routes/route_101/route_101.tmx#d5xdb0y-7cca5199-9b43-4b0e-9b2f-f4f6787e09eb": {
@@ -53,6 +53,7 @@
     "recentFiles": [
         "assets/maps/routes/route_101/route_101.tmx"
     ],
+    "textEdit.monospace": true,
     "tileset.embedInMap": true,
     "tileset.tileSize": {
         "height": 16,

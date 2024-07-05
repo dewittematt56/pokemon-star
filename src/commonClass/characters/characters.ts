@@ -1,6 +1,7 @@
 import { DIRECTION, DIRECTION_TYPE } from "../../game/utils/controls/direction";
 import { CoordinateType } from "../../game/utils/typeDefs/coordinate";
 import { getTargetPositionFromGameObjectPositionAndDirection } from "../../game/utils/gridUtils.ts/gridUtils";
+import { TILE_SIZE } from "../../commonData/configWorld";
 
 export type CharacterIdleFrameConfig = {
     DOWN: number,
@@ -20,6 +21,7 @@ export type CharacterConfig = {
     spriteChangedDirectionCallback: Function
     idleFrames: CharacterIdleFrameConfig,
     collisionLayer?: Phaser.Tilemaps.TilemapLayer | null,
+    jumpableLayer: Phaser.Tilemaps.ObjectLayer | undefined,
     isAggressive: boolean
     sightRange: number,
 
@@ -35,6 +37,7 @@ export class Character {
     _spriteGridMovementFinishedCallback: Function;
     _spriteChangedDirectionCallback: Function;
     _collisionLayer?: Phaser.Tilemaps.TilemapLayer | null;
+    _jumpableLayer?: Phaser.Tilemaps.ObjectLayer | undefined;
     public isAggressive: boolean = false;
     public sightRange: number = 5;
     public spriteSpeedFactor: number = 1;
@@ -53,6 +56,7 @@ export class Character {
         this._spriteGridMovementFinishedCallback = config.spriteGridMovementFinishedCallback;
         this._spriteChangedDirectionCallback = config.spriteChangedDirectionCallback;
         this._collisionLayer = config.collisionLayer;
+        this._jumpableLayer = config.jumpableLayer
 
         this.isAggressive = config.isAggressive
         this.sightRange = config.sightRange
@@ -103,6 +107,10 @@ export class Character {
         }
 
         if (this._isBlockingTile()) {
+            if (this._isJumpableTile()){
+                this.handleSpriteJump()
+            }
+    
             return;
         }
 
@@ -122,8 +130,52 @@ export class Character {
         return this.doesCollisionCollideWithPosition(updatedPosition)
     }
 
+    _isJumpableTile(){
+        if (this._direction === DIRECTION.NONE) {
+            return false;
+        }
+
+        const targetPosition = { ...this._targetPosition };
+        const updatedPosition = getTargetPositionFromGameObjectPositionAndDirection(targetPosition, this._direction);
+
+        return this.doesJumpableCollideWithPosition(updatedPosition, this.direction)
+    }
+
     handleSpriteMovement() {
         if (this._direction === DIRECTION.NONE) {
+            return;
+        }
+
+        const updatedPosition = getTargetPositionFromGameObjectPositionAndDirection(this._targetPosition, this._direction);
+        this._previousTargetPosition = { ...this._targetPosition };
+        this._targetPosition = { ...updatedPosition };
+
+        this._scene.add.tween({
+            delay: 0,
+            duration: 300 * this.spriteSpeedFactor,
+            y: {
+                from: this._phaserGameObject.y,
+                to: this._targetPosition.y
+            },
+            x: {
+                from: this._phaserGameObject.x,
+                to: this._targetPosition.x
+            },
+            targets: this._phaserGameObject,
+            onComplete: () => {
+                this._isMoving = false;
+                this._phaserGameObject.anims.stop();
+                this._previousTargetPosition = { ...this._targetPosition };
+                this._targetPosition = { ...updatedPosition };
+                if (this._spriteGridMovementFinishedCallback) {
+                    this._spriteGridMovementFinishedCallback();
+                }
+            }
+        });
+    }
+
+    handleSpriteJump(){
+        if (this._direction === DIRECTION.NONE ) {
             return;
         }
 
@@ -165,5 +217,23 @@ export class Character {
         return tile.index !== -1;
     }
 
+    doesJumpableCollideWithPosition(position: CoordinateType, direction: DIRECTION_TYPE) {
+        if (!this._jumpableLayer) {
+            return false;
+        }
+    
+        const { x, y } = position;
+        const objects = this._jumpableLayer.objects;
+    
+        for (const obj of objects) {
+            const withinX = x >= Number(obj.x) && x < Number(obj.x) + Number(obj.width);
+            const withinY = y >= Number(obj.y) && y < Number(obj.y) + Number(obj.height);
+            if (withinX && withinY) {
+                return obj.properties?.find((prop: any) => prop.name == "JUMP_DIR").value == direction;
+            }
+        }
+    
+        return false;
+    }
 
 }
