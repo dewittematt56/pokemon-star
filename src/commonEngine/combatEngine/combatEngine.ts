@@ -89,6 +89,7 @@ export class CombatEngine{
                 this.updateHpCallback(Math.max(this.playerPokemon.currentHp -= damageGiven, 0), "PLAYER");
             }
         }
+        console.log(messages)
         this.dialogCallback(messages, false)
     }
 }

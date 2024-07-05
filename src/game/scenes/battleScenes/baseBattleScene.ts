@@ -132,6 +132,7 @@ export class baseBattleScene extends Phaser.Scene {
     }
 
     combatMoveDialogCallback(messages: string[], endOfSequence: boolean){
+        console.log("MOVE CALLBACK", messages)
         this.battleSelectMenu?.displayDialog(messages, true, () => {
             this.battleSelectMenu?.updateDialogVisibility(endOfSequence)
         }); 

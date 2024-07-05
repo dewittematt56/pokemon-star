@@ -23,6 +23,7 @@ export class BattleMenuDialog extends BaseDialogBox {
     showDialogModal(messages: string[], autoComplete: boolean = false, callBackFunction?: Function) {
         this.messageQueue = [...messages];
         this.updateVisibility(true);
+        console.log("IN DIALOG COMP: ", messages)
         if (autoComplete) {
             this.displayMessageAutoComplete(30, 30, callBackFunction);
         } else {

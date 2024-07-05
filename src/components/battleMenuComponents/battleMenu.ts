@@ -76,6 +76,7 @@ export class BattleSelectMenu {
 
     displayDialog(messages: string[], autoComplete: boolean, callBackFunction: Function){
         this.fightOptionsContainer.setVisible(false)
+        console.log(messages)
         this.battleMenuDialog.showDialogModal(messages, autoComplete, callBackFunction)
     }
 

@@ -22,8 +22,8 @@
             "scale": 1.5,
             "selectedLayer": 5,
             "viewCenter": {
-                "x": 478,
-                "y": 301.33333333333326
+                "x": 595.6666666666667,
+                "y": 398.66666666666663
             }
         },
         "assets/maps/routes/route_101/route_101.tmx#d5xdb0y-7cca5199-9b43-4b0e-9b2f-f4f6787e09eb": {
@@ -49,7 +49,7 @@
         "assets/maps/routes/route_101/route_101.tmx"
     ],
     "project": "pokemonStar.tiled-project",
-    "property.type": "sign",
+    "property.type": "string",
     "recentFiles": [
         "assets/maps/routes/route_101/route_101.tmx"
     ],

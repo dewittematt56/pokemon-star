@@ -11,14 +11,20 @@ import { didPokemonAppearInZone, getPokemonEncountered } from './utils/encounter
 import { SceneType, playerSessionType } from '../../../commonTypes/typeDefs';
 import { writeGameDataToSave } from '../../utils/gameSaves/utils';
 import { NpcTrainer } from '../../../commonClass/characters/npcTrainer/npcTrainer';
+import { findPlayerObjectIntersect } from './utils';
 
 export default class StarterScene extends Phaser.Scene {
     player: Player | undefined;
     npcTrainers: NpcTrainer[];
     controls: Controls | undefined;
     dialogUI: BasicUiDialogBox | undefined;
-    signLayer: Phaser.Tilemaps.ObjectLayer | undefined;
-    pokemonSpawnLayer: Phaser.Tilemaps.ObjectLayer | undefined;
+
+    // Object Layers
+    public signLayer: Phaser.Tilemaps.ObjectLayer | undefined;
+    public pokemonSpawnLayer: Phaser.Tilemaps.ObjectLayer | undefined;
+    public jumpableLayer: Phaser.Tilemaps.ObjectLayer | undefined;
+    
+
     playerStartX: number;
     playerStartY: number;
     private interactionInProgress: boolean = false;
@@ -84,8 +90,6 @@ export default class StarterScene extends Phaser.Scene {
         const map = this.make.tilemap({ key: "map", tileHeight: 16, tileWidth: 16 });
         const tileSet = map.addTilesetImage("pokemonStarStandradTileSet", "standardTileSet");
         const collisionLayer = map.createLayer("CollisionLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
-        const jumpableLayer = map.createLayer("JumpableLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
-        jumpableLayer?.setVisible(true);
         collisionLayer?.setVisible(false);
         const terrainLayer = map.createLayer("TerrainLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
         const intermediaryLayer = map.createLayer("IntermediaryLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
@@ -99,9 +103,13 @@ export default class StarterScene extends Phaser.Scene {
         if (map.getObjectLayer("PokemonSpawns")){
             this.pokemonSpawnLayer = map.getObjectLayer('PokemonSpawns')!;
         }
-
-        console.log(jumpableLayer)
-        this.createCharacters(collisionLayer, jumpableLayer);
+        if (map.getObjectLayer("Jumpable")){
+            this.jumpableLayer = map.getObjectLayer('Jumpable')!;
+        }
+        if(collisionLayer && this.jumpableLayer){
+            
+            this.createCharacters(collisionLayer, this.jumpableLayer);
+        }   
 
         this.cameras.main.setBounds(0, 0, 32 * 32, 32 * 32);
         this.cameras.main.setZoom(2);
@@ -157,7 +165,7 @@ export default class StarterScene extends Phaser.Scene {
         }
     }
 
-    createCharacters(collisionLayer: Phaser.Tilemaps.TilemapLayer | null, jumpableLayer: Phaser.Tilemaps.TilemapLayer | null) {
+    createCharacters(collisionLayer: Phaser.Tilemaps.TilemapLayer | undefined, jumpableLayer: Phaser.Tilemaps.ObjectLayer | undefined) {
         this.player = new Player({
             scene: this,
             position: { x: this.playerStartX, y: this.playerStartY },
@@ -238,28 +246,20 @@ export default class StarterScene extends Phaser.Scene {
         // Get the player's position
         let playerPos = this.player?.sprite?.getBounds()!;
     
-        if (!playerPos) {
+        if (!playerPos && !this.pokemonSpawnLayer) {
             return;
         }
     
-        this.pokemonSpawnLayer?.objects.forEach((object) => {
-            // Get object bounds
-            let xMin = Math.round(object.x!);
-            let xMax = Math.round(object.x!) + Math.round(object.width!);
-            let yMin = Math.round(object.y!);
-            let yMax = Math.round(object.y!) + Math.round(object.height!);
-            // Check if the player's position is within the object's bounds
-            if (playerPos.left >= xMin && playerPos.right <= xMax && playerPos.top >= yMin && playerPos.bottom <= yMax) {
-                if(didPokemonAppearInZone()){
-                    let pokemonEncountered = getPokemonEncountered(this.currentWorldScene)
-                    this.updateGameSession()
-                    this.scene.start(SCENE_KEYS.WILD_ENCOUNTER_SCENE, {
-                        playerSession: this.playerSession,
-                        pokemonEncountered: pokemonEncountered,
-                    })
-                }
+        if(findPlayerObjectIntersect(playerPos, this.pokemonSpawnLayer!)){
+            if(didPokemonAppearInZone()){
+                let pokemonEncountered = getPokemonEncountered(this.currentWorldScene)
+                this.updateGameSession()
+                this.scene.start(SCENE_KEYS.WILD_ENCOUNTER_SCENE, {
+                    playerSession: this.playerSession,
+                    pokemonEncountered: pokemonEncountered,
+                })
             }
-        });
+        }
     }
 
     checkOpponentViewLogic() {

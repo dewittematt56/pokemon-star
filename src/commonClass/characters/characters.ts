@@ -21,7 +21,7 @@ export type CharacterConfig = {
     spriteChangedDirectionCallback: Function
     idleFrames: CharacterIdleFrameConfig,
     collisionLayer?: Phaser.Tilemaps.TilemapLayer | null,
-    jumpableLayer: Phaser.Tilemaps.TilemapLayer | null,
+    jumpableLayer: Phaser.Tilemaps.ObjectLayer | undefined,
     isAggressive: boolean
     sightRange: number,
 
@@ -37,7 +37,7 @@ export class Character {
     _spriteGridMovementFinishedCallback: Function;
     _spriteChangedDirectionCallback: Function;
     _collisionLayer?: Phaser.Tilemaps.TilemapLayer | null;
-    _jumpableLayer?: Phaser.Tilemaps.TilemapLayer | null;
+    _jumpableLayer?: Phaser.Tilemaps.ObjectLayer | undefined;
     public isAggressive: boolean = false;
     public sightRange: number = 5;
     public spriteSpeedFactor: number = 1;
@@ -138,7 +138,7 @@ export class Character {
         const targetPosition = { ...this._targetPosition };
         const updatedPosition = getTargetPositionFromGameObjectPositionAndDirection(targetPosition, this._direction);
 
-        return this.doesJumpableCollideWithPosition(updatedPosition)
+        return this.doesJumpableCollideWithPosition(updatedPosition, this.direction)
     }
 
     handleSpriteMovement() {
@@ -217,14 +217,23 @@ export class Character {
         return tile.index !== -1;
     }
 
-    doesJumpableCollideWithPosition(position: CoordinateType) {
+    doesJumpableCollideWithPosition(position: CoordinateType, direction: DIRECTION_TYPE) {
         if (!this._jumpableLayer) {
             return false;
         }
-
+    
         const { x, y } = position;
-        const tile = this._jumpableLayer.getTileAtWorldXY(x, y, true);
-        return tile.index !== -1;
+        const objects = this._jumpableLayer.objects;
+    
+        for (const obj of objects) {
+            const withinX = x >= Number(obj.x) && x < Number(obj.x) + Number(obj.width);
+            const withinY = y >= Number(obj.y) && y < Number(obj.y) + Number(obj.height);
+            if (withinX && withinY) {
+                return obj.properties?.find((prop: any) => prop.name == "JUMP_DIR").value == direction;
+            }
+        }
+    
+        return false;
     }
 
 }
