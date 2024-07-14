@@ -103,6 +103,8 @@ export const SCENE_INFO: SceneInfoType = Object.freeze({
                 },
                 movementPattern: ["DOWN", "DOWN", "DOWN", "DOWN", "UP", "UP", "UP", "UP"]
             }
-        ]
+        ],
+        lightingLevel: "",
+        music: ["HAPPY_TUNE"]
     }
 });

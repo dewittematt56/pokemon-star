@@ -12,6 +12,8 @@ import { SceneType, playerSessionType } from '../../../commonTypes/typeDefs';
 import { writeGameDataToSave } from '../../utils/gameSaves/utils';
 import { NpcTrainer } from '../../../commonClass/characters/npcTrainer/npcTrainer';
 import { findPlayerObjectIntersect } from '../../../commonUtils/tileUtils';
+import { sceneLightingEngine } from '../../../commonEngine/sceneLightingEngine/sceneLightingEngine';
+import { SceneMusicEngine } from '../../../commonEngine/sceneSoundEngine/sceneMusicEngine';
 
 export default class StarterScene extends Phaser.Scene {
     player: Player | undefined;
@@ -24,6 +26,8 @@ export default class StarterScene extends Phaser.Scene {
     public pokemonSpawnLayer: Phaser.Tilemaps.ObjectLayer | undefined;
     public jumpableLayer: Phaser.Tilemaps.ObjectLayer | undefined;
     
+    private lightingEngine: sceneLightingEngine | undefined
+    private musicEngine: SceneMusicEngine | undefined
 
     playerStartX: number;
     playerStartY: number;
@@ -42,6 +46,8 @@ export default class StarterScene extends Phaser.Scene {
 
         this.currentWorldScene = "ROUTE_101";
         this.currentWorldInfo = SCENE_INFO[this.currentWorldScene];
+
+        
     }
 
     preload() {
@@ -57,6 +63,7 @@ export default class StarterScene extends Phaser.Scene {
                 this.load.spritesheet(npc.spriteInfo.worldImage.spriteKey, npc.spriteInfo.worldImage.spritePath, { frameWidth: npc.spriteInfo.worldImage.spriteWidth, frameHeight: npc.spriteInfo.worldImage.spriteHeight });
             }
         })
+        this.load.audio("backgroundMusic", "/assets/music/happyTune.mp3")
         
         this.load.tilemapTiledJSON("map", "/assets/maps/routes/route_101/route_101.json");
     }
@@ -94,8 +101,9 @@ export default class StarterScene extends Phaser.Scene {
         const terrainLayer = map.createLayer("TerrainLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
         const intermediaryLayer = map.createLayer("IntermediaryLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
         const vegetationLayer = map.createLayer("VegetationLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
-        vegetationLayer?.setDepth(1);
         const objectLayer = map.createLayer("ObjectLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
+
+        // this.lights.setAmbientColor(0x555555);
 
         if (map.getObjectLayer('Sign')) {
             this.signLayer = map.getObjectLayer('Sign')!;
@@ -112,13 +120,23 @@ export default class StarterScene extends Phaser.Scene {
         }   
 
         this.cameras.main.setBounds(0, 0, 32 * 32, 32 * 32);
-        this.cameras.main.setZoom(2);
+        this.cameras.main.setZoom(3);
 
         this.controls = new Controls(this);
 
         this.dialogUI = new BasicUiDialogBox(this, this.scale.width);
-
+        // Generate Lighting Engine for Scene
+        this.lightingEngine = new sceneLightingEngine(
+            this, 
+            [terrainLayer, intermediaryLayer, vegetationLayer, objectLayer], 
+            map.getObjectLayer('Lighting')!, 
+            this.npcTrainers, 
+            this.player, 
+            this.currentWorldInfo.lightingLevel
+        )
+        this.musicEngine = new SceneMusicEngine(this, this.currentWorldInfo.music);
         this.cameras.main.fadeIn(1000, 0, 0, 0);
+
     }
 
     update(time: number, delta: number): void {
@@ -321,5 +339,13 @@ export default class StarterScene extends Phaser.Scene {
     saveGameHandler(){
         this.updateGameSession()
         writeGameDataToSave(this.playerSession!)
+    }
+
+    musicHandler(){
+        let backgroundMusic = this.sound.add("backgroundMusic", {
+            volume: 0.5,
+            loop: true
+        })
+        backgroundMusic.play();
     }
 }

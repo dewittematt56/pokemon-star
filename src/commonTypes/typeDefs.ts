@@ -1,6 +1,8 @@
 import { Pokemon, pokemonMoves } from "../commonClass/pokemon/pokemon/pokemon"
 import { IvData, EvData } from "../commonClass/pokemon/pokemon/typeDefs"
 import { PokemonMove } from "../commonClass/pokemon/pokemonMove"
+import { LIGHTING_CONFIG } from "../commonData/configWorld"
+import { GAME_MUSIC } from "../commonData/dataMusic"
 import { POKEMON } from "../commonData/dataPokemon"
 import { SCENE_KEYS, SCENE_INFO } from "../commonData/dataScenes"
 import { DIRECTION, DIRECTION_TYPE } from "../game/utils/controls/direction"
@@ -96,6 +98,8 @@ export interface SceneType {
     mapPath: string;
     mapKey: string;
     npcs: NPC[];
+    lightingLevel: "" | keyof typeof LIGHTING_CONFIG,
+    music: (keyof typeof GAME_MUSIC)[]
 }
 
 // Define the type for SCENE_INFO
