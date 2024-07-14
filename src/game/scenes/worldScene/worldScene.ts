@@ -11,7 +11,7 @@ import { didPokemonAppearInZone, getPokemonEncountered } from './utils/encounter
 import { SceneType, playerSessionType } from '../../../commonTypes/typeDefs';
 import { writeGameDataToSave } from '../../utils/gameSaves/utils';
 import { NpcTrainer } from '../../../commonClass/characters/npcTrainer/npcTrainer';
-import { findPlayerObjectIntersect } from './utils';
+import { findPlayerObjectIntersect } from '../../../commonUtils/tileUtils';
 
 export default class StarterScene extends Phaser.Scene {
     player: Player | undefined;

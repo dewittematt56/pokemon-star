@@ -2,6 +2,7 @@ import { DIRECTION, DIRECTION_TYPE } from "../../game/utils/controls/direction";
 import { CoordinateType } from "../../game/utils/typeDefs/coordinate";
 import { getTargetPositionFromGameObjectPositionAndDirection } from "../../game/utils/gridUtils.ts/gridUtils";
 import { TILE_SIZE } from "../../commonData/configWorld";
+import { findPlayerPositionIntersectsObject } from "../../commonUtils/tileUtils";
 
 export type CharacterIdleFrameConfig = {
     DOWN: number,
@@ -221,18 +222,11 @@ export class Character {
         if (!this._jumpableLayer) {
             return false;
         }
-    
-        const { x, y } = position;
-        const objects = this._jumpableLayer.objects;
-    
-        for (const obj of objects) {
-            const withinX = x >= Number(obj.x) && x < Number(obj.x) + Number(obj.width);
-            const withinY = y >= Number(obj.y) && y < Number(obj.y) + Number(obj.height);
-            if (withinX && withinY) {
-                return obj.properties?.find((prop: any) => prop.name == "JUMP_DIR").value == direction;
-            }
+        let found_object = findPlayerPositionIntersectsObject(position, this._jumpableLayer)
+        if(found_object){
+            return found_object.properties?.find((prop: any) => prop.name == "JUMP_DIR").value == direction;
         }
-    
+
         return false;
     }
 
