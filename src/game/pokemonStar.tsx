@@ -2,10 +2,10 @@ import { useRef, useEffect } from "react";
 import StarterScene from "./scenes/worldScene/worldScene";
 import { SCENE_KEYS } from "../commonData/dataScenes";
 import { baseBattleScene } from "./scenes/battleScenes/baseBattleScene";
-import { constMockPokemonParty, constWildPokemonParty } from "../testData/mockData";
 import { WildEncounterScene } from "./scenes/battleScenes/wildEncounterScene";
 import { TrainerBattleScene } from "./scenes/battleScenes/trainerBattleScene";
 import { loadSave, mockPlayerSession } from "./utils/gameSaves/utils";
+import MenuScene from "./scenes/menuScene/menuScene";
 
 const config = {
     type: Phaser.AUTO,
@@ -37,10 +37,13 @@ export default function PokemonStar(){
         gameRef.current.scene.add(SCENE_KEYS.WORLD_SCENE, StarterScene);
         gameRef.current.scene.add(SCENE_KEYS.WILD_ENCOUNTER_SCENE, WildEncounterScene);
         gameRef.current.scene.add(SCENE_KEYS.TRAINER_BATTLE_SCENE, TrainerBattleScene);
-        gameRef.current.scene.start(SCENE_KEYS.WORLD_SCENE, {
-            playerSession: playerSession ? playerSession : mockPlayerSession,
-            battleFieldBackgroundAssetKey: "FOREST",
-        })
+        gameRef.current.scene.add(SCENE_KEYS.MENU_SCENE, MenuScene);
+        // gameRef.current.scene.start(SCENE_KEYS.WORLD_SCENE, {
+        //     playerSession: playerSession ? playerSession : mockPlayerSession,
+        //     battleFieldBackgroundAssetKey: "FOREST",
+        // })
+
+        gameRef.current.scene.start(SCENE_KEYS.MENU_SCENE)
 
         // gameRef.current.scene.start(SCENE_KEYS.WILD_ENCOUNTER_SCENE, {
         //     originatorKey: SCENE_KEYS.WORLD_SCENE,
