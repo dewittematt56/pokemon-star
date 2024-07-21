@@ -44,7 +44,6 @@ export class BattlePokemonSprite {
 
     updatePokemon(pokemon: Pokemon){
         this.pokemon = pokemon;
-        this.removeSprite();
         this.buildPokemonSprite();
         this.playAnimation();
     }

@@ -13,7 +13,7 @@ import { writeGameDataToSave } from '../../utils/gameSaves/utils';
 import { NpcTrainer } from '../../../commonClass/characters/npcTrainer/npcTrainer';
 import { findPlayerObjectIntersect } from '../../../commonUtils/tileUtils';
 import { sceneLightingEngine } from '../../../commonEngine/sceneLightingEngine/sceneLightingEngine';
-import { SceneMusicEngine } from '../../../commonEngine/sceneSoundEngine/sceneMusicEngine';
+import { SceneAudioEngine } from '../../../commonEngine/sceneSoundEngine/sceneAudioEngine';
 
 export default class StarterScene extends Phaser.Scene {
     player: Player | undefined;
@@ -27,7 +27,7 @@ export default class StarterScene extends Phaser.Scene {
     public jumpableLayer: Phaser.Tilemaps.ObjectLayer | undefined;
     
     private lightingEngine: sceneLightingEngine | undefined
-    private musicEngine: SceneMusicEngine | undefined
+    private audioEngine: SceneAudioEngine | undefined
 
     playerStartX: number;
     playerStartY: number;
@@ -132,7 +132,7 @@ export default class StarterScene extends Phaser.Scene {
             this.player, 
             this.currentWorldInfo.lightingLevel
         )
-        this.musicEngine = new SceneMusicEngine(this, this.currentWorldInfo.music);
+        this.audioEngine = new SceneAudioEngine(this, this.currentWorldInfo.music);
         this.cameras.main.fadeIn(1000, 0, 0, 0);
 
     }
@@ -222,6 +222,7 @@ export default class StarterScene extends Phaser.Scene {
                 sightRange: npc.sightRange
             }, {
                 id: npc.id,
+                name: npc.name,
                 pokemon: npc.pokemonParty,
                 dialog: npc.dialog,
                 portrait: npc.spriteInfo!.portraitImage,
@@ -244,15 +245,18 @@ export default class StarterScene extends Phaser.Scene {
             npcTrainer.displayAlertIcon();
             await new Promise(resolve => setTimeout(resolve, 1000))
             npcTrainer.hideAlertIcon();
+            this.audioEngine?.stopCurrentMusic();
+            this.audioEngine?.playSceneMusic("BASIC_BATTLE_THEME", true)
             await npcTrainer.moveToTargetPosition(this.player!.position)
-            
             this.dialogUI?.showDialogModal(npcTrainer.dialog.openingWorldMessages, true, () => {
                 this.dialogUI?.hideDialogModal();
                 this.cleanupScene();
-                this.scene.start(SCENE_KEYS.TRAINER_BATTLE_SCENE, {
-                    playerSession: this.playerSession,
-                    npcTrainer: npcTrainer,
-                })
+                this.cameras.main.fadeOut(2000, 0, 0, 0, () => {
+                    this.scene.start(SCENE_KEYS.TRAINER_BATTLE_SCENE, {
+                        playerSession: this.playerSession,
+                        npcTrainer: npcTrainer,
+                    })
+                });
             })
         }
 
@@ -343,7 +347,7 @@ export default class StarterScene extends Phaser.Scene {
     }
 
     cleanupScene(){
-        this.musicEngine?.stopCurrentMusic()
+
     }
 
     musicHandler(){

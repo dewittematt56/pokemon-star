@@ -41,15 +41,21 @@ export class TrainerBattleScene extends baseBattleScene {
                     onComplete: () => {
                         // Hide Opponent Trainer Sprite
                         this.npcTrainer?.npcTrainerSprite?.setVisible(false);
-                        if(this.opponentPokemonSprite){
-                            let opponent_start_x = this.opponentPokemonSprite?.pokemonSprite?.x as number
-                            let opponent_start_y = this.opponentPokemonSprite?.pokemonSprite?.y as number
-                            this.pokemonChangeAnimation(this.opponentPokemonSprite!, opponent_start_x + 100, opponent_start_y - 200, opponent_start_x, opponent_start_y as number, "NORMAL")
-                        }
-                        if(this.yourPokemonSprite){
-                            this.makePokemonAppearSprite(this.yourPokemonSprite)
-                        }
-                        this.battleSelectMenu?.updateDialogVisibility(false)
+                        this.battleSelectMenu?.displayDialog([`${this.npcTrainer?.name} sends out ${this.opponentPokemon?.name}`], true, () => {
+                            if(this.opponentPokemonSprite){
+                                let opponent_start_x = this.opponentPokemonSprite?.pokemonSprite?.x as number
+                                let opponent_start_y = this.opponentPokemonSprite?.pokemonSprite?.y as number
+                                this.pokemonChangeAnimation(this.opponentPokemonSprite!, opponent_start_x + 100, opponent_start_y - 200, opponent_start_x, opponent_start_y as number, "NORMAL")
+                            }
+                            setTimeout(() => {
+                                this.battleSelectMenu?.displayDialog([`You send out ${this.yourPokemon?.name}`], true, () => {
+                                    if(this.yourPokemonSprite){
+                                        this.makePokemonSpriteAppear(this.yourPokemonSprite)
+                                    }
+                                    this.battleSelectMenu?.updateDialogVisibility(false)
+                                })
+                            }, 2000)
+                        })
                     }
                 });
             }, 1000 )

@@ -38,6 +38,10 @@ export const POKEMON = Object.freeze({
             specialAttack: 70,
             specialDefense: 50,
             speed: 45
+        },
+        sounds: {
+            cryKey: "TORCHIC_CRY",
+            cryPath: "/assets/pokemon/torchic/torchic_cry.mp3"
         }
     },
     "BULBASAUR": {
@@ -79,6 +83,10 @@ export const POKEMON = Object.freeze({
             specialAttack: 49,
             specialDefense: 65,
             speed: 45
+        },
+        sounds: {
+            cryKey: "BULBASAUR_CRY",
+            cryPath: "/assets/pokemon/bulbasaur/bulbasaur_cry.mp3"
         }
     },
     "POOCHYENA": {
@@ -120,6 +128,10 @@ export const POKEMON = Object.freeze({
             specialAttack: 30,
             specialDefense: 30,
             speed: 35
+        },
+        sounds: {
+            cryKey: "POOCHYENA_CRY",
+            cryPath: "/assets/pokemon/poochyena/poochyena_cry.mp3"
         }
     }
 })

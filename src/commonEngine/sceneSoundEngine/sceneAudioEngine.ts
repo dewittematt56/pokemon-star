@@ -1,6 +1,6 @@
 import { GAME_MUSIC } from "../../commonData/dataMusic";
 
-export class SceneMusicEngine {
+export class SceneAudioEngine {
     public scene: Phaser.Scene;
     public backgroundMusicToUse: (keyof typeof GAME_MUSIC)[];
     public currentMusicSound: any
@@ -9,7 +9,9 @@ export class SceneMusicEngine {
         this.scene = scene;
         this.backgroundMusicToUse = backgroundMusicToUse;
 
-        this.playSceneMusic(backgroundMusicToUse[0], defaultPlayMusic)
+        if(backgroundMusicToUse.length > 0){
+            this.playSceneMusic(backgroundMusicToUse[0], defaultPlayMusic)
+        }
     }
 
     // typeof GAME_MUSIC[keyof typeof GAME_MUSIC]
@@ -22,6 +24,21 @@ export class SceneMusicEngine {
         });
     }
 
+    playSingularAudio(assetKey: string, audioPath: string){
+        this.scene.load.audio(assetKey, audioPath)
+        this.scene.load.once('complete', () => {
+            this.scene.sound.add(assetKey, {
+                volume: 1,
+                loop: false
+            });
+            let singularAudio = this.scene.sound.get(assetKey);
+            if(singularAudio){
+                singularAudio.play()
+            }
+        })
+        this.scene.load.start()
+    }
+
     playCurrentMusic(){
         this.currentMusicSound?.play()
     }
@@ -30,12 +47,12 @@ export class SceneMusicEngine {
         this.currentMusicSound?.stop()
     }
 
-    loadMusic(audioToLoad: keyof typeof GAME_MUSIC, callbackFunction: Function){
+    loadMusic(audioToLoad: keyof typeof GAME_MUSIC, callbackFunction: Function, loop: boolean = true){
         this.scene.load.audio(GAME_MUSIC[audioToLoad].assetKey, GAME_MUSIC[audioToLoad].path)
         this.scene.load.once('complete', () => {
             this.scene.sound.add(GAME_MUSIC[audioToLoad].assetKey, {
                 volume: 0.5,
-                loop: true
+                loop: loop
             });
             callbackFunction();
         })

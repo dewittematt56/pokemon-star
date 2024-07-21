@@ -8,5 +8,10 @@ export const GAME_MUSIC = Object.freeze({
         assetKey: "QUASAR_THEME",
         path: "/assets/music/quasarTheme.mp3",
         volume: 1
+    },
+    "BASIC_BATTLE_THEME": {
+        assetKey: 'BASIC_BATTLE_THEME',
+        path: "/assets/music/trainerBattles/basicTrainerBattleMusic.mp3",
+        volume: 1
     }
 })

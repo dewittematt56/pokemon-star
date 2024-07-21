@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
 import { SCENE_KEYS } from '../../../commonData/dataScenes';
-import { SceneMusicEngine } from '../../../commonEngine/sceneSoundEngine/sceneMusicEngine';
+import { SceneAudioEngine } from '../../../commonEngine/sceneSoundEngine/sceneAudioEngine';
 import { getSaveGames, loadSave, mockPlayerSession } from '../../utils/gameSaves/utils';
 
 
 export default class MenuScene extends Phaser.Scene {
-    public audioEngine: SceneMusicEngine | undefined
+    public audioEngine: SceneAudioEngine | undefined
     private titleAnimationSprite: Phaser.GameObjects.Sprite | undefined;
     private titleText: Phaser.GameObjects.Text | undefined;
     private titlePreviewContainer: Phaser.GameObjects.Container | undefined;
@@ -42,7 +42,7 @@ export default class MenuScene extends Phaser.Scene {
             frameRate: 20, // Adjust frame rate as needed
             repeat: 0 // Set to -1 for infinite loop, 0 to play once
         });
-        this.audioEngine = new SceneMusicEngine(this, ["QUASAR_THEME"], false)
+        this.audioEngine = new SceneAudioEngine(this, ["QUASAR_THEME"], false)
 
         this.createTitle()
         this.createTitlePreview()

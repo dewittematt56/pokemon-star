@@ -11,6 +11,7 @@ import { PokemonMove } from "../../../commonClass/pokemon/pokemonMove";
 import { CombatEngine } from "../../../commonEngine/combatEngine/combatEngine";
 import { Pokemon } from "../../../commonClass/pokemon/pokemon/pokemon";
 import { POKEBALL_THROW } from "../../../commonData/commonAnimations";
+import { SceneAudioEngine } from "../../../commonEngine/sceneSoundEngine/sceneAudioEngine";
 
 export function findEligiblePokemonPartyMember(pokemonParty: PokemonPartyType): number {
     return pokemonParty.findIndex((pokemon) => pokemon.currentHp > 0);
@@ -31,6 +32,7 @@ export class baseBattleScene extends Phaser.Scene {
     public yourBattleBarComponent: YourBattleBarComponent | undefined;
     public opponentBattleBarComponent: OpponentBattleBarComponent | undefined;
     public fightSubMenuContainer: Phaser.GameObjects.Container | undefined;
+    public audioEngine: SceneAudioEngine | undefined;
 
     public combatEngine: CombatEngine | undefined;
 
@@ -122,6 +124,7 @@ export class baseBattleScene extends Phaser.Scene {
             this.pokemonOverviewMenu = new PokemonOverviewMenu(this, this.playerSession.party, this.changePlayerPokemon);
         }
         this.cameras.main.fadeIn(1000, 0, 0, 0)
+        this.audioEngine = new SceneAudioEngine(this, [])
         this.initialBattleLoad();
     }
 
@@ -152,7 +155,7 @@ export class baseBattleScene extends Phaser.Scene {
                 if(newPokemonIndex == -1){
                     this.exitDefeat();
                 } else {
-                    this.changePlayerPokemon(this.playerSession!.party[newPokemonIndex])
+                    this.changePlayerPokemon(this.playerSession!.party[newPokemonIndex], false)
                 }
             }
         } else if (executeOn == "OPPONENT"){
@@ -170,23 +173,41 @@ export class baseBattleScene extends Phaser.Scene {
         }
     }
 
-    changePlayerPokemon = (newPokemon: Pokemon) => {
-        this.battleSelectMenu?.switchPokemon(newPokemon);
-        this.combatEngine?.switchPokemon(newPokemon, "PLAYER");
-        
-        this.battleSelectMenu?.displayDialog([`Nice work ${this.yourPokemon?.name}...`, `Go ${newPokemon.name}, show em what you got!`], true, () => {
-            this.updatePokemonPlayerSessionData();
-            this.yourPokemon = newPokemon;
-            this.yourPokemonSprite?.updatePokemon(newPokemon);
-            this.yourBattleBarComponent?.switchPokemon(newPokemon);
-            this.battleSelectMenu?.updateDialogVisibility(false)
-        }); 
+    changePlayerPokemon = async (newPokemon: Pokemon, isFainted: boolean = false) => {
+        // Not Fainted, just a new pokemon change (need to allow for combat turn in this case).
+        if(!isFainted){
+            await this.combatEngine?.executeCombatTurn(undefined);
+            this.battleSelectMenu?.switchPokemon(newPokemon);
+            this.combatEngine?.switchPokemon(newPokemon, "PLAYER");
+            setTimeout(() => {
+                this.updatePokemonPlayerSessionData();
+                this.yourPokemon = newPokemon;
+                this.makePokemonSpriteDisappear(this.yourPokemonSprite!)
+                this.yourPokemonSprite?.updatePokemon(newPokemon);
+                this.makePokemonSpriteAppear(this.yourPokemonSprite!)
+                this.yourBattleBarComponent?.switchPokemon(newPokemon);
+                this.battleSelectMenu?.updateDialogVisibility(false)
+            }, 1000)
+        } else {
+            this.battleSelectMenu?.switchPokemon(newPokemon);
+            this.combatEngine?.switchPokemon(newPokemon, "PLAYER");
+            this.battleSelectMenu?.displayDialog([`Nice work ${this.yourPokemon?.name}...`, `Go ${newPokemon.name}, show em what you got!`], true, () => {
+                this.updatePokemonPlayerSessionData();
+                this.yourPokemon = newPokemon;
+                this.makePokemonSpriteDisappear(this.yourPokemonSprite!)
+                this.yourPokemonSprite?.updatePokemon(newPokemon);
+                this.makePokemonSpriteAppear(this.yourPokemonSprite!)
+                this.yourBattleBarComponent?.switchPokemon(newPokemon);
+                this.battleSelectMenu?.updateDialogVisibility(false)
+            }); 
+        }
     }
     
     changeOpponentPokemon = (newPokemon: Pokemon) => {
         this.combatEngine?.switchPokemon(newPokemon, "OPPONENT");
         this.opponentPokemonSprite?.updatePokemon(newPokemon);
         this.opponentBattleBarComponent?.switchPokemon(newPokemon);
+        // To-Do Play Animations
         this.opponentPokemon = newPokemon;
     }
 
@@ -224,32 +245,27 @@ export class baseBattleScene extends Phaser.Scene {
     }
 
     pokemonChangeAnimation = (pokemon_sprite: BattlePokemonSprite, start_x : number, start_y: number, end_x: number, end_y: number, pokeball_type: keyof typeof POKEBALL_THROW) => {
-        this.throwPokeBall(start_x, start_y, end_x, end_y as number, pokeball_type, () => {this.makePokemonAppearSprite(pokemon_sprite)});
+        this.throwPokeBall(start_x, start_y, end_x, end_y as number, pokeball_type, () => {this.makePokemonSpriteAppear(pokemon_sprite)});
     }
 
-    makePokemonAppearSprite = (pokemon_sprite: BattlePokemonSprite) => {
+    
+    /**
+     * Take a Pokemon Sprite, Animate it with a flash and make it appear on screen
+     *
+     * @param {BattlePokemonSprite} pokemon_sprite
+     */
+    makePokemonSpriteAppear = (pokemon_sprite: BattlePokemonSprite) => {
+        this.audioEngine?.playSingularAudio(pokemon_sprite.pokemon.baseData.sounds.cryKey, pokemon_sprite.pokemon.baseData.sounds.cryPath)
         if(pokemon_sprite.pokemonSprite){
             let white_flash_animation_circle = this.add.circle(pokemon_sprite.pokemonSprite.x, pokemon_sprite.pokemonSprite.y, 50, 0xffffff).setAlpha(0);
-            pokemon_sprite.pokemonSprite?.setVisible(true).setTint(0xffff).setAlpha(0);
+            pokemon_sprite.pokemonSprite?.setVisible(true).setAlpha(0);
+            this.tweens.add({targets: pokemon_sprite.pokemonSprite, duration: 250, x: pokemon_sprite.pokemonSprite!.x + 15, ease: 'linear', onComplete: () => {
+                this.tweens.add({targets: pokemon_sprite.pokemonSprite, duration: 250, x: pokemon_sprite.pokemonSprite!.x - 30, ease: 'linear', onComplete: () => {
+                    this.tweens.add({targets: pokemon_sprite.pokemonSprite, duration: 250, x: pokemon_sprite.pokemonSprite!.x + 15, ease: 'linear'})
+                }})
+            }})
             // Pokemon Appear Animation
-            this.tweens.add({
-                alpha: 1,
-                targets: pokemon_sprite.pokemonSprite,
-                duration: 2000,
-                ease: 'Power2',
-                onUpdate: (tween) => {
-                    pokemon_sprite.pokemonSprite?.setTint(Phaser.Display.Color.Interpolate.ColorWithColor(
-                        new Phaser.Display.Color(255, 255, 255),
-                        new Phaser.Display.Color(255, 255, 255, 0),
-                        100,
-                        tween.progress * 100
-                    ).color);
-                },
-                onComplete: () => {
-                    pokemon_sprite.pokemonSprite?.clearTint();
-                }
-            }); 
-            //
+            this.tweens.add({alpha: 1, targets: pokemon_sprite.pokemonSprite, duration: 2000, ease: 'Power2',}); 
             this.tweens.add({
                 targets: white_flash_animation_circle,
                 alpha: .8,       
@@ -273,6 +289,33 @@ export class baseBattleScene extends Phaser.Scene {
         }
     }
 
+    
+    /**
+     * Take a Pokemon Sprite, Animate it and make it disappear from screen
+     *
+     * @param {BattlePokemonSprite} pokemon_sprite
+     */
+    makePokemonSpriteDisappear = (pokemon_sprite: BattlePokemonSprite) => {
+        this.tweens.add({
+            targets: pokemon_sprite.pokemonSprite,
+            y: pokemon_sprite.pokemonSprite!.y + 100,
+            alpha: 0,
+            duration: 250,
+            ease: 'Power2'
+        });
+    }
+
+    
+    /**
+     * Animation to throw a pokeball 
+     *
+     * @param {number} start_x
+     * @param {number} start_y
+     * @param {number} end_x
+     * @param {number} end_y
+     * @param {keyof typeof POKEBALL_THROW} pokeball_type
+     * @param {Function} endThrowCallback
+     */
     throwPokeBall = (start_x : number, start_y: number, end_x: number, end_y: number, pokeball_type: keyof typeof POKEBALL_THROW, endThrowCallback: Function) => {
         let animation_info = POKEBALL_THROW[pokeball_type];
         let pokeballSprite = this.add.sprite(start_x, start_y, animation_info.assetKey, animation_info.throw_animation[0]).setScale(1.75);
