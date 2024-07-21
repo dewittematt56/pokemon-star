@@ -12,7 +12,7 @@ export const SCENE_KEYS = {
 
 export const SCENE_INFO: SceneInfoType = Object.freeze({
     "ROUTE_101": {
-        mapPath: "/assets/maps/routes/route_101/route_101.png",
+        mapPath: "/assets/maps/routes/route_101/route_101.json",
         mapKey: "ROUTE_101",
         npcs: [
             {
@@ -106,6 +106,13 @@ export const SCENE_INFO: SceneInfoType = Object.freeze({
                 movementPattern: ["DOWN", "DOWN", "DOWN", "DOWN", "UP", "UP", "UP", "UP"]
             }
         ],
+        lightingLevel: "",
+        music: ["HAPPY_TUNE"]
+    },
+    "BREADBURG": {
+        mapPath: "/assets/maps/towns/breadburg/breadburg.json",
+        mapKey: "BREADBURG",
+        npcs: [],
         lightingLevel: "",
         music: ["HAPPY_TUNE"]
     }

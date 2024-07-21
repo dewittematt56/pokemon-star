@@ -70,6 +70,8 @@ export class sceneLightingEngine {
     }
 
     generateTimeOfDayLighting(): keyof typeof LIGHTING_CONFIG {
+        // TEMP
+        return "AFTERNOON"
         let current_time = new Date().getHours()
         if(current_time > 20){
             return "NIGHT"

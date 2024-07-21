@@ -44,7 +44,7 @@ export default class StarterScene extends Phaser.Scene {
 
         this.npcTrainers = []
 
-        this.currentWorldScene = "ROUTE_101";
+        this.currentWorldScene = "BREADBURG";
         this.currentWorldInfo = SCENE_INFO[this.currentWorldScene];
 
         
@@ -53,7 +53,6 @@ export default class StarterScene extends Phaser.Scene {
     preload() {
         let world_data = SCENE_INFO[this.currentWorldScene]
         this.load.image("standardTileSet", "/assets/pokemonStarStandradTileSet.png");
-        this.load.image("backgroundImage", world_data.mapPath);
         this.load.image("alertIcon", "/assets/misc/alertIcon.png");
         this.load.spritesheet("PLAYER", CHARACTER_ASSET_KEYS.PATH, { frameWidth: 64, frameHeight: 64 });
         // Load NPC World Image Info
@@ -64,8 +63,7 @@ export default class StarterScene extends Phaser.Scene {
             }
         })
         this.load.audio("backgroundMusic", "/assets/music/happyTune.mp3")
-        
-        this.load.tilemapTiledJSON("map", "/assets/maps/routes/route_101/route_101.json");
+        this.load.tilemapTiledJSON(this.currentWorldInfo.mapKey, this.currentWorldInfo.mapPath);
     }
 
     init(data: {playerSession: playerSessionType}){
@@ -74,6 +72,7 @@ export default class StarterScene extends Phaser.Scene {
             this.playerStartX = data.playerSession.location.x
             this.playerStartY = data.playerSession.location.y
             this.currentWorldScene = data.playerSession.location.currentWorldScene 
+            this.currentWorldScene = "BREADBURG"
             this.currentWorldInfo = SCENE_INFO[this.currentWorldScene];
 
             let scene = data.playerSession.scenes.find((scene) => scene.sceneId == this.currentWorldScene)
@@ -94,7 +93,7 @@ export default class StarterScene extends Phaser.Scene {
     }
 
     create() {
-        const map = this.make.tilemap({ key: "map", tileHeight: 16, tileWidth: 16 });
+        const map = this.make.tilemap({ key: this.currentWorldInfo.mapKey, tileHeight: 16, tileWidth: 16 });
         const tileSet = map.addTilesetImage("pokemonStarStandradTileSet", "standardTileSet");
         const collisionLayer = map.createLayer("CollisionLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
         collisionLayer?.setVisible(false);
@@ -123,6 +122,7 @@ export default class StarterScene extends Phaser.Scene {
         this.controls = new Controls(this);
 
         this.dialogUI = new BasicUiDialogBox(this, this.scale.width);
+        console.log(map.getObjectLayer('Lighting'))
         // Generate Lighting Engine for Scene
         this.lightingEngine = new sceneLightingEngine(
             this, 

@@ -13,17 +13,22 @@
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "": {
-            "scaleInDock": 1
+            "scaleInDock": 1.5,
+            "scaleInEditor": 1
         },
         "#pokemonStarStandradTileSet": {
             "scaleInDock": 1
         },
         "assets/maps/routes/route_101/route_101.tmx": {
-            "scale": 0.75,
-            "selectedLayer": 3,
+            "expandedObjectLayers": [
+                18,
+                17
+            ],
+            "scale": 1,
+            "selectedLayer": 7,
             "viewCenter": {
-                "x": 391.9999999999999,
-                "y": 500
+                "x": 507,
+                "y": 465
             }
         },
         "assets/maps/routes/route_101/route_101.tmx#d5xdb0y-7cca5199-9b43-4b0e-9b2f-f4f6787e09eb": {
@@ -38,18 +43,22 @@
             "scaleInEditor": 1
         },
         "assets/maps/towns/breadburg.tmx": {
-            "scale": 3,
-            "selectedLayer": 2,
+            "expandedObjectLayers": [
+                9
+            ],
+            "scale": 0.75,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 480.66666666666663,
-                "y": 484.33333333333326
+                "x": 437.3333333333333,
+                "y": 676
             }
         },
         "assets/maps/towns/breadburg.tmx#pokemonStarStandradTileSet": {
-            "scaleInDock": 0.75
+            "scaleInDock": 1.5,
+            "scaleInEditor": 1
         }
     },
-    "last.exportedFilePath": "C:/Users/Mater/Documents/Node_Projects/pokemon-star/public/assets/maps/routes/route_101",
+    "last.exportedFilePath": "C:/Users/Mater/Documents/Node_Projects/pokeAPI/pokemon-star/public/assets/maps/towns/breadburg",
     "last.imagePath": "C:/Users/Mater/Documents/Node_Projects/pokemon-star/public/assets",
     "map.height": 30,
     "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
@@ -63,6 +72,7 @@
     "project": "pokemonStar.tiled-project",
     "property.type": "int",
     "recentFiles": [
+        "assets/maps/towns/breadburg.tmx",
         "assets/maps/routes/route_101/route_101.tmx"
     ],
     "textEdit.monospace": true,
