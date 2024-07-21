@@ -38,3 +38,18 @@ export const ANIMATIONS = Object.freeze({
         }
     ],
 });
+
+export const POKEBALL_THROW = Object.freeze({
+    "NORMAL":
+        {
+            "throw_key": "THROW_NORMAL_BALL",
+            "throw_animation": [3, 20, 37, 54, 71, 88, 105, 122, 139, 156, 173],
+            "open_key": "OPEN_NORMAL_BALL",
+            "open_animation": [3, 20, 37, 54, 71, 88, 105, 122, 139, 156, 173],
+            "frameRate": 6,
+            "repeat": 0,
+            "delay": 0,
+            "yoyo": false,
+            "assetKey": "POKEBALL-ANIMATIONS",
+        }
+})

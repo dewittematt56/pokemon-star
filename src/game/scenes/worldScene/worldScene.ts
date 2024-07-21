@@ -102,7 +102,6 @@ export default class StarterScene extends Phaser.Scene {
         const intermediaryLayer = map.createLayer("IntermediaryLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
         const vegetationLayer = map.createLayer("VegetationLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
         const objectLayer = map.createLayer("ObjectLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
-
         // this.lights.setAmbientColor(0x555555);
 
         if (map.getObjectLayer('Sign')) {
@@ -115,7 +114,6 @@ export default class StarterScene extends Phaser.Scene {
             this.jumpableLayer = map.getObjectLayer('Jumpable')!;
         }
         if(collisionLayer && this.jumpableLayer){
-            
             this.createCharacters(collisionLayer, this.jumpableLayer);
         }   
 
@@ -170,7 +168,7 @@ export default class StarterScene extends Phaser.Scene {
         });
 
         if (nearbySign && !this.dialogUI?.isVisible) {
-            this.dialogUI?.showDialogModal(String(nearbySign.properties.find((property: any) => property.name == "message").value).split("::"));
+            this.dialogUI?.showDialogModal(String(nearbySign.properties.find((property: any) => property.name == "message").value).split("::"), true);
             return;
         }
         if (this.dialogUI?.isVisible && this.dialogUI.moreMessagesToShow) {
@@ -250,6 +248,7 @@ export default class StarterScene extends Phaser.Scene {
             
             this.dialogUI?.showDialogModal(npcTrainer.dialog.openingWorldMessages, true, () => {
                 this.dialogUI?.hideDialogModal();
+                this.cleanupScene();
                 this.scene.start(SCENE_KEYS.TRAINER_BATTLE_SCENE, {
                     playerSession: this.playerSession,
                     npcTrainer: npcTrainer,
@@ -271,7 +270,8 @@ export default class StarterScene extends Phaser.Scene {
         if(findPlayerObjectIntersect(playerPos, this.pokemonSpawnLayer!)){
             if(didPokemonAppearInZone()){
                 let pokemonEncountered = getPokemonEncountered(this.currentWorldScene)
-                this.updateGameSession()
+                this.updateGameSession();
+                this.cleanupScene();
                 this.scene.start(SCENE_KEYS.WILD_ENCOUNTER_SCENE, {
                     playerSession: this.playerSession,
                     pokemonEncountered: pokemonEncountered,
@@ -338,7 +338,12 @@ export default class StarterScene extends Phaser.Scene {
 
     saveGameHandler(){
         this.updateGameSession()
+        console.log(this.playerSession)
         writeGameDataToSave(this.playerSession!)
+    }
+
+    cleanupScene(){
+        this.musicEngine?.stopCurrentMusic()
     }
 
     musicHandler(){

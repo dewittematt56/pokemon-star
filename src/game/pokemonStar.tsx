@@ -38,12 +38,14 @@ export default function PokemonStar(){
         gameRef.current.scene.add(SCENE_KEYS.WILD_ENCOUNTER_SCENE, WildEncounterScene);
         gameRef.current.scene.add(SCENE_KEYS.TRAINER_BATTLE_SCENE, TrainerBattleScene);
         gameRef.current.scene.add(SCENE_KEYS.MENU_SCENE, MenuScene);
-        // gameRef.current.scene.start(SCENE_KEYS.WORLD_SCENE, {
-        //     playerSession: playerSession ? playerSession : mockPlayerSession,
-        //     battleFieldBackgroundAssetKey: "FOREST",
-        // })
+        gameRef.current.scene.start(SCENE_KEYS.WORLD_SCENE, {
+            playerSession: playerSession ? playerSession : mockPlayerSession,
+            battleFieldBackgroundAssetKey: "FOREST",
+        })
 
-        gameRef.current.scene.start(SCENE_KEYS.MENU_SCENE)
+        // gameRef.current.scene.start(SCENE_KEYS.MENU_SCENE)
+        // gameRef.current.scene.start(SCENE_KEYS.WORLD_SCENE)
+
 
         // gameRef.current.scene.start(SCENE_KEYS.WILD_ENCOUNTER_SCENE, {
         //     originatorKey: SCENE_KEYS.WORLD_SCENE,

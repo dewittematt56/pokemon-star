@@ -37,6 +37,17 @@ export function loadSave(id: string): playerSessionType | undefined{
     return undefined
 }
 
+export function getSaveGames() {
+    const ca = document.cookie.split(';');
+    let saves = [] 
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1);
+        saves.push(c)
+    }
+    return saves
+}
+
 export const mockPlayerSession: playerSessionType = {
     id: "1",
     party: [
@@ -58,3 +69,5 @@ export const mockPlayerSession: playerSessionType = {
         }
     ]
 }
+
+

@@ -66,13 +66,13 @@ export class BaseDialogBox {
         this.messageQueue = [...messages];
         const { x, bottom } = this.scene.cameras.main.worldView;
         const startX = x + this.padding;
-        const startY = bottom - this.height - this.padding / 4;
+        const startY = bottom - this.height - this.padding / 4; 
 
         this.container.setPosition(startX, startY);
         this.updateVisibility(true);
 
         if (autoComplete) {
-            this.displayMessageAutoComplete(50, 30, callBackFunction);
+            this.displayMessageAutoComplete(50 , 30, callBackFunction);
         } else {
             this.displayMessage();
         }

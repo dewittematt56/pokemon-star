@@ -10,6 +10,7 @@ import { BattlePokemonSprite } from "../../../components/pokemon/battlePokemonSp
 import { PokemonMove } from "../../../commonClass/pokemon/pokemonMove";
 import { CombatEngine } from "../../../commonEngine/combatEngine/combatEngine";
 import { Pokemon } from "../../../commonClass/pokemon/pokemon/pokemon";
+import { POKEBALL_THROW } from "../../../commonData/commonAnimations";
 
 export function findEligiblePokemonPartyMember(pokemonParty: PokemonPartyType): number {
     return pokemonParty.findIndex((pokemon) => pokemon.currentHp > 0);
@@ -77,6 +78,7 @@ export class baseBattleScene extends Phaser.Scene {
         })
 
         this.load.image("POKEBALL-ICON", "/assets/misc/pokeball-icon.png")
+        this.load.spritesheet("POKEBALL-ANIMATIONS", "/assets/misc/pokeball-animations.png", {frameWidth: 41, frameHeight: 40})
         this.loadPokemonIconSprites()
     }
 
@@ -133,7 +135,9 @@ export class baseBattleScene extends Phaser.Scene {
 
     combatMoveDialogCallback(messages: string[], endOfSequence: boolean){
         this.battleSelectMenu?.displayDialog(messages, true, () => {
-            this.battleSelectMenu?.updateDialogVisibility(endOfSequence)
+            setTimeout(() => {
+                this.battleSelectMenu?.updateDialogVisibility(endOfSequence)  
+            }, 500)
         }); 
     }
 
@@ -217,6 +221,94 @@ export class baseBattleScene extends Phaser.Scene {
     // Called every frame of the game
     update(){
 
+    }
+
+    pokemonChangeAnimation = (pokemon_sprite: BattlePokemonSprite, start_x : number, start_y: number, end_x: number, end_y: number, pokeball_type: keyof typeof POKEBALL_THROW) => {
+        this.throwPokeBall(start_x, start_y, end_x, end_y as number, pokeball_type, () => {this.makePokemonAppearSprite(pokemon_sprite)});
+    }
+
+    makePokemonAppearSprite = (pokemon_sprite: BattlePokemonSprite) => {
+        if(pokemon_sprite.pokemonSprite){
+            let white_flash_animation_circle = this.add.circle(pokemon_sprite.pokemonSprite.x, pokemon_sprite.pokemonSprite.y, 50, 0xffffff).setAlpha(0);
+            pokemon_sprite.pokemonSprite?.setVisible(true).setTint(0xffff).setAlpha(0);
+            // Pokemon Appear Animation
+            this.tweens.add({
+                alpha: 1,
+                targets: pokemon_sprite.pokemonSprite,
+                duration: 2000,
+                ease: 'Power2',
+                onUpdate: (tween) => {
+                    pokemon_sprite.pokemonSprite?.setTint(Phaser.Display.Color.Interpolate.ColorWithColor(
+                        new Phaser.Display.Color(255, 255, 255),
+                        new Phaser.Display.Color(255, 255, 255, 0),
+                        100,
+                        tween.progress * 100
+                    ).color);
+                },
+                onComplete: () => {
+                    pokemon_sprite.pokemonSprite?.clearTint();
+                }
+            }); 
+            //
+            this.tweens.add({
+                targets: white_flash_animation_circle,
+                alpha: .8,       
+                scale: 2.5,       
+                duration: 500,  
+                ease: 'Power2',
+                onComplete: () => {
+                    // Create the second tween to handle the shrink effect
+                    this.tweens.add({
+                        targets: white_flash_animation_circle,
+                        alpha: .6,
+                        scale: 1.5, 
+                        duration: 250,
+                        ease: 'Power2',
+                        onComplete: () => {
+                            white_flash_animation_circle.destroy()
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    throwPokeBall = (start_x : number, start_y: number, end_x: number, end_y: number, pokeball_type: keyof typeof POKEBALL_THROW, endThrowCallback: Function) => {
+        let animation_info = POKEBALL_THROW[pokeball_type];
+        let pokeballSprite = this.add.sprite(start_x, start_y, animation_info.assetKey, animation_info.throw_animation[0]).setScale(1.75);
+        this.anims.create({
+            key: animation_info.throw_key,
+            frames: this.anims.generateFrameNames(animation_info.assetKey, { frames: animation_info.throw_animation }),
+            frameRate: animation_info.frameRate * 2.2,
+            repeat: 0,
+            delay: animation_info.delay,
+            yoyo: false,
+        });
+        pokeballSprite.on('animationcomplete', () => {
+            setTimeout(() => {
+                // Fade Ball and remove sprite
+                endThrowCallback()
+                this.tweens.add({
+                    targets: pokeballSprite,
+                    alpha: 0,          
+                    duration: 500,  
+                    ease: 'Power2',
+                    onComplete: () => {
+                        pokeballSprite.destroy();
+                    }
+                });
+            }, 100)
+        }, this);
+
+        // Move Ball & Play Animiation
+        pokeballSprite.anims.play(animation_info.throw_key, true)
+        this.tweens.add({
+            targets: pokeballSprite,
+            x: end_x,
+            y: end_y,
+            duration: 750,
+            ease: 'Linear',
+        });
     }
 
 }

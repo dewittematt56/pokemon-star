@@ -3,20 +3,31 @@ import { GAME_MUSIC } from "../../commonData/dataMusic";
 export class SceneMusicEngine {
     public scene: Phaser.Scene;
     public backgroundMusicToUse: (keyof typeof GAME_MUSIC)[];
+    public currentMusicSound: any
 
-    constructor(scene: Phaser.Scene, backgroundMusicToUse: (keyof typeof GAME_MUSIC)[]){
+    constructor(scene: Phaser.Scene, backgroundMusicToUse: (keyof typeof GAME_MUSIC)[], defaultPlayMusic: boolean = true){
         this.scene = scene;
         this.backgroundMusicToUse = backgroundMusicToUse;
 
-        this.playSceneMusic(backgroundMusicToUse[0])
+        this.playSceneMusic(backgroundMusicToUse[0], defaultPlayMusic)
     }
 
     // typeof GAME_MUSIC[keyof typeof GAME_MUSIC]
-    playSceneMusic(musicToPlay:  keyof typeof GAME_MUSIC){
+    playSceneMusic(musicToPlay:  keyof typeof GAME_MUSIC, defaultPlayMusic: boolean){
         this.loadMusic(musicToPlay, () => {
-            let sound = this.scene.sound.get(musicToPlay);
-            sound?.play()
+            this.currentMusicSound = this.scene.sound.get(musicToPlay);
+            if(defaultPlayMusic){
+                this.currentMusicSound?.play()
+            }
         });
+    }
+
+    playCurrentMusic(){
+        this.currentMusicSound?.play()
+    }
+
+    stopCurrentMusic(){
+        this.currentMusicSound?.stop()
     }
 
     loadMusic(audioToLoad: keyof typeof GAME_MUSIC, callbackFunction: Function){

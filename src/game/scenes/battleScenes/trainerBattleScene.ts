@@ -30,19 +30,37 @@ export class TrainerBattleScene extends baseBattleScene {
         // To-Do Display Trainer Sprite
         this.npcTrainer?.buildTrainerSpite((this._backgroundImageBoundsObject!.width / 1.45), (this._backgroundImageBoundsObject!.height / 3.3));
         this.battleSelectMenu?.displayDialog(this.npcTrainer!.dialog.openingBattleMessages, true, () => {
-            // Hide Opponent Trainer Sprite
-            this.npcTrainer?.npcTrainerSprite?.setVisible(false);
-            // Display Pokemon
-            this.opponentPokemonSprite?.pokemonSprite?.setVisible(true)
-            this.yourPokemonSprite?.pokemonSprite?.setVisible(true);
-            this.battleSelectMenu?.updateDialogVisibility(false)
+            setTimeout(() => {
+                // Trainer Animation Sprite
+                this.tweens.add({
+                    targets: this.npcTrainer?.npcTrainerSprite    ,
+                    x: '-=100',
+                    alpha: 0,     // Fade out to alpha 0
+                    duration: 1000,  // Duration of 2 seconds
+                    ease: 'Linear', // Easing function
+                    onComplete: () => {
+                        // Hide Opponent Trainer Sprite
+                        this.npcTrainer?.npcTrainerSprite?.setVisible(false);
+                        if(this.opponentPokemonSprite){
+                            let opponent_start_x = this.opponentPokemonSprite?.pokemonSprite?.x as number
+                            let opponent_start_y = this.opponentPokemonSprite?.pokemonSprite?.y as number
+                            this.pokemonChangeAnimation(this.opponentPokemonSprite!, opponent_start_x + 100, opponent_start_y - 200, opponent_start_x, opponent_start_y as number, "NORMAL")
+                        }
+                        if(this.yourPokemonSprite){
+                            this.makePokemonAppearSprite(this.yourPokemonSprite)
+                        }
+                        this.battleSelectMenu?.updateDialogVisibility(false)
+                    }
+                });
+            }, 1000 )
+
         });    
     }
 
 
     exitRun = () => {
-        this.battleSelectMenu?.displayDialog(this.npcTrainer!.dialog.defeatMessages, true, () => {
-            this.npcTrainer!.hasBeenBeaten = true;
+        this.battleSelectMenu?.displayDialog(["Cannot run from a trainer while in a battle."], true, () => {
+            this.npcTrainer!.hasBeenBeaten = false;
             this.battleSelectMenu?.updateDialogVisibility(false)
         })
     }
@@ -68,7 +86,7 @@ export class TrainerBattleScene extends baseBattleScene {
     exitVictory = () => {
         this.updatePokemonPlayerSessionData();
         this.updateSceneInfo(true);
-        this.battleSelectMenu?.displayDialog([], true, () => {
+        this.battleSelectMenu?.displayDialog(this.npcTrainer!.dialog.victoryMessages, true, () => {
             this.cameras.main.fadeOut(2000, 0, 0, 0)
             this.scene.start(SCENE_KEYS.WORLD_SCENE, {
                 playerSession: this.playerSession

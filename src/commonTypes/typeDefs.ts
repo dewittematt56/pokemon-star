@@ -130,7 +130,8 @@ export type npcType = "TRAINER" | "NPC"
 export type npcDialog = {
     openingWorldMessages: string[];
     openingBattleMessages: string[];
-    defeatMessages: string[]
+    defeatMessages: string[],
+    victoryMessages: string[]
 }
 
 // Define the type for the location

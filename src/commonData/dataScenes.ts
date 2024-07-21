@@ -22,7 +22,8 @@ export const SCENE_INFO: SceneInfoType = Object.freeze({
                 dialog: {
                     openingWorldMessages: ["Oh hey! Almost missed you there.... is this your first battle?"],
                     openingBattleMessages: ["Hehe, let's see what you got"],
-                    defeatMessages: ["Congrats! You've defeated Lady Stephanie", "$1000 has been added to your inventory"]
+                    victoryMessages: ["Congrats! You've defeated Lady Stephanie", "$1000 has been added to your inventory"],
+                    defeatMessages: ["On no, all your pokemon have fainted", "Your black out and appear at the nearest pokemon center"]
                 },
                 location: {x: 30 * TILE_SIZE + 8, y: 24 * TILE_SIZE, direction: DIRECTION.DOWN},
                 idleFrames: {
