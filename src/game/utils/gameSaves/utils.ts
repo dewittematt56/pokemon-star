@@ -63,9 +63,7 @@ export const mockPlayerSession: playerSessionType = {
     scenes: [
         {
             sceneId: "ROUTE_101",
-            npcInfo: [
-
-            ]
+            npcInfo: []
         }
     ]
 }

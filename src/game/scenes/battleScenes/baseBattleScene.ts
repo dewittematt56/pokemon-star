@@ -144,7 +144,15 @@ export class baseBattleScene extends Phaser.Scene {
         }); 
     }
 
-    combatHpCallback(newHp: number, executeOn: "PLAYER" | "OPPONENT"){
+    
+    /**
+     * Update pokemon HP callback function
+     *
+     * @param {number} newHp
+     * @param {("PLAYER" | "OPPONENT")} executeOn
+     * @returns {boolean} if battle is continuing or over
+     */
+    combatHpCallback(newHp: number, executeOn: "PLAYER" | "OPPONENT"): boolean {
         if(executeOn == "PLAYER"){
             this.yourPokemon!.currentHp = newHp;
             this.yourBattleBarComponent?.updatePokemonHp(newHp);
@@ -154,10 +162,13 @@ export class baseBattleScene extends Phaser.Scene {
                 let newPokemonIndex = findEligiblePokemonPartyMember(this.playerSession?.party!);
                 if(newPokemonIndex == -1){
                     this.exitDefeat();
+                    return true
                 } else {
                     this.changePlayerPokemon(this.playerSession!.party[newPokemonIndex], false)
+                    return false
                 }
             }
+            return false
         } else if (executeOn == "OPPONENT"){
             this.opponentPokemon!.currentHp = newHp;
             this.opponentBattleBarComponent?.updatePokemonHp(newHp);
@@ -166,11 +177,15 @@ export class baseBattleScene extends Phaser.Scene {
                 let newPokemonIndex = findEligiblePokemonPartyMember(this.opponentPokemonParty!);
                 if(newPokemonIndex == -1){
                     this.exitVictory();
+                    return true
                 } else {
                     this.changeOpponentPokemon(this.opponentPokemonParty![newPokemonIndex]);
+                    return false
                 }
-            }            
+            }
+            return false            
         }
+        return false
     }
 
     changePlayerPokemon = async (newPokemon: Pokemon, isFainted: boolean = false) => {

@@ -107,6 +107,13 @@ export interface SceneInfoType {
     [key: string]: SceneType;
 }
 
+export type sceneTransferType = {
+    newSceneKey: keyof typeof SCENE_INFO,
+    newScenePositionX: number,
+    newScenePositionY: number,
+    newSceneDirection: DIRECTION_TYPE
+}
+
 /*------------------------- Pokemon Party Types -------------------------*/
 export type PokemonPartyType = Pokemon[];
 

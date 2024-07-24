@@ -84,18 +84,22 @@ export class CombatEngine{
 
     async executeMove (moveToExecute: moveExecutionType): Promise<void>{
         let messages = []
+        let isBattleOver = false;
         if(moveToExecute.executor == "PLAYER"){
             messages.unshift(`Your ${this.playerPokemon.name} uses ${moveToExecute.move.name}.`)
             if(calculateDidMoveHitOpponent()){
                 let damageGiven = calculateMoveDamage(this.playerPokemon, moveToExecute.move, this.opponentPokemon, moveToExecute.move.moveClass);
-                this.updateHpCallback(Math.max(this.opponentPokemon.currentHp -= damageGiven, 0), "OPPONENT");            }
+                isBattleOver = this.updateHpCallback(Math.max(this.opponentPokemon.currentHp -= damageGiven, 0), "OPPONENT");            
+            }
         } else if(moveToExecute.executor == "OPPONENT"){
             messages.unshift(`Foe ${this.opponentPokemon.name} uses ${moveToExecute.move.name}.`)
             if(calculateDidMoveHitOpponent()){
                 let damageGiven = calculateMoveDamage(this.opponentPokemon, moveToExecute.move, this.playerPokemon, moveToExecute.move.moveClass);
-                this.updateHpCallback(Math.max(this.playerPokemon.currentHp -= damageGiven, 0), "PLAYER");
+                isBattleOver = this.updateHpCallback(Math.max(this.playerPokemon.currentHp -= damageGiven, 0), "PLAYER");
             }
         }
-        this.dialogCallback(messages, false)
+        if(!isBattleOver){
+            this.dialogCallback(messages, false)
+        }
     }
 }

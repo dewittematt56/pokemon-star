@@ -86,7 +86,6 @@ export class TrainerBattleScene extends baseBattleScene {
         } else {
             playerSessionScene!.npcInfo.push({npcId: this.npcTrainer!.id, hasBeenBeaten: isTrainerBeaten});
         }
-        console.log(this.playerSession)
     }
 
     exitVictory = () => {

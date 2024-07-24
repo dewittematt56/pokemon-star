@@ -226,7 +226,6 @@ export class Character {
         if(found_object){
             return found_object.properties?.find((prop: any) => prop.name == "JUMP_DIR").value == direction;
         }
-
         return false;
     }
 

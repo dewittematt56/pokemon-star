@@ -373,14 +373,19 @@
                          "value":"BREADBURG"
                         }, 
                         {
-                         "name":"OLD_SCENE",
+                         "name":"START_DIR",
                          "type":"string",
-                         "value":"ROUTE_101"
+                         "value":"UP"
                         }, 
                         {
                          "name":"START_X",
                          "type":"int",
-                         "value":15
+                         "value":29
+                        }, 
+                        {
+                         "name":"START_Y",
+                         "type":"int",
+                         "value":49
                         }],
                  "rotation":0,
                  "type":"",

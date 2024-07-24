@@ -8,7 +8,7 @@ import { getTargetPositionFromGameObjectPositionAndDirection } from '../../utils
 import { TILE_SIZE } from '../../../commonData/configWorld';
 import { SCENE_KEYS, SCENE_INFO } from '../../../commonData/dataScenes';
 import { didPokemonAppearInZone, getPokemonEncountered } from './utils/encounterUtils';
-import { SceneType, playerSessionType } from '../../../commonTypes/typeDefs';
+import { SceneInfoType, SceneType, playerSessionType, sceneTransferType } from '../../../commonTypes/typeDefs';
 import { writeGameDataToSave } from '../../utils/gameSaves/utils';
 import { NpcTrainer } from '../../../commonClass/characters/npcTrainer/npcTrainer';
 import { findPlayerObjectIntersect } from '../../../commonUtils/tileUtils';
@@ -24,7 +24,7 @@ export default class StarterScene extends Phaser.Scene {
     // Object Layers
     public signLayer: Phaser.Tilemaps.ObjectLayer | undefined;
     public pokemonSpawnLayer: Phaser.Tilemaps.ObjectLayer | undefined;
-    public jumpableLayer: Phaser.Tilemaps.ObjectLayer | undefined;
+    public sceneTransferLayer: Phaser.Tilemaps.ObjectLayer | undefined;
     
     private lightingEngine: sceneLightingEngine | undefined
     private audioEngine: SceneAudioEngine | undefined
@@ -44,7 +44,7 @@ export default class StarterScene extends Phaser.Scene {
 
         this.npcTrainers = []
 
-        this.currentWorldScene = "BREADBURG";
+        this.currentWorldScene = "ROUTE_101";
         this.currentWorldInfo = SCENE_INFO[this.currentWorldScene];
 
         
@@ -72,7 +72,6 @@ export default class StarterScene extends Phaser.Scene {
             this.playerStartX = data.playerSession.location.x
             this.playerStartY = data.playerSession.location.y
             this.currentWorldScene = data.playerSession.location.currentWorldScene 
-            this.currentWorldScene = "BREADBURG"
             this.currentWorldInfo = SCENE_INFO[this.currentWorldScene];
 
             let scene = data.playerSession.scenes.find((scene) => scene.sceneId == this.currentWorldScene)
@@ -109,20 +108,18 @@ export default class StarterScene extends Phaser.Scene {
         if (map.getObjectLayer("PokemonSpawns")){
             this.pokemonSpawnLayer = map.getObjectLayer('PokemonSpawns')!;
         }
-        if (map.getObjectLayer("Jumpable")){
-            this.jumpableLayer = map.getObjectLayer('Jumpable')!;
-        }
-        if(collisionLayer && this.jumpableLayer){
-            this.createCharacters(collisionLayer, this.jumpableLayer);
+        let jumpableLayer = map.getObjectLayer('Jumpable')!
+        let sceneTransferLayer = map.getObjectLayer('SceneTransfers')!;
+        if(collisionLayer && jumpableLayer){
+            this.createCharacter(collisionLayer, jumpableLayer, sceneTransferLayer);
         }   
 
         this.cameras.main.setBounds(0, 0, 32 * 32, 32 * 32);
         this.cameras.main.setZoom(3);
 
         this.controls = new Controls(this);
-
         this.dialogUI = new BasicUiDialogBox(this, this.scale.width);
-        console.log(map.getObjectLayer('Lighting'))
+
         // Generate Lighting Engine for Scene
         this.lightingEngine = new sceneLightingEngine(
             this, 
@@ -146,6 +143,7 @@ export default class StarterScene extends Phaser.Scene {
         if (selectedDirectionHeldDown !== DIRECTION.NONE && !this.isPlayerInputLocked()) {
             this.player?.moveCharacter(selectedDirectionHeldDown);
         }
+        console.log(this.player?.isMoving)
         if (this.controls?.wasSpaceKeyPressed() && !this.player?.isMoving) {
             this.handlePlayerObjectInteractions();
         }
@@ -156,6 +154,7 @@ export default class StarterScene extends Phaser.Scene {
 
     handlePlayerObjectInteractions() {
         if (this.dialogUI?.isAnimating) {
+            console.log("EARLY RETURN")
             return;
         }
         const { x, y } = this.player!.sprite;
@@ -171,6 +170,7 @@ export default class StarterScene extends Phaser.Scene {
             this.dialogUI?.showDialogModal(String(nearbySign.properties.find((property: any) => property.name == "message").value).split("::"), true);
             return;
         }
+
         if (this.dialogUI?.isVisible && this.dialogUI.moreMessagesToShow) {
             this.dialogUI.displayMessage();
             return;
@@ -181,30 +181,35 @@ export default class StarterScene extends Phaser.Scene {
         }
     }
 
-    createCharacters(collisionLayer: Phaser.Tilemaps.TilemapLayer | undefined, jumpableLayer: Phaser.Tilemaps.ObjectLayer | undefined) {
-        this.player = new Player({
-            scene: this,
-            position: { x: this.playerStartX, y: this.playerStartY },
-            assetKey: "PLAYER",
-            idleFrames: {
-                DOWN: 0,
-                UP: 12,
-                NONE: 0,
-                LEFT: 4,
-                RIGHT: 8
+    createCharacter(collisionLayer: Phaser.Tilemaps.TilemapLayer | undefined, jumpableLayer: Phaser.Tilemaps.ObjectLayer | undefined, sceneTransferLayer: Phaser.Tilemaps.ObjectLayer) {
+        this.player = new Player(
+            {
+                scene: this,
+                position: { x: this.playerStartX, y: this.playerStartY },
+                assetKey: "PLAYER",
+                idleFrames: {
+                    DOWN: 0,
+                    UP: 12,
+                    NONE: 0,
+                    LEFT: 4,
+                    RIGHT: 8
+                },
+                scaleSize: .5,
+                direction: this.playerSession!.location.direction,
+                spriteGridMovementFinishedCallback: () => {
+                    this.checkPokemonSpawnLogic()
+                },
+                spriteChangedDirectionCallback: () => {},
+                collisionLayer: collisionLayer,
+                jumpableLayer: jumpableLayer,
+                isAggressive: false,
+                sightRange: 0,
             },
-            scaleSize: .5,
-            direction: this.playerSession!.location.direction,
-            spriteGridMovementFinishedCallback: () => {
-                this.checkPokemonSpawnLogic()
-            },
-            spriteChangedDirectionCallback: () => {},
-            collisionLayer: collisionLayer,
-            jumpableLayer: jumpableLayer,
-            isAggressive: false,
-            sightRange: 0,
-            
-        });
+            {  
+                sceneTransferLayer: sceneTransferLayer,
+                sceneTransferCallback: (sceneTransferData: sceneTransferType) => {this.enterNewScene(sceneTransferData);}
+            }        
+        );
         this.cameras.main.startFollow(this.player.sprite);
         this.npcTrainers = this.currentWorldInfo.npcs.filter((npc) => npc.type == "TRAINER" && npc.spriteInfo).map((npc) => {
             return new NpcTrainer({
@@ -251,6 +256,8 @@ export default class StarterScene extends Phaser.Scene {
             this.dialogUI?.showDialogModal(npcTrainer.dialog.openingWorldMessages, true, () => {
                 this.dialogUI?.hideDialogModal();
                 this.cleanupScene();
+                // Done to remove lock when scene resets
+                this.interactionInProgress = false
                 this.cameras.main.fadeOut(2000, 0, 0, 0, () => {
                     this.scene.start(SCENE_KEYS.TRAINER_BATTLE_SCENE, {
                         playerSession: this.playerSession,
@@ -342,7 +349,6 @@ export default class StarterScene extends Phaser.Scene {
 
     saveGameHandler(){
         this.updateGameSession()
-        console.log(this.playerSession)
         writeGameDataToSave(this.playerSession!)
     }
 
@@ -356,5 +362,22 @@ export default class StarterScene extends Phaser.Scene {
             loop: true
         })
         backgroundMusic.play();
+    }
+
+    enterNewScene(sceneTransferData: sceneTransferType){
+        let player_session  = this.playerSession
+        this.saveGameHandler()
+        if(player_session){
+            player_session.location = {
+                currentWorldScene: sceneTransferData.newSceneKey,
+                x: sceneTransferData.newScenePositionX * TILE_SIZE + 8,
+                y: sceneTransferData.newScenePositionY * TILE_SIZE,
+                direction: sceneTransferData.newSceneDirection
+            }
+        }
+        this.scene.start(SCENE_KEYS.WORLD_SCENE, {
+            playerSession: player_session,
+            battleFieldBackgroundAssetKey: "FOREST",
+        })
     }
 }

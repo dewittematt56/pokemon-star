@@ -333,8 +333,9 @@
   <object id="57" x="608.333" y="111.333" width="48.6667" height="15.6667">
    <properties>
     <property name="NEW_SCENE_KEY" value="BREADBURG"/>
-    <property name="OLD_SCENE" value="ROUTE_101"/>
-    <property name="START_X" type="int" value="15"/>
+    <property name="START_DIR" value="UP"/>
+    <property name="START_X" type="int" value="29"/>
+    <property name="START_Y" type="int" value="49"/>
    </properties>
   </object>
  </objectgroup>
