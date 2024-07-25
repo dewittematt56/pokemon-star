@@ -1,6 +1,5 @@
 import { Pokemon } from "../../../commonClass/pokemon/pokemon/pokemon";
 import { SCENE_KEYS } from "../../../commonData/dataScenes";
-import { PokemonPartyType, activePokemonEncounterType, playerSessionType } from "../../../commonTypes/typeDefs";
 import { baseBattleScene, findEligiblePokemonPartyMember } from "./baseBattleScene";
  
 
@@ -12,7 +11,6 @@ export class WildEncounterScene extends baseBattleScene {
     init(data: any){
         this.playerSession = data.playerSession;
         
-        console.log(this.playerSession)
         if(data.backgroundAssetKey){this.backgroundAssetKey = data.backgroundAssetKey}
         // To-Do Generate Random Move Sets
         let encounteredPokemon = data.pokemonEncountered

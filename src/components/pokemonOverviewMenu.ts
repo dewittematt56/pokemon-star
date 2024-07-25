@@ -117,7 +117,6 @@ export class PokemonOverviewMenu {
 
     // To-Do Add Status Change
     updatePokemonHp(idOfPokemonToUpdate: string, newHp: number, maxHp: number){
-        console.log(newHp, maxHp)
         this.pokemonContainers.each((container: Phaser.GameObjects.Container) => {
             if(container.name == idOfPokemonToUpdate){
                 container.each((subContainer: Phaser.GameObjects.Container) => {

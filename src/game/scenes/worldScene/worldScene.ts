@@ -52,7 +52,7 @@ export default class StarterScene extends Phaser.Scene {
 
     preload() {
         let world_data = SCENE_INFO[this.currentWorldScene]
-        this.load.image("standardTileSet", "/assets/pokemonStarStandradTileSet.png");
+        this.load.image("standardTileSet", "/assets/pokemonStarStandradTileSet-extruded.png");
         this.load.image("alertIcon", "/assets/misc/alertIcon.png");
         this.load.spritesheet("PLAYER", CHARACTER_ASSET_KEYS.PATH, { frameWidth: 64, frameHeight: 64 });
         // Load NPC World Image Info
@@ -93,7 +93,7 @@ export default class StarterScene extends Phaser.Scene {
 
     create() {
         const map = this.make.tilemap({ key: this.currentWorldInfo.mapKey, tileHeight: 16, tileWidth: 16 });
-        const tileSet = map.addTilesetImage("pokemonStarStandradTileSet", "standardTileSet");
+        const tileSet = map.addTilesetImage("pokemonStarStandradTileSet", "standardTileSet", 16, 16, 1, 2);
         const collisionLayer = map.createLayer("CollisionLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
         collisionLayer?.setVisible(false);
         const terrainLayer = map.createLayer("TerrainLayer", tileSet as Phaser.Tilemaps.Tileset, 0, 0);
@@ -143,7 +143,6 @@ export default class StarterScene extends Phaser.Scene {
         if (selectedDirectionHeldDown !== DIRECTION.NONE && !this.isPlayerInputLocked()) {
             this.player?.moveCharacter(selectedDirectionHeldDown);
         }
-        console.log(this.player?.isMoving)
         if (this.controls?.wasSpaceKeyPressed() && !this.player?.isMoving) {
             this.handlePlayerObjectInteractions();
         }
@@ -154,7 +153,6 @@ export default class StarterScene extends Phaser.Scene {
 
     handlePlayerObjectInteractions() {
         if (this.dialogUI?.isAnimating) {
-            console.log("EARLY RETURN")
             return;
         }
         const { x, y } = this.player!.sprite;

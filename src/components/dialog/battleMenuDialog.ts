@@ -23,7 +23,6 @@ export class BattleMenuDialog extends BaseDialogBox {
     showDialogModal(messages: string[], autoComplete: boolean = false, callBackFunction?: Function) {
         this.messageQueue.push(...messages); // Enqueue messages instead of replacing
         this.updateVisibility(true);
-        console.log("IN DIALOG COMP: ", messages);
 
         if (!this.isAnimating) { // Start the message display if not already animating
             if (autoComplete) {

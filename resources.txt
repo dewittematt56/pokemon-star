@@ -6,3 +6,7 @@ TRAINER SPRITES: https://archives.bulbagarden.net/wiki/Category:Generation_V_Tra
 POKEMON CRIES/MUSIC: https://downloads.khinsider.com/game-soundtracks/album/pokemon-x-y-cries/010%2520-%2520Kanto%2520-%2520Caterpie.mp3
 
 https://ezgif.com/gif-to-sprite
+
+
+# Experience by pokemon
+https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_effort_value_yield_(Generation_IX)

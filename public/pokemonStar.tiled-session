@@ -21,14 +21,14 @@
         },
         "assets/maps/routes/route_101/route_101.tmx": {
             "expandedObjectLayers": [
-                18,
-                17
+                17,
+                18
             ],
-            "scale": 3,
+            "scale": 1.5,
             "selectedLayer": 5,
             "viewCenter": {
-                "x": 486.66666666666663,
-                "y": 479.8333333333333
+                "x": 513,
+                "y": 368
             }
         },
         "assets/maps/routes/route_101/route_101.tmx#d5xdb0y-7cca5199-9b43-4b0e-9b2f-f4f6787e09eb": {
@@ -73,8 +73,8 @@
     "project": "pokemonStar.tiled-project",
     "property.type": "string",
     "recentFiles": [
-        "assets/maps/towns/breadburg.tmx",
-        "assets/maps/routes/route_101/route_101.tmx"
+        "assets/maps/routes/route_101/route_101.tmx",
+        "assets/maps/towns/breadburg.tmx"
     ],
     "textEdit.monospace": true,
     "tileset.embedInMap": true,

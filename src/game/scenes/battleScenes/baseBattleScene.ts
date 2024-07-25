@@ -174,6 +174,7 @@ export class baseBattleScene extends Phaser.Scene {
             this.opponentBattleBarComponent?.updatePokemonHp(newHp);
             // A Pokemon has fainted
             if(newHp == 0){
+                this.yourPokemon?.calculateExperienceGain(this.opponentPokemon?.baseData.experienceGainedOnDefeat as number, this.opponentPokemon?.level as number, true)
                 let newPokemonIndex = findEligiblePokemonPartyMember(this.opponentPokemonParty!);
                 if(newPokemonIndex == -1){
                     this.exitVictory();

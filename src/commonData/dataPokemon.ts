@@ -42,7 +42,9 @@ export const POKEMON = Object.freeze({
         sounds: {
             cryKey: "TORCHIC_CRY",
             cryPath: "/assets/pokemon/torchic/torchic_cry.mp3"
-        }
+        },
+        experienceGainedOnDefeat: 62,
+        experienceGainRate: "MEDIUM_FAST"
     },
     "BULBASAUR": {
         name: "Bulbasaur",
@@ -87,7 +89,9 @@ export const POKEMON = Object.freeze({
         sounds: {
             cryKey: "BULBASAUR_CRY",
             cryPath: "/assets/pokemon/bulbasaur/bulbasaur_cry.mp3"
-        }
+        },
+        experienceGainedOnDefeat: 64,
+        experienceGainRate: "MEDIUM_FAST"
     },
     "POOCHYENA": {
         name: "Poochyena",
@@ -132,6 +136,8 @@ export const POKEMON = Object.freeze({
         sounds: {
             cryKey: "POOCHYENA_CRY",
             cryPath: "/assets/pokemon/poochyena/poochyena_cry.mp3"
-        }
+        },
+        experienceGainedOnDefeat: 56,
+        experienceGainRate: "MEDIUM_FAST"
     }
 })
